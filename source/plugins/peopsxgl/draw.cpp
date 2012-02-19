@@ -76,7 +76,6 @@ using namespace xegpu;
 #define ST_OFFSET          0.5f;
 
 #endif
-#define Xe_SetScissor(...)
 ////////////////////////////////////////////////////////////////////////////////////
 // draw globals; most will be initialized again later (by config or checks)
 namespace xegpu {
@@ -131,7 +130,7 @@ namespace xegpu {
 
     int iDepthFunc = 0;
     int iZBufferDepth = 0;
-    GLbitfield uiBufferBits = XE_CLEAR_DS;
+    GLbitfield uiBufferBits = XE_CLEAR_COLOR | XE_CLEAR_DS;
 
 #ifndef _WINDOWS
 #define EqualRect(pr1,pr2) ((pr1)->left==(pr2)->left && (pr1)->top==(pr2)->top && (pr1)->right==(pr2)->right && (pr1)->bottom==(pr2)->bottom)
@@ -441,7 +440,8 @@ int GLinitialize() {
 
     //glScissor(0, 0, iResX, iResY); // init clipping (fullscreen)
     //glEnable(GL_SCISSOR_TEST);
-    Xe_SetScissor(xe, 1, 0, 0, iResX, iResY);
+    gpuRenderer.SetScissor(0, 0, iResX, iResY);
+	gpuRenderer.EnableScissor();
 
 #ifndef OWNSCALE
     /*
@@ -1350,7 +1350,7 @@ void SetOGLDisplaySettings(BOOL DisplaySet) {
         if (bSetClip || !EqualRect(&rC, &rX)) {
             rC = rX;
             //glScissor(rC.left, rC.top, rC.right, rC.bottom);
-            Xe_SetScissor(xe, 1, rC.left, rC.top, rC.right, rC.bottom);
+            gpuRenderer.SetScissor(rC.left, rC.top, rC.right, rC.bottom);
             bSetClip = FALSE;
         }
         return;
@@ -1437,7 +1437,7 @@ void SetOGLDisplaySettings(BOOL DisplaySet) {
 
     if (bSetClip || !EqualRect(&r, &rC)) {
         //glScissor(r.left, r.top, r.right, r.bottom);
-        Xe_SetScissor(xe, 1, rC.left, rC.top, rC.right, rC.bottom);
+        gpuRenderer.SetScissor(r.left, r.top, r.right, r.bottom);
         rC = r;
         bSetClip = FALSE;
     }

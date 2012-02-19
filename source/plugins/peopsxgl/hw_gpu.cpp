@@ -54,7 +54,6 @@ using namespace xegpu;
 static char * pCaptionText = NULL;
 
 #define Xe_Resolve
-#define Xe_SetScissor(...)
 #define Xe_Clear
 
 
@@ -301,6 +300,9 @@ EXTERN long GPUopen(unsigned long * disp, char * CapText, char * CfgFile) {
     bIsFirstFrame = TRUE; // we have to init later (well, no really... in Linux we do all in GPUopen)
 
     gpuRenderer.Init();
+	
+    iResX = gpuRenderer.GetFramebufferWidth();
+    iResY = gpuRenderer.GetFramebufferHeight();
 
     InitializeTextureStore(); // init texture mem
 
@@ -546,8 +548,8 @@ void updateDisplay(void) // UPDATE DISPLAY
             // glDisable(GL_SCISSOR_TEST);
             // glClear(GL_DEPTH_BUFFER_BIT);
             // glEnable(GL_SCISSOR_TEST);
-            gpuRenderer.DisableScissor();
-            gpuRenderer.Clear(uiBufferBits);
+			gpuRenderer.DisableScissor();
+            gpuRenderer.Clear(XE_CLEAR_DS);
             gpuRenderer.EnableScissor();
         }
     }
@@ -749,11 +751,11 @@ void SetAspectRatio(void) {
             rC.right = r.left;
             rC.bottom = iResY;
             //glScissor(rC.left, rC.top, rC.right, rC.bottom);
-            Xe_SetScissor(xe, 1, rC.left, rC.top, rC.right, rC.bottom);
+            gpuRenderer.SetScissor(rC.left, rC.top, rC.right, rC.bottom);
             gpuRenderer.Clear(uiBufferBits);
             rC.left = iResX - rC.right;
             //glScissor(rC.left, rC.top, rC.right, rC.bottom);
-            Xe_SetScissor(xe, 1, rC.left, rC.top, rC.right, rC.bottom);
+            gpuRenderer.SetScissor(rC.left, rC.top, rC.right, rC.bottom);
             gpuRenderer.Clear(uiBufferBits);
         }
 
@@ -763,11 +765,11 @@ void SetAspectRatio(void) {
             rC.right = iResX;
             rC.bottom = r.top;
             //glScissor(rC.left, rC.top, rC.right, rC.bottom);
-            Xe_SetScissor(xe, 1, rC.left, rC.top, rC.right, rC.bottom);
+            gpuRenderer.SetScissor(rC.left, rC.top, rC.right, rC.bottom);
             gpuRenderer.Clear(uiBufferBits);
             rC.top = iResY - rC.bottom;
             //glScissor(rC.left, rC.top, rC.right, rC.bottom);
-            Xe_SetScissor(xe, 1, rC.left, rC.top, rC.right, rC.bottom);
+            gpuRenderer.SetScissor(rC.left, rC.top, rC.right, rC.bottom);
             gpuRenderer.Clear(uiBufferBits);
         }
 

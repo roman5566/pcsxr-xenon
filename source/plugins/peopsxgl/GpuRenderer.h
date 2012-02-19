@@ -87,6 +87,7 @@ private:
         struct XenosSurface * surface;
         // clear color
         uint32_t clearcolor;
+		uint32_t clear_pending;
         // z / depth
         int32_t z_func;
         uint32_t z_write;
@@ -121,6 +122,12 @@ private:
         uint32_t stencil_ref;
         uint32_t stencil_mask;
         uint32_t stencil_writemask;
+		
+		uint32_t scissor_enable;
+		uint32_t scissor_left;
+		uint32_t scissor_top;
+		uint32_t scissor_right;
+		uint32_t scissor_bottom;
     };
 
     RenderStates m_RenderStates;
@@ -208,6 +215,7 @@ public:
     void DepthFunc(int func);
 
     // scissor
+	void SetScissor(int x, int y, int width, int height);
     void DisableScissor();
     void EnableScissor();
 
@@ -256,6 +264,9 @@ public:
     void SetViewPort(int left, int top, int right, int bottom);
     void SetOrtho(float l, float r, float b, float t, float zn, float zf);
 
+	uint32_t GetFramebufferWidth();
+	uint32_t GetFramebufferHeight();
+	
     // textures
     void DestroyTexture(GpuTex *surf);
     GpuTex * CreateTexture(unsigned int width, unsigned int height, int format);

@@ -1840,6 +1840,7 @@ static void primBlkFill(unsigned char * baseAddr) {
             r = RED(GETLE32(&gpuData[0]));
 
             //glDisable(GL_SCISSOR_TEST);
+			gpuRenderer.DisableScissor();
             gpuRenderer.ClearColor(r, g, b, 255);
             gpuRenderer.Clear(uiBufferBits);
             gl_z = 0.0f;
@@ -1879,6 +1880,7 @@ static void primBlkFill(unsigned char * baseAddr) {
             }
 
             //glEnable(GL_SCISSOR_TEST);
+			gpuRenderer.EnableScissor();
         } else {
             bDrawTextured = FALSE;
             bDrawSmoothShaded = FALSE;
@@ -1888,8 +1890,10 @@ static void primBlkFill(unsigned char * baseAddr) {
             vertex[0].c.a = 0xFF;
             SETCOL(vertex[0]);
             //glDisable(GL_SCISSOR_TEST);
+			gpuRenderer.DisableScissor();
             PRIMdrawQuad(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
             //glEnable(GL_SCISSOR_TEST);
+			gpuRenderer.EnableScissor();
         }
     }
 

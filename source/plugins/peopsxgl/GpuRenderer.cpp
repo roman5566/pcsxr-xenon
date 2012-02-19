@@ -217,18 +217,18 @@ fxaa_vb * BuildVb(fxaa_vb *Rect,int x,int y, int h,int w){
 
         // bottom left
         Rect[1].x = x;
-        Rect[1].y = y - h;
+        Rect[1].y = y - h - 1/gpuRenderer.GetFramebufferHeight();
         Rect[1].u = ScreenUv[UvBottom];
         Rect[1].v = ScreenUv[UvLeft];
 
         // top right
-        Rect[2].x = x + w;
+        Rect[2].x = x + w - 1/gpuRenderer.GetFramebufferWidth();
         Rect[2].y = y;
         Rect[2].u = ScreenUv[UvTop];
         Rect[2].v = ScreenUv[UvRight];
 
         // top right
-        Rect[3].x = x + w;
+        Rect[3].x = x + w - 1/gpuRenderer.GetFramebufferWidth();
         Rect[3].y = y;
         Rect[3].u = ScreenUv[UvTop];
         Rect[3].v = ScreenUv[UvRight];
@@ -343,6 +343,9 @@ void GpuRenderer::UpdatesStates() {
         //        } else {
         //            Xe_SetShader(xe, SHADER_TYPE_PIXEL, g_pPixelShaderG, 0);
         //        }
+		
+		Xe_SetScissor(xe,m_RenderStates.scissor_enable,
+			m_RenderStates.scissor_left,m_RenderStates.scissor_top,m_RenderStates.scissor_right,m_RenderStates.scissor_bottom);
     }
 }
 
@@ -380,6 +383,7 @@ void GpuRenderer::InitStates() {
     m_RenderStates.alpha_test_ref = 0;
 
     m_RenderStates.clearcolor = 0;
+	m_RenderStates.clear_pending = 1;
     m_RenderStates.cullmode = XE_CULL_NONE;
 
     m_RenderStates.fillmode_back = 0;
@@ -398,6 +402,7 @@ void GpuRenderer::InitStates() {
     m_RenderStates.z_func = 0;
     m_RenderStates.z_write = 0;
 
+    m_RenderStates.scissor_enable = 0;
     b_StatesChanged = 1;
 }
 
@@ -502,6 +507,7 @@ void GpuRenderer::DisableTexture() {
 void GpuRenderer::Clear(uint32_t flags) {
     //Xe_Clear(xe, flags);
     // Xe_Resolve(xe);
+	if (flags & XE_CLEAR_COLOR) m_RenderStates.clear_pending=1;
     StatesChanged();
 }
 
@@ -641,12 +647,21 @@ void GpuRenderer::DisableAlphaTest() {
 
 // scissor
 
-void GpuRenderer::DisableScissor() {
-    StatesChanged();
+void GpuRenderer::SetScissor(int x, int y, int width, int height) {
+	m_RenderStates.scissor_left=x;
+	m_RenderStates.scissor_top=GetFramebufferHeight()-(y+height-1);
+	m_RenderStates.scissor_right=x+width-1;
+	m_RenderStates.scissor_bottom=GetFramebufferHeight()-y;
+	StatesChanged();
+}
 
+void GpuRenderer::DisableScissor() {
+	m_RenderStates.scissor_enable=0;
+	StatesChanged();
 };
 
 void GpuRenderer::EnableScissor() {
+	m_RenderStates.scissor_enable=1;
     StatesChanged();
 
 };
@@ -769,6 +784,17 @@ void GpuRenderer::SetViewPort(int left, int top, int right, int bottom) {
     //Xe_SetVertexShaderConstantF(xe, 0, (float*) mwp, 4);
 }
 
+uint32_t GpuRenderer::GetFramebufferWidth()
+{
+	return Xe_GetFramebufferSurface(xe)->width;
+}
+
+uint32_t GpuRenderer::GetFramebufferHeight()
+{
+	return Xe_GetFramebufferSurface(xe)->height;
+}
+
+
 /**
  * Render
  */
@@ -781,8 +807,13 @@ void GpuRenderer::Render() {
     // Resolve in temporary surface
     RenderPostProcess();
 
-    Xe_Resolve(xe);
-    Xe_Sync(xe); // wait for background render to finish !
+	if (m_RenderStates.clear_pending)
+	    Xe_Resolve(xe);
+	else
+		Xe_ResolveInto(xe,Xe_GetFramebufferSurface(xe),XE_SOURCE_COLOR,XE_CLEAR_DS);
+	m_RenderStates.clear_pending=0;
+
+	Xe_Sync(xe); // wait for background render to finish !
 
 
     systemPoll();
