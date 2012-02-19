@@ -129,6 +129,7 @@ int reverb_target;
 
 
 #include <stdio.h>
+#include <cstdlib>
 extern FILE *fp_spu_log;
 
 
@@ -835,6 +836,7 @@ INLINE void OutStoreInterpolationVal(int val_l, int val_r)
 ////////////////////////////////////////////////////////////////////////
 
 #include "xr_xa.cpp"
+#include "spu.h"
 
 ////////////////////////////////////////////////////////////////////////
 // START SOUND... called by main thread to setup a new sound on a channel
@@ -2644,6 +2646,7 @@ void SetupTimer(void)
 #ifdef LIBXENON
                 if(!iUseTimer)																				// linux: use thread
 		{
+			atexit(RemoveTimer);
 			xenon_run_thread_task(3, thread_stack+(3*0x100000), (void*)MAINThread);
 		}
 #else
@@ -2665,7 +2668,7 @@ void SetupTimer(void)
 // REMOVETIMER: kill threads/timers
 ////////////////////////////////////////////////////////////////////////
 
-void RemoveTimer(void)
+extern "C" void RemoveTimer(void)
 {
 	bEndThread=1; 																				// raise flag to end thread
 	
