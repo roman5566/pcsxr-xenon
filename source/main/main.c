@@ -95,16 +95,20 @@ extern PluginTable plugins[];
 //
 //#define cdfile "uda:/R4 - Ridge Racer Type 4 (USA).bin.Z"
 //#define cdfile "uda:/Final Fantasy VII (USA) (Disc 1).bin"
+#define cdfile "uda:/Tekken 3 (USA) (Track 1).bin.Z"
 
+#define cdfile "uda:/CTR - Crash Team Racing (USA).bin.Z"
 #endif
+
 void printConfigInfo() {
 
 }
 
 #ifdef PCSXDF
+
 enum {
-	CPU_DYNAREC = 0,
-	CPU_INTERPRETER
+    CPU_DYNAREC = 0,
+    CPU_INTERPRETER
 };
 #endif
 
@@ -117,82 +121,89 @@ int GetSlowbootGui();
 int GetCpuGui();
 #endif
 
-void buffer_dump(uint8_t * buf, int size){
+void buffer_dump(uint8_t * buf, int size) {
     int i = 0;
     TR;
-    for(i=0;i<size;i++){
-        
-        printf("%02x ",buf[i]);
+    for (i = 0; i < size; i++) {
+
+        printf("%02x ", buf[i]);
     }
     printf("\r\n");
 }
 
 uint8_t * xtaf_buff();
 
-void SetIso(const char * fname){
-    FILE *fd = fopen(fname,"rb");
-    if(fd==NULL){
-        printf("Error loading %s\r\n",fname);
+void SetIso(const char * fname) {
+    FILE *fd = fopen(fname, "rb");
+    if (fd == NULL) {
+        printf("Error loading %s\r\n", fname);
         return;
     }
     uint8_t header[0x10];
-    int n = fread(header,0x10,1,fd);
-    printf("n : %d\r\n",n);
+    int n = fread(header, 0x10, 1, fd);
+    printf("n : %d\r\n", n);
 
-    buffer_dump(header,0x10);
-    
-    if(header[0]==0x78 && header[1]==0xDA){
-        printf("Use CDRCIMG for  %s\r\n",fname);
+    buffer_dump(header, 0x10);
+
+    if (header[0] == 0x78 && header[1] == 0xDA) {
+        printf("Use CDRCIMG for  %s\r\n", fname);
         strcpy(Config.Cdr, "CDRCIMG");
         cdrcimg_set_fname(fname);
-    }
-    else{
+    } else {
         SetIsoFile(fname);
     }
-    
+
     fclose(fd);
 }
 
 #ifndef LZX_GUI
+
 int main() {
-    xenos_init(VIDEO_MODE_AUTO);
-    xenon_make_it_faster(XENON_SPEED_FULL);
     
+    printf("xenos_get_edid():%8x\r\n",xenos_get_edid());
+    
+    //xenos_init(VIDEO_MODE_AUTO);
+    xenos_init(VIDEO_MODE_HDMI_720P);
+    xenon_make_it_faster(XENON_SPEED_FULL);
+
     xenon_sound_init();
     //xenos_init(VIDEO_MODE_YUV_720P);
     //console_init();
     usb_init();
     usb_do_poll();
     
-/*
-xenon_ata_init();
-xenon_atapi_init();
-*/
-    memset(&Config, 0, sizeof (PcsxConfig));
     
+
+    /*
+    xenon_ata_init();
+    xenon_atapi_init();
+     */
+    memset(&Config, 0, sizeof (PcsxConfig));
+
 #else
+
 int pcsxmain(const char * cdfile) {
     static int initialised = 0;
-    if(initialised==0){
+    if (initialised == 0) {
         xenon_make_it_faster(XENON_SPEED_FULL);
         xenon_sound_init();
         initialised++;
     }
-    Xe_SetClearColor(getLzxVideoDevice(),0xff000000);
+    Xe_SetClearColor(getLzxVideoDevice(), 0xff000000);
 #endif
-    
+
     //network_init();
     //network_print_config();
-    
+
     //console_close();
-    
+
     xenon_smc_start_bootanim(); // tell me that telnet or http are ready
-    
+
     // telnet_console_init();
     // mdelay(5000);
-    
+
     //httpd_start();
-    
+
     // uart speed patch 115200 - jtag/freeboot
     // *(volatile uint32_t*)(0xea001000+0x1c) = 0xe6010000;
 
@@ -207,9 +218,9 @@ int pcsxmain(const char * cdfile) {
     //strcpy(Config.Bios, "SCPH1001.BIN"); // Use actual BIOS
     //strcpy(Config.Bios, "HLE"); // Use HLE
     strcpy(Config.BiosDir, "uda:/pcsxr/bios");
-/*
-    strcpy(Config.BiosDir, "sda:/hdd1/xenon/bios");
-*/
+    /*
+        strcpy(Config.BiosDir, "sda:/hdd1/xenon/bios");
+     */
 
     strcpy(Config.Bios, "scph7502.bin");
     Config.PsxOut = 0; // Enable Console Output 
@@ -220,21 +231,25 @@ int pcsxmain(const char * cdfile) {
     Config.PsxAuto = 1; // autodetect system
     //Config.PsxType = PSX_TYPE_NTSC;
     Config.Cpu = CPU_DYNAREC;
-    
+    //Config.Cpu =  CPU_INTERPRETER;
+
 #ifdef LZX_GUI
-    if(useGpuSoft()){
+    if (useGpuSoft()) {
         PluginTable softGpu = GPU_PEOPS_PLUGIN;
         plugins[5] = softGpu;
     }
 #endif
     
+    PluginTable softGpu = GPU_PEOPS_PLUGIN;
+    //plugins[5] = softGpu;
+
     strcpy(Config.Mcd1, "uda:/pcsxr/memcards/card1.mcd");
     strcpy(Config.Mcd2, "uda:/pcsxr/memcards/card2.mcd");
 
-/*
-    strcpy(Config.Mcd1, "sda:/hdd1/xenon/memcards/card1.mcd");
-    strcpy(Config.Mcd2, "sda:/hdd1/xenon/memcards/card2.mcd");
-*/
+    /*
+        strcpy(Config.Mcd1, "sda:/hdd1/xenon/memcards/card1.mcd");
+        strcpy(Config.Mcd2, "sda:/hdd1/xenon/memcards/card2.mcd");
+     */
 
     SetIso(cdfile);
     if (LoadPlugins() == 0) {
@@ -246,18 +261,17 @@ int pcsxmain(const char * cdfile) {
 
             SysReset();
             // Check for hle ...
-            if(Config.HLE ==1){
+            if (Config.HLE == 1) {
                 printf("Can't continue ... bios not found ...\r\n");
 #ifdef LZX_GUI
                 void GuiAlert(const char *message);
                 GuiAlert("Can't continue ... bios not found ...");
 #endif                
-                return -1;
+                //return -1;
             }
 
             int ret = CheckCdrom();
-            if (CheckCdrom() != 0)
-            {
+            if (CheckCdrom() != 0) {
 #ifdef LZX_GUI
                 void GuiAlert(const char *message);
                 GuiAlert("Can't continue ... invalide cd-image detected ...");
@@ -265,8 +279,7 @@ int pcsxmain(const char * cdfile) {
 #endif                  
             }
             ret = LoadCdrom();
-            if (ret != 0)
-            {
+            if (ret != 0) {
 #ifdef LZX_GUI
                 void GuiAlert(const char *message);
                 GuiAlert("Can't continue ... no executable found ...");
@@ -274,7 +287,7 @@ int pcsxmain(const char * cdfile) {
 #endif                  
             }
 #ifndef LZX_GUI
-             //console_close();
+            //console_close();
 #endif
             psxCpu->Execute();
         }
@@ -288,7 +301,6 @@ void cpuReset() {
     EmuReset();
 }
 
-
-void systemPoll(){
+void systemPoll() {
     // network_poll();
 }

@@ -70,7 +70,7 @@ private:
     GpuPS * g_pPixelShaderC;
     GpuPS * g_pPixelShaderF;
     GpuPS * g_pPixelShaderG;
-    
+
     /**
      * Post process 
      */
@@ -87,7 +87,7 @@ private:
         struct XenosSurface * surface;
         // clear color
         uint32_t clearcolor;
-		uint32_t clear_pending;
+        uint32_t clear_pending;
         // z / depth
         int32_t z_func;
         uint32_t z_write;
@@ -101,11 +101,13 @@ private:
         int32_t blend_op;
         int32_t blend_src;
         int32_t blend_dst;
+        int32_t blending_enabled;
 
         // alpha blend
         int32_t alpha_blend_op;
         int32_t alpha_blend_src;
         int32_t alpha_blend_dst;
+        int32_t alpha_blending_enabled;
 
         // cull mode
         uint32_t cullmode;
@@ -122,12 +124,12 @@ private:
         uint32_t stencil_ref;
         uint32_t stencil_mask;
         uint32_t stencil_writemask;
-		
-		uint32_t scissor_enable;
-		uint32_t scissor_left;
-		uint32_t scissor_top;
-		uint32_t scissor_right;
-		uint32_t scissor_bottom;
+
+        uint32_t scissor_enable;
+        uint32_t scissor_left;
+        uint32_t scissor_top;
+        uint32_t scissor_right;
+        uint32_t scissor_bottom;
     };
 
     RenderStates m_RenderStates;
@@ -147,7 +149,7 @@ private:
 
     void InitStates();
     void InitXe();
-    
+
     /**
      * Post process
      */
@@ -159,7 +161,7 @@ private:
     void Lock();
     void Unlock();
 public:
-    
+
 
     /**
      * texture
@@ -167,7 +169,7 @@ public:
     void SetTexture(GpuTex * s);
     void EnableTexture();
     void DisableTexture();
-    
+
     /**
      * 
      */
@@ -215,7 +217,7 @@ public:
     void DepthFunc(int func);
 
     // scissor
-	void SetScissor(int x, int y, int width, int height);
+    void SetScissor(int x, int y, int width, int height);
     void DisableScissor();
     void EnableScissor();
 
@@ -264,14 +266,14 @@ public:
     void SetViewPort(int left, int top, int right, int bottom);
     void SetOrtho(float l, float r, float b, float t, float zn, float zf);
 
-	uint32_t GetFramebufferWidth();
-	uint32_t GetFramebufferHeight();
-	
+    uint32_t GetFramebufferWidth();
+    uint32_t GetFramebufferHeight();
+
     // textures
     void DestroyTexture(GpuTex *surf);
     GpuTex * CreateTexture(unsigned int width, unsigned int height, int format);
     GpuTex * GetFB();
-    
+
     void * TextureLock(GpuTex *surf);
     void TextureUnlock(GpuTex *surf);
 
@@ -281,7 +283,7 @@ public:
             m_RenderStates.surface->use_filtering = filtering_mode;
 #endif
     }
-    
+
     void NextVertice();
     void NextIndice();
 };

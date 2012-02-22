@@ -1220,6 +1220,7 @@ void SetupTimer(void) {
     if (!iUseTimer) // linux: use thread
     {
         //pthread_create(&thread, NULL, MAINThread, NULL);
+        atexit(RemoveTimer);
         xenon_run_thread_task(2, &thread_stack[sizeof (thread_stack) - 0x100], MAINThread);
     }
 #endif

@@ -173,6 +173,8 @@ void SetExtGLFuncs(void) {
     gpuRenderer.SetBlendOp(XE_BLENDOP_ADD);
 
     //iUseExts = bAdvancedBlend = 1;
+    
+    //bAdvancedBlend=1;
 
     //----------------------------------------------------//
     if (iUseExts && bAdvancedBlend) { // advanced blending wanted ?
@@ -207,6 +209,8 @@ void SetExtGLFuncs(void) {
         bSmallAlpha = TRUE;
     else bSmallAlpha = FALSE;
 
+    //bSmallAlpha = FALSE;
+
     if (bOpaquePass) // opaque mode?
     {
         if (dwActFixes & 32) {
@@ -218,15 +222,15 @@ void SetExtGLFuncs(void) {
         }
 
         TCF[1] = XP8RGBA_1;
-        //gpuRenderer.SetAlphaFunc(XE_CMP_GREATER, 0.49f);
-        gpuRenderer.SetAlphaFunc(XE_CMP_LESS, 0.49f);
+        gpuRenderer.SetAlphaFunc(XE_CMP_GREATER, 0.49f);
+        //gpuRenderer.SetAlphaFunc(XE_CMP_LESS, 0.49f);
     } else // no opaque mode?
     {
         TCF[0] = TCF[1] = P8RGBA;
         PalTexturedColourFn = P8RGBA; // -> init col func
         gpuRenderer.SetAlphaFunc(XE_CMP_NOTEQUAL, 0); // --> set alpha func
     }
-
+//gpuRenderer.SetAlphaFunc(XE_CMP_GREATER, 0.60f);
     //----------------------------------------------------//
 
     LoadSubTexFn = LoadSubTexturePageSort; // init load tex ptr
@@ -235,48 +239,6 @@ void SetExtGLFuncs(void) {
 
     switch (iTexQuality) // -> quality:
     {
-            //--------------------------------------------------//
-        case 0: // -> don't care
-            giWantedRGBA = XE_FMT_ARGB;
-            giWantedTYPE = XE_FMT_5551;
-            break;
-            //--------------------------------------------------//
-        case 1: // -> R4G4B4A4
-            if (bGLExt) {
-                giWantedRGBA = XE_FMT_ARGB;
-                giWantedTYPE = XE_FMT_5551;
-                //LoadSubTexFn = LoadPackedSubTexturePageSort;
-                if (bOpaquePass) {
-                    if (dwActFixes & 32) PTCF[0] = CP4RGBA_0;
-                    else PTCF[0] = XP4RGBA_0;
-                    PTCF[1] = XP4RGBA_1;
-                } else {
-                    PTCF[0] = PTCF[1] = P4RGBA;
-                }
-            } else {
-                giWantedRGBA = XE_FMT_ARGB;
-                giWantedTYPE = XE_FMT_5551;
-            }
-            break;
-            //--------------------------------------------------//
-        case 2: // -> R5B5G5A1
-            if (bGLExt) {
-                giWantedRGBA = XE_FMT_ARGB;
-                giWantedTYPE = XE_FMT_5551;
-                //LoadSubTexFn = LoadPackedSubTexturePageSort;
-                if (bOpaquePass) {
-                    if (dwActFixes & 32) PTCF[0] = CP5RGBA_0;
-                    else PTCF[0] = XP5RGBA_0;
-                    PTCF[1] = XP5RGBA_1;
-                } else {
-                    PTCF[0] = PTCF[1] = P5RGBA;
-                }
-            } else {
-                giWantedRGBA = XE_FMT_ARGB;
-                giWantedTYPE = XE_FMT_5551;
-            }
-            break;
-            //--------------------------------------------------//
         case 3: // -> R8G8B8A8
             giWantedRGBA = XE_FMT_ARGB;
             giWantedTYPE = XE_FMT_8888;
@@ -300,61 +262,48 @@ void SetExtGLFuncs(void) {
         case 4: // -> R8G8B8A8
             giWantedRGBA = XE_FMT_BGRA;
             giWantedTYPE = XE_FMT_8888;
+            giWantedFMT = XE_FMT_BGRA;
 
-            if (1) {
-                giWantedFMT = XE_FMT_BGRA;
-
-                if (bOpaquePass) // opaque mode?
-                {
-                    if (bSmallAlpha) {
-                        if (dwActFixes & 32) {
-                            TCF[0] = CP8BGRAEx_0;
-                            PalTexturedColourFn = CP8RGBAEx;
-                        } else {
-                            TCF[0] = XP8BGRAEx_0;
-                            PalTexturedColourFn = XP8RGBAEx;
-                        }
-                        TCF[1] = XP8BGRAEx_1;
-                    } else {
-                        if (dwActFixes & 32) {
-                            TCF[0] = CP8BGRA_0;
-                            PalTexturedColourFn = CP8RGBA;
-                        } else {
-                            TCF[0] = XP8BGRA_0;
-                            PalTexturedColourFn = XP8RGBA;
-                        }
-                        TCF[1] = XP8BGRA_1;
-                    }
-                } else // no opaque mode?
-                {
-                    TCF[0] = TCF[1] = P8BGRA; // -> init col func
-                }
-            } else {
-                iTexQuality = 3;
+            if (bOpaquePass) // opaque mode?
+            {
                 if (bSmallAlpha) {
-                    if (bOpaquePass) // opaque mode?
-                    {
-                        if (dwActFixes & 32) {
-                            TCF[0] = CP8RGBAEx_0;
-                            PalTexturedColourFn = CP8RGBAEx;
-                        } else {
-                            TCF[0] = XP8RGBAEx_0;
-                            PalTexturedColourFn = XP8RGBAEx;
-                        }
-                        TCF[1] = XP8RGBAEx_1;
+                    if (dwActFixes & 32) {
+                        TCF[0] = CP8BGRAEx_0;
+                        PalTexturedColourFn = CP8RGBAEx;
+                    } else {
+                        TCF[0] = XP8BGRAEx_0;
+                        PalTexturedColourFn = XP8RGBAEx;
                     }
+                    TCF[1] = XP8BGRAEx_1;
+                } else {
+                    if (dwActFixes & 32) {
+                        TCF[0] = CP8BGRA_0;
+                        PalTexturedColourFn = CP8RGBA;
+                    } else {
+                        TCF[0] = XP8BGRA_0;
+                        PalTexturedColourFn = XP8RGBA;
+                    }
+                    TCF[1] = XP8BGRA_1;
                 }
+            } else // no opaque mode?
+            {
+                TCF[0] = TCF[1] = P8BGRA; // -> init col func
             }
 
             break;
             //--------------------------------------------------//
     }
+    //TCF[0] = XP8BGRA_0;
+    //TCF[1] = XP8BGRA_1;
 
     bBlendEnable = FALSE; // init blending: off
     gpuRenderer.DisableBlend();
 
 
-    printf("iUseExts = %d;\r\n bAdvancedBlend = %d;\r\nbUseMultiPass=%d\r\nubOpaqueDraw=%d\r\nbSmallAlpha=%d\r\n", iUseExts, bAdvancedBlend, bUseMultiPass, ubOpaqueDraw,bSmallAlpha);
+    printf("TCF 0=> %p\r\nTCF 1=> %p\r\n", TCF[0], TCF[1]);
+    printf("PalTexturedColourFn %p\r\n", PalTexturedColourFn);
+
+    printf("iUseExts = %d;\r\n bAdvancedBlend = %d;\r\nbUseMultiPass=%d\r\nubOpaqueDraw=%d\r\nbSmallAlpha=%d\r\n", iUseExts, bAdvancedBlend, bUseMultiPass, ubOpaqueDraw, bSmallAlpha);
 }
 
 void XeSetExtGLFuncs(void) {
@@ -441,7 +390,7 @@ int GLinitialize() {
     //glScissor(0, 0, iResX, iResY); // init clipping (fullscreen)
     //glEnable(GL_SCISSOR_TEST);
     gpuRenderer.SetScissor(0, 0, iResX, iResY);
-	gpuRenderer.EnableScissor();
+    gpuRenderer.EnableScissor();
 
 #ifndef OWNSCALE
     /*

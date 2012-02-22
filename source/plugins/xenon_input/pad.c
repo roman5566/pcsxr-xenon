@@ -38,31 +38,6 @@ GLOBALDATA g;
 struct controller_data_s old[2];
 int reset_time = 0;
 
-static int lb_b = 0;
-static int rb_b = 0;
-
-void clamp_b(){
-    if(rb_b<0)
-        rb_b=0;
-    
-    if(rb_b>16)
-        rb_b=0;
-    
-    if(lb_b<0)
-        lb_b=0;
-    
-    if(lb_b>16)
-        lb_b=0;
-}
-
-int g_lb(){
-    return lb_b;
-}
-
-int g_rb(){
-    return rb_b;
-}
-
 void PSxInputReadPort(PadDataS* pad, int port) {
     unsigned short pad_status = 0xFFFF;
     int ls_x, ls_y, rs_x, rs_y;
@@ -78,34 +53,18 @@ void PSxInputReadPort(PadDataS* pad, int port) {
         if(old[port].logo){
             reset_time++;
             if(reset_time>50){
-				if (g.PadState[port].JoyDev.select){
-					exit(0);//return to xell
-				}else{
-					enableCapture();
-				}
+                if (g.PadState[port].JoyDev.select){
+                        exit(0);//return to xell
+                }else{
+                        enableCapture();
+                }
             }
         }
         else{
             reset_time = 0;
         }
     }
-
-    if (g.PadState[port].JoyDev.rb && !old[port].rb){
-        lb_b++;
-        clamp_b();
-    }
-    if (g.PadState[port].JoyDev.lb && !old[port].lb){
-        rb_b++;
-        clamp_b();
-    }
-        
-    if (g.PadState[port].JoyDev.select)
-    {
-        printf("rb => %d\r\n",rb_b);
-        printf("lb => %d\r\n",lb_b);
-    }
     
-
     pad->controllerType = g.cfg.PadDef[port].Type; // Standard Pad
 
     if (g.PadState[port].JoyDev.a)

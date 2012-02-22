@@ -50,19 +50,19 @@ namespace xegpu {
 //         4: Extended w/o Sprites - unfiltered 2D
 //         5: Standard + smoothed Sprites
 //         6: Extended + smoothed Sprites      
-        iFilterType = 0;
+        iFilterType = 6;
         
         bDrawDither = FALSE;
         bUseLines = FALSE;
-        bUseFrameLimit = FALSE;//bUseFrameLimit = TRUE;
+        bUseFrameLimit = TRUE;//bUseFrameLimit = TRUE;
         bUseFrameSkip = FALSE;
         iFrameLimit = 2;
         fFrameRate = 200.0f;
         iOffscreenDrawing = 2; //2: Standard - OK for most games
-        bOpaquePass = FALSE;//TRUE
+        bOpaquePass = TRUE;//TRUE
         //bOpaquePass = TRUE;//TRUE
         iTexQuality = 4; // 4 - B8 G8 R8 A8 - Slightly faster with some cards | 3 - R8 G8 B8 A8 - Best colors, more ram needed
-        iUseMask = TRUE;
+        iUseMask =  FALSE;
         iZBufferDepth = 16;
         bUseFastMdec = TRUE;
         dwCfgFixes = 0;
@@ -88,7 +88,7 @@ namespace xegpu {
         iVRamSize = 256;
         iTexGarbageCollection = 1;
         iBlurBuffer = 0;
-        iHiResTextures = 0; //0: None (standard) ,1: 2xSaI (much vram needed) ,2: Stretched (filtering needed)
+        iHiResTextures = 1; //0: None (standard) ,1: 2xSaI (much vram needed) ,2: Stretched (filtering needed)
 
         if (iUseMask) iZBufferDepth = 16; // set zbuffer depth
         else iZBufferDepth = 0;

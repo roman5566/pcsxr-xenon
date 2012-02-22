@@ -105,7 +105,7 @@ __inline void UpdateGlobalTP(unsigned short gdata) {
 
 __inline void SetRenderMode(uint32_t DrawAttributes) {
     DrawSemiTrans = (SEMITRANSBIT(DrawAttributes)) ? TRUE : FALSE;
-
+    static int o_gm1=0;
     if (SHADETEXBIT(DrawAttributes)) {
         g_m1 = g_m2 = g_m3 = 128;
     } else {
@@ -115,6 +115,10 @@ __inline void SetRenderMode(uint32_t DrawAttributes) {
         g_m1 = (short) (DrawAttributes & 0xff);
         g_m2 = (short) ((DrawAttributes >> 8)&0xff);
         g_m3 = (short) ((DrawAttributes >> 16)&0xff);
+    }
+    if(o_gm1!=g_m1){
+    printf("g_m1 = %d | g_m1 = %d | g_m1 = %d\r\n",g_m1,g_m2,g_m3);
+    o_gm1=g_m1;
     }
 }
 

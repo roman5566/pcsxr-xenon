@@ -39,7 +39,16 @@ void DCFlushRange(void* startaddr, unsigned int len) {
 void ICInvalidateRange(void* startaddr, unsigned int len) {
     if (len == 0) return;
     memicbi(startaddr, len);
+}
 
+static void invalidateCache(u32 from, u32 to) {
+    while(from < to) {
+            __asm__ __volatile__("dcbst 0,%0" : : "r" (from));
+            __asm__ __volatile__("icbi 0,%0" : : "r" (from));
+            from += 4;
+    }
+    __asm__ __volatile__("sync");
+    __asm__ __volatile__("isync");
 }
 
 /* variable declarations */
@@ -95,7 +104,7 @@ static int MapRegSpecial(int which);
 static void FlushRegSpecial(int hwreg);
 static int GetHWRegSpecial(int which);
 static int PutHWRegSpecial(int which);
-static void recRecompile();
+void recRecompile();
 static void recError();
 
 // used in debug.c for dynarec free space printing
@@ -741,6 +750,8 @@ static void iJump(u32 branchPC) {
     u32 *b1, *b2;
     branch = 1;
     psxRegs.code = PSXMu32(pc);
+    //psxRegs.code = Read_ICache(pc, TRUE);
+    
     pc += 4;
 
     if (iLoadTest() == 1) {
@@ -820,6 +831,7 @@ static void iBranch(u32 branchPC, int savectx) {
 
     branch = 1;
     psxRegs.code = PSXMu32(pc);
+    //psxRegs.code = Read_ICache(pc, TRUE);
 
     // the delay test is only made when the branch is taken
     // savectx == 0 will mean that :)
@@ -1006,11 +1018,11 @@ static int allocMem() {
     return 0;
 }
 
-static int recInit() {
+int recInit() {
     return allocMem();
 }
 
-static void recReset() {
+void recReset() {
     printf("recReset ..\r\n");
     memset(recRAM, 0, 0x200000);
     memset(recROM, 0, 0x080000);
@@ -1049,15 +1061,15 @@ __inline static void execute() {
     recRun(*recFunc, (u32) & psxRegs, (u32) & psxM);
 }
 
-static void recExecute() {
+void recExecute() {
     while (1) execute();
 }
 
-static void recExecuteBlock() {
+void recExecuteBlock() {
     execute();
 }
 
-static void recClear(u32 Addr, u32 Size) {
+void recClear(u32 Addr, u32 Size) {
     //printf("recClear\r\n");
     memset((void*) PC_REC(Addr), 0, Size * 4);
 }
@@ -2620,7 +2632,8 @@ CP2_FUNCNC(NCCT);
 
 static void recHLE() {
 
-    CALLFunc((u32) psxHLEt[psxRegs.code & 0xffff]);
+    //CALLFunc((u32) psxHLEt[psxRegs.code & 0xffff]);
+    CALLFunc((u32) psxHLEt[psxRegs.code & 0x7f]);
     branch = 2;
     iRet();
 }
@@ -2679,7 +2692,7 @@ static void (*recCP2BSC[32])() = {
     recNULL, recNULL, recNULL, recNULL, recNULL, recNULL, recNULL, recNULL
 };
 
-static void recRecompile() {
+void recRecompile() {
     char *p;
     u32 *ptr;
     int i;
@@ -2750,16 +2763,7 @@ static void recRecompile() {
         iRet();
     }
 
-    u32 a = (u32)(u8*)ptr;
-    while(a < (u32)(u8*)ppcPtr) {
-        __asm__ __volatile__("dcbst 0,%0" : : "r" (a));
-        __asm__ __volatile__("icbi 0,%0" : : "r" (a));
-        __asm__ __volatile__("sync");
-        __asm__ __volatile__("isync");
-        a += 4;
-    }
-   
-
+    invalidateCache((u32)(u8*)ptr, (u32)(u8*)ppcPtr);
     
 #ifdef TAG_CODE
     sprintf((char *) ppcPtr, "PC=%08x", pcold); //causes misalignment

@@ -17,9 +17,9 @@
 C(recRun):
 	/* prologue code */
 	mflr	%r0
-	stmw	%r13, -(32-13)*4(%r1)
-	stw		%r0, 4(%r1)
-	stwu	%r1, -((32-13)*4+8)(%r1)
+	stmw	%r13, -76(%r1)
+	stw	%r0, 4(%r1)
+	stwu	%r1, -84(%r1)
 	
 	/* execute code */
 	mtctr	%r3
@@ -35,10 +35,10 @@ asm void returnPC()
         .globl  C(returnPC)
 C(returnPC):
 	// end code
-	lwz		%r0, (32-13)*4+8+4(%r1)
-	addi	%r1, %r1, (32-13)*4+8
+	lwz	%r0, 88(%r1)
+	addi	%r1, %r1, 84
 	mtlr	%r0
-	lmw		%r13, -(32-13)*4(%r1)
+	lmw	%r13, -76(%r1)
 	blr
 //}*/
 

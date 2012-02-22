@@ -119,6 +119,7 @@ unsigned long SoundGetBytesBuffered(void) {
     }
     
     return size;
+    //return  xenon_sound_get_unplayed();
 }
 
 /*

@@ -2474,6 +2474,7 @@ extern "C" void CALLBACK SPUplayCDDAchannel(short *pcm, int nbytes) {
 ////////////////////////////////////////////////////////////////////////
 
 unsigned long CDDABuffer[44100 * 4 * 10];
+void RemoveTimer(void);
 
 void SetupTimer(void) {
     memset(SSumR, 0, NSSIZE * sizeof (int)); // init some mixing buffers
@@ -2498,6 +2499,7 @@ void SetupTimer(void) {
     if (!iUseTimer) // linux: use thread
     {
         //pthread_create(&thread, NULL, MAINThread, NULL);
+        atexit(RemoveTimer);
         xenon_run_thread_task(2, &thread_stack[sizeof (thread_stack) - 0x100], (void*)MAINThread);
     }
 #else	

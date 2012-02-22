@@ -432,9 +432,11 @@ __inline void GetTextureTransColG(unsigned short * __restrict  pdest, unsigned s
             unsigned short d;
             d = (GETLE16(pdest)&0x7bde) >> 1;
             color = ((color) &0x7bde) >> 1;
+/*
             r = (XCOL1(d))+((((XCOL1(color))) * g_m1) >> 7);
             b = (XCOL2(d))+((((XCOL2(color))) * g_m2) >> 7);
             g = (XCOL3(d))+((((XCOL3(color))) * g_m3) >> 7);
+*/
 
             /*
                  r=(XCOL1(*pdest)>>1)+((((XCOL1(color))>>1)* g_m1)>>7);
@@ -443,22 +445,28 @@ __inline void GetTextureTransColG(unsigned short * __restrict  pdest, unsigned s
              */
         } else
             if (GlobalTextABR == 1) {
+/*
             r = (XCOL1(GETLE16(pdest)))+((((XCOL1(color))) * g_m1) >> 7);
             b = (XCOL2(GETLE16(pdest)))+((((XCOL2(color))) * g_m2) >> 7);
             g = (XCOL3(GETLE16(pdest)))+((((XCOL3(color))) * g_m3) >> 7);
+*/
         } else
             if (GlobalTextABR == 2) {
+/*
             r = (XCOL1(GETLE16(pdest)))-((((XCOL1(color))) * g_m1) >> 7);
             b = (XCOL2(GETLE16(pdest)))-((((XCOL2(color))) * g_m2) >> 7);
             g = (XCOL3(GETLE16(pdest)))-((((XCOL3(color))) * g_m3) >> 7);
+*/
             if (r & 0x80000000) r = 0;
             if (b & 0x80000000) b = 0;
             if (g & 0x80000000) g = 0;
         } else {
 #ifdef HALFBRIGHTMODE3
+/*
             r = (XCOL1(GETLE16(pdest)))+((((XCOL1(color)) >> 2) * g_m1) >> 7);
             b = (XCOL2(GETLE16(pdest)))+((((XCOL2(color)) >> 2) * g_m2) >> 7);
             g = (XCOL3(GETLE16(pdest)))+((((XCOL3(color)) >> 2) * g_m3) >> 7);
+*/
 #else
             r = (XCOL1(GETLE16(pdest)))+((((XCOL1(color)) >> 1) * g_m1) >> 7);
             b = (XCOL2(GETLE16(pdest)))+((((XCOL2(color)) >> 1) * g_m2) >> 7);
@@ -466,9 +474,11 @@ __inline void GetTextureTransColG(unsigned short * __restrict  pdest, unsigned s
 #endif
         }
     } else {
+/*
         r = ((XCOL1(color)) * g_m1) >> 7;
         b = ((XCOL2(color)) * g_m2) >> 7;
         g = ((XCOL3(color)) * g_m3) >> 7;
+*/
     }
 
     if (r & 0x7FFFFFE0) r = 0x1f;
@@ -488,9 +498,11 @@ __inline void GetTextureTransColG_S(unsigned short * __restrict  pdest, unsigned
 
     l = sSetMask | (color & 0x8000);
 
+/*
     r = ((XCOL1(color)) * g_m1) >> 7;
     b = ((XCOL2(color)) * g_m2) >> 7;
     g = ((XCOL3(color)) * g_m3) >> 7;
+*/
 
     if (r & 0x7FFFFFE0) r = 0x1f;
     if (b & 0x7FFFFC00) b = 0x3e0;
@@ -517,9 +529,11 @@ __inline void GetTextureTransColG_SPR(unsigned short * __restrict  pdest, unsign
             unsigned short d;
             d = (GETLE16(pdest)&0x7bde) >> 1;
             color = ((color) &0x7bde) >> 1;
+/*
             r = (XCOL1(d))+((((XCOL1(color))) * g_m1) >> 7);
             b = (XCOL2(d))+((((XCOL2(color))) * g_m2) >> 7);
             g = (XCOL3(d))+((((XCOL3(color))) * g_m3) >> 7);
+*/
 
             /*
                  r=(XCOL1(*pdest)>>1)+((((XCOL1(color))>>1)* g_m1)>>7);
@@ -528,22 +542,28 @@ __inline void GetTextureTransColG_SPR(unsigned short * __restrict  pdest, unsign
              */
         } else
             if (GlobalTextABR == 1) {
+/*
             r = (XCOL1(GETLE16(pdest)))+((((XCOL1(color))) * g_m1) >> 7);
             b = (XCOL2(GETLE16(pdest)))+((((XCOL2(color))) * g_m2) >> 7);
             g = (XCOL3(GETLE16(pdest)))+((((XCOL3(color))) * g_m3) >> 7);
+*/
         } else
             if (GlobalTextABR == 2) {
+/*
             r = (XCOL1(GETLE16(pdest)))-((((XCOL1(color))) * g_m1) >> 7);
             b = (XCOL2(GETLE16(pdest)))-((((XCOL2(color))) * g_m2) >> 7);
             g = (XCOL3(GETLE16(pdest)))-((((XCOL3(color))) * g_m3) >> 7);
+*/
             if (r & 0x80000000) r = 0;
             if (b & 0x80000000) b = 0;
             if (g & 0x80000000) g = 0;
         } else {
 #ifdef HALFBRIGHTMODE3
+/*
             r = (XCOL1(GETLE16(pdest)))+((((XCOL1(color)) >> 2) * g_m1) >> 7);
             b = (XCOL2(GETLE16(pdest)))+((((XCOL2(color)) >> 2) * g_m2) >> 7);
             g = (XCOL3(GETLE16(pdest)))+((((XCOL3(color)) >> 2) * g_m3) >> 7);
+*/
 #else
             r = (XCOL1(GETLE16(pdest)))+((((XCOL1(color)) >> 1) * g_m1) >> 7);
             b = (XCOL2(GETLE16(pdest)))+((((XCOL2(color)) >> 1) * g_m2) >> 7);
@@ -551,9 +571,11 @@ __inline void GetTextureTransColG_SPR(unsigned short * __restrict  pdest, unsign
 #endif
         }
     } else {
+/*
         r = ((XCOL1(color)) * g_m1) >> 7;
         b = ((XCOL2(color)) * g_m2) >> 7;
         g = ((XCOL3(color)) * g_m3) >> 7;
+*/
     }
 
     if (r & 0x7FFFFFE0) r = 0x1f;
@@ -574,14 +596,18 @@ __inline void GetTextureTransColG32(uint32_t * pdest, uint32_t color) {
 
     if (DrawSemiTrans && (color & 0x80008000)) {
         if (GlobalTextABR == 0) {
+/*
             r = ((((X32TCOL1(GETLE32(pdest)))+((X32COL1(color)) * g_m1))&0xFF00FF00) >> 8);
             b = ((((X32TCOL2(GETLE32(pdest)))+((X32COL2(color)) * g_m2))&0xFF00FF00) >> 8);
             g = ((((X32TCOL3(GETLE32(pdest)))+((X32COL3(color)) * g_m3))&0xFF00FF00) >> 8);
+*/
         } else
             if (GlobalTextABR == 1) {
+/*
             r = (X32COL1(GETLE32(pdest)))+(((((X32COL1(color))) * g_m1)&0xFF80FF80) >> 7);
             b = (X32COL2(GETLE32(pdest)))+(((((X32COL2(color))) * g_m2)&0xFF80FF80) >> 7);
             g = (X32COL3(GETLE32(pdest)))+(((((X32COL3(color))) * g_m3)&0xFF80FF80) >> 7);
+*/
         } else
             if (GlobalTextABR == 2) {
             int32_t t;
@@ -607,9 +633,11 @@ __inline void GetTextureTransColG32(uint32_t * pdest, uint32_t color) {
             g |= t;
         } else {
 #ifdef HALFBRIGHTMODE3
+/*
             r = (X32COL1(GETLE32(pdest)))+(((((X32BCOL1(color)) >> 2) * g_m1)&0xFF80FF80) >> 7);
             b = (X32COL2(GETLE32(pdest)))+(((((X32BCOL2(color)) >> 2) * g_m2)&0xFF80FF80) >> 7);
             g = (X32COL3(GETLE32(pdest)))+(((((X32BCOL3(color)) >> 2) * g_m3)&0xFF80FF80) >> 7);
+*/
 #else
             r = (X32COL1(GETLE32(pdest)))+(((((X32ACOL1(color)) >> 1) * g_m1)&0xFF80FF80) >> 7);
             b = (X32COL2(GETLE32(pdest)))+(((((X32ACOL2(color)) >> 1) * g_m2)&0xFF80FF80) >> 7);
@@ -618,20 +646,26 @@ __inline void GetTextureTransColG32(uint32_t * pdest, uint32_t color) {
         }
 
         if (!(color & 0x8000)) {
+/*
             r = (r & 0xffff0000) | ((((X32COL1(color)) * g_m1)&0x0000FF80) >> 7);
             b = (b & 0xffff0000) | ((((X32COL2(color)) * g_m2)&0x0000FF80) >> 7);
             g = (g & 0xffff0000) | ((((X32COL3(color)) * g_m3)&0x0000FF80) >> 7);
+*/
         }
         if (!(color & 0x80000000)) {
+/*
             r = (r & 0xffff) | ((((X32COL1(color)) * g_m1)&0xFF800000) >> 7);
             b = (b & 0xffff) | ((((X32COL2(color)) * g_m2)&0xFF800000) >> 7);
             g = (g & 0xffff) | ((((X32COL3(color)) * g_m3)&0xFF800000) >> 7);
+*/
         }
 
     } else {
+/*
         r = (((X32COL1(color)) * g_m1)&0xFF80FF80) >> 7;
         b = (((X32COL2(color)) * g_m2)&0xFF80FF80) >> 7;
         g = (((X32COL3(color)) * g_m3)&0xFF80FF80) >> 7;
+*/
     }
 
     if (r & 0x7FE00000) r = 0x1f0000 | (r & 0xFFFF);
@@ -673,9 +707,11 @@ __inline void GetTextureTransColG32_S(uint32_t * pdest, uint32_t color) {
 
     if (color == 0) return;
 
+/*
     r = (((X32COL1(color)) * g_m1)&0xFF80FF80) >> 7;
     b = (((X32COL2(color)) * g_m2)&0xFF80FF80) >> 7;
     g = (((X32COL3(color)) * g_m3)&0xFF80FF80) >> 7;
+*/
 
     if (r & 0x7FE00000) r = 0x1f0000 | (r & 0xFFFF);
     if (r & 0x7FE0) r = 0x1f | (r & 0xFFFF0000);
@@ -705,32 +741,42 @@ __inline void GetTextureTransColG32_SPR(uint32_t * pdest, uint32_t color) {
 
     if (DrawSemiTrans && (color & 0x80008000)) {
         if (GlobalTextABR == 0) {
+/*
             r = ((((X32TCOL1(GETLE32(pdest)))+((X32COL1(color)) * g_m1))&0xFF00FF00) >> 8);
             b = ((((X32TCOL2(GETLE32(pdest)))+((X32COL2(color)) * g_m2))&0xFF00FF00) >> 8);
             g = ((((X32TCOL3(GETLE32(pdest)))+((X32COL3(color)) * g_m3))&0xFF00FF00) >> 8);
+*/
         } else
             if (GlobalTextABR == 1) {
+/*
             r = (X32COL1(GETLE32(pdest)))+(((((X32COL1(color))) * g_m1)&0xFF80FF80) >> 7);
             b = (X32COL2(GETLE32(pdest)))+(((((X32COL2(color))) * g_m2)&0xFF80FF80) >> 7);
             g = (X32COL3(GETLE32(pdest)))+(((((X32COL3(color))) * g_m3)&0xFF80FF80) >> 7);
+*/
         } else
             if (GlobalTextABR == 2) {
             int32_t t;
+/*
             r = (((((X32COL1(color))) * g_m1)&0xFF80FF80) >> 7);
+*/
             t = (GETLE32(pdest)&0x001f0000)-(r & 0x003f0000);
             if (t & 0x80000000) t = 0;
             r = (GETLE32(pdest)&0x0000001f)-(r & 0x0000003f);
             if (r & 0x80000000) r = 0;
             r |= t;
 
+/*
             b = (((((X32COL2(color))) * g_m2)&0xFF80FF80) >> 7);
+*/
             t = ((GETLE32(pdest) >> 5)&0x001f0000)-(b & 0x003f0000);
             if (t & 0x80000000) t = 0;
             b = ((GETLE32(pdest) >> 5)&0x0000001f)-(b & 0x0000003f);
             if (b & 0x80000000) b = 0;
             b |= t;
 
+/*
             g = (((((X32COL3(color))) * g_m3)&0xFF80FF80) >> 7);
+*/
             t = ((GETLE32(pdest) >> 10)&0x001f0000)-(g & 0x003f0000);
             if (t & 0x80000000) t = 0;
             g = ((GETLE32(pdest) >> 10)&0x0000001f)-(g & 0x0000003f);
@@ -738,31 +784,41 @@ __inline void GetTextureTransColG32_SPR(uint32_t * pdest, uint32_t color) {
             g |= t;
         } else {
 #ifdef HALFBRIGHTMODE3
+/*
             r = (X32COL1(GETLE32(pdest)))+(((((X32BCOL1(color)) >> 2) * g_m1)&0xFF80FF80) >> 7);
             b = (X32COL2(GETLE32(pdest)))+(((((X32BCOL2(color)) >> 2) * g_m2)&0xFF80FF80) >> 7);
             g = (X32COL3(GETLE32(pdest)))+(((((X32BCOL3(color)) >> 2) * g_m3)&0xFF80FF80) >> 7);
+*/
 #else
+/*
             r = (X32COL1(GETLE32(pdest)))+(((((X32ACOL1(color)) >> 1) * g_m1)&0xFF80FF80) >> 7);
             b = (X32COL2(GETLE32(pdest)))+(((((X32ACOL2(color)) >> 1) * g_m2)&0xFF80FF80) >> 7);
             g = (X32COL3(GETLE32(pdest)))+(((((X32ACOL3(color)) >> 1) * g_m3)&0xFF80FF80) >> 7);
+*/
 #endif
         }
 
         if (!(color & 0x8000)) {
+/*
             r = (r & 0xffff0000) | ((((X32COL1(color)) * g_m1)&0x0000FF80) >> 7);
             b = (b & 0xffff0000) | ((((X32COL2(color)) * g_m2)&0x0000FF80) >> 7);
             g = (g & 0xffff0000) | ((((X32COL3(color)) * g_m3)&0x0000FF80) >> 7);
+*/
         }
         if (!(color & 0x80000000)) {
+/*
             r = (r & 0xffff) | ((((X32COL1(color)) * g_m1)&0xFF800000) >> 7);
             b = (b & 0xffff) | ((((X32COL2(color)) * g_m2)&0xFF800000) >> 7);
             g = (g & 0xffff) | ((((X32COL3(color)) * g_m3)&0xFF800000) >> 7);
+*/
         }
 
     } else {
+/*
         r = (((X32COL1(color)) * g_m1)&0xFF80FF80) >> 7;
         b = (((X32COL2(color)) * g_m2)&0xFF80FF80) >> 7;
         g = (((X32COL3(color)) * g_m3)&0xFF80FF80) >> 7;
+*/
     }
 
     if (r & 0x7FE00000) r = 0x1f0000 | (r & 0xFFFF);
@@ -805,9 +861,11 @@ __inline void GetTextureTransColGX_Dither(unsigned short * __restrict  pdest, un
 
     if (bCheckMask && (*pdest & HOST2LE16(0x8000))) return;
 
+/*
     m1 = (((XCOL1D(color))) * m1) >> 4;
     m2 = (((XCOL2D(color))) * m2) >> 4;
     m3 = (((XCOL3D(color))) * m3) >> 4;
+*/
 
     if (DrawSemiTrans && (color & 0x8000)) {
         r = ((XCOL1D(GETLE16(pdest))) << 3);
@@ -873,9 +931,11 @@ __inline void GetTextureTransColGX(unsigned short * __restrict  pdest, unsigned 
             unsigned short d;
             d = (GETLE16(pdest)&0x7bde) >> 1;
             color = ((color) &0x7bde) >> 1;
+/*
             r = (XCOL1(d))+((((XCOL1(color))) * m1) >> 7);
             b = (XCOL2(d))+((((XCOL2(color))) * m2) >> 7);
             g = (XCOL3(d))+((((XCOL3(color))) * m3) >> 7);
+*/
             /*
                  r=(XCOL1(*pdest)>>1)+((((XCOL1(color))>>1)* m1)>>7);
                  b=(XCOL2(*pdest)>>1)+((((XCOL2(color))>>1)* m2)>>7);
@@ -883,22 +943,28 @@ __inline void GetTextureTransColGX(unsigned short * __restrict  pdest, unsigned 
              */
         } else
             if (GlobalTextABR == 1) {
+/*
             r = (XCOL1(GETLE16(pdest)))+((((XCOL1(color))) * m1) >> 7);
             b = (XCOL2(GETLE16(pdest)))+((((XCOL2(color))) * m2) >> 7);
             g = (XCOL3(GETLE16(pdest)))+((((XCOL3(color))) * m3) >> 7);
+*/
         } else
             if (GlobalTextABR == 2) {
+/*
             r = (XCOL1(GETLE16(pdest)))-((((XCOL1(color))) * m1) >> 7);
             b = (XCOL2(GETLE16(pdest)))-((((XCOL2(color))) * m2) >> 7);
             g = (XCOL3(GETLE16(pdest)))-((((XCOL3(color))) * m3) >> 7);
+*/
             if (r & 0x80000000) r = 0;
             if (b & 0x80000000) b = 0;
             if (g & 0x80000000) g = 0;
         } else {
 #ifdef HALFBRIGHTMODE3
+/*
             r = (XCOL1(GETLE16(pdest)))+((((XCOL1(color)) >> 2) * m1) >> 7);
             b = (XCOL2(GETLE16(pdest)))+((((XCOL2(color)) >> 2) * m2) >> 7);
             g = (XCOL3(GETLE16(pdest)))+((((XCOL3(color)) >> 2) * m3) >> 7);
+*/
 #else
             r = (XCOL1(GETLE16(pdest)))+((((XCOL1(color)) >> 1) * m1) >> 7);
             b = (XCOL2(GETLE16(pdest)))+((((XCOL2(color)) >> 1) * m2) >> 7);
@@ -906,9 +972,11 @@ __inline void GetTextureTransColGX(unsigned short * __restrict  pdest, unsigned 
 #endif
         }
     } else {
+/*
         r = ((XCOL1(color)) * m1) >> 7;
         b = ((XCOL2(color)) * m2) >> 7;
         g = ((XCOL3(color)) * m3) >> 7;
+*/
     }
 
     if (r & 0x7FFFFFE0) r = 0x1f;
@@ -925,9 +993,11 @@ __inline void GetTextureTransColGX_S(unsigned short * __restrict  pdest, unsigne
 
     if (color == 0) return;
 
+/*
     r = ((XCOL1(color)) * m1) >> 7;
     b = ((XCOL2(color)) * m2) >> 7;
     g = ((XCOL3(color)) * m3) >> 7;
+*/
 
     if (r & 0x7FFFFFE0) r = 0x1f;
     if (b & 0x7FFFFC00) b = 0x3e0;
@@ -943,9 +1013,11 @@ __inline void GetTextureTransColGX32_S(uint32_t * pdest, uint32_t color, short m
 
     if (color == 0) return;
 
+/*
     r = (((X32COL1(color)) * m1)&0xFF80FF80) >> 7;
     b = (((X32COL2(color)) * m2)&0xFF80FF80) >> 7;
     g = (((X32COL3(color)) * m3)&0xFF80FF80) >> 7;
+*/
 
     if (r & 0x7FE00000) r = 0x1f0000 | (r & 0xFFFF);
     if (r & 0x7FE0) r = 0x1f | (r & 0xFFFF0000);
