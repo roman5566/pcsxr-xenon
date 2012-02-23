@@ -172,9 +172,9 @@ void SetExtGLFuncs(void) {
     //----------------------------------------------------//
     gpuRenderer.SetBlendOp(XE_BLENDOP_ADD);
 
-    //iUseExts = bAdvancedBlend = 1;
+    // iUseExts = bAdvancedBlend = 1;
     
-    //bAdvancedBlend=1;
+    bAdvancedBlend=1;
 
     //----------------------------------------------------//
     if (iUseExts && bAdvancedBlend) { // advanced blending wanted ?
@@ -230,7 +230,7 @@ void SetExtGLFuncs(void) {
         PalTexturedColourFn = P8RGBA; // -> init col func
         gpuRenderer.SetAlphaFunc(XE_CMP_NOTEQUAL, 0); // --> set alpha func
     }
-//gpuRenderer.SetAlphaFunc(XE_CMP_GREATER, 0.60f);
+    //gpuRenderer.SetAlphaFunc(XE_CMP_LESS, 0.01f);
     //----------------------------------------------------//
 
     LoadSubTexFn = LoadSubTexturePageSort; // init load tex ptr

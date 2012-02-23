@@ -59,7 +59,7 @@ namespace xegpu {
         iFrameLimit = 2;
         fFrameRate = 200.0f;
         iOffscreenDrawing = 2; //2: Standard - OK for most games
-        bOpaquePass = TRUE;//TRUE
+        bOpaquePass = FALSE;//TRUE
         //bOpaquePass = TRUE;//TRUE
         iTexQuality = 4; // 4 - B8 G8 R8 A8 - Slightly faster with some cards | 3 - R8 G8 B8 A8 - Best colors, more ram needed
         iUseMask =  FALSE;

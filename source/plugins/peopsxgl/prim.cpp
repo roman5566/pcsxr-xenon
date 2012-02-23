@@ -417,6 +417,7 @@ void dumpABR() {
 static void SetSemiTrans(void) {
     if (!DrawSemiTrans) // no semi trans at all?
     {
+        bBlendEnable=FALSE;
         gpuRenderer.DisableBlend();
         // -> don't wanna blend
         ubGloAlpha = ubGloColAlpha = 255; // -> full alpha
@@ -426,6 +427,7 @@ static void SetSemiTrans(void) {
     ubGloAlpha = ubGloColAlpha = TransSets[GlobalTextABR].alpha;
 
     gpuRenderer.EnableBlend();
+    bBlendEnable=TRUE;
 
     gpuRenderer.SetBlendFunc(TransSets[GlobalTextABR].srcFac, TransSets[GlobalTextABR].dstFac);
     gpuRenderer.SetBlendOp(TransSets[GlobalTextABR].blendop);
@@ -457,7 +459,7 @@ SemiTransParams MultiTexTransSets[4][2] = {
 ////////////////////////////////////////////////////////////////////////
 
 SemiTransParams MultiColTransSets[4] = {
-    {XE_BLEND_SRCALPHA, XE_BLEND_SRCALPHA, 127},
+    {XE_BLEND_INVSRCALPHA, XE_BLEND_SRCALPHA, 127},
     {XE_BLEND_ONE, XE_BLEND_ONE, 255},
     {XE_BLEND_ZERO, XE_BLEND_INVSRCCOLOR, 255},
     {XE_BLEND_SRCALPHA, XE_BLEND_ONE, 127}
@@ -475,6 +477,8 @@ void SetSemiTransMulti(int Pass) {
 
     ubGloAlpha = 255;
     ubGloColAlpha = 255;
+    
+    gpuRenderer.SetBlendOp(XE_BLENDOP_ADD);
 
     // are we enabling SemiTransparent mode?
     if (DrawSemiTrans) {
@@ -501,10 +505,8 @@ void SetSemiTransMulti(int Pass) {
         }
     }
 
-    if (!bBlendEnable) {
-        gpuRenderer.EnableBlend();
-        bBlendEnable = TRUE;
-    } // wanna blend
+    gpuRenderer.EnableBlend();
+    bBlendEnable=TRUE;
 
     gpuRenderer.SetBlendFunc(bm1, bm2);
 }
