@@ -11,6 +11,8 @@ void settings_save();
 void settings_load();
 void settings_apply();
 
+#define S_CHAR_LEN 50
+#define N_ENTRY 10
 
 class settings_entry{
 public:
@@ -18,15 +20,20 @@ public:
         TR;
         count=0;
         val=0;
+        name = new char[S_CHAR_LEN];
+        value = new char *[N_ENTRY];
     }
     settings_entry(const char * n)
     {
         TR;
         count=0;
+        name = new char[S_CHAR_LEN];
+        value = new char *[N_ENTRY];
         strcpy(name,n);
     }
     void getName(char * dest){
         TR;
+        printf("%p - %p\r\n",dest,name);
         strcpy(dest,name);
     }
     const char * getSelectedValueName(){
@@ -39,6 +46,8 @@ public:
         return this;
     }
     settings_entry * addValue(const char * v){
+        value[count] = new char[S_CHAR_LEN];
+        
         strcpy(value[count],v);
         count++;
         return this;
@@ -59,10 +68,10 @@ public:
         return count;
     }
 private:
-    char name[50];
+    char * name;
     int count;
     int val;
-    char value[10][50]; 
+    char ** value; 
 };
 
 class settings{
@@ -93,7 +102,7 @@ private:
     
 };
 
-extern settings c_emu_settings;
+extern settings * c_emu_settings;
 
 #ifdef __cplusplus
 }

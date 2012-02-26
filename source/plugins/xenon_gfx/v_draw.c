@@ -189,6 +189,15 @@ void CreateDisplay(void) {
 
     g_pVideoDevice = getLzxVideoDevice();
 #endif
+    
+#ifndef USE_GUI
+    g_pVideoDevice = &_xe;
+    Xe_Init(g_pVideoDevice);
+#else
+    // g_video.cpp
+    g_pVideoDevice=getVideoDevice();
+#endif    
+    
     fb = Xe_GetFramebufferSurface(g_pVideoDevice);
     Xe_SetRenderTarget(g_pVideoDevice, fb);
 
@@ -226,8 +235,9 @@ void CreateDisplay(void) {
     //g_pVertexShader = Xe_LoadShaderFromMemory(g_pVideoDevice, (void*) draw_v_vsu);
     Xe_InstantiateShader(g_pVideoDevice, g_pVertexShader, 0);
     Xe_ShaderApplyVFetchPatches(g_pVideoDevice, g_pVertexShader, 0, &vbf);
-
+#ifndef USE_GUI
     edram_init(g_pVideoDevice);
+#endif
 
     // Create the psxScreen texture
     if (g_pTexture)

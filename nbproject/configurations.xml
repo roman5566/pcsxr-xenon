@@ -464,6 +464,7 @@
             </incDir>
             <preprocessorList>
               <Elem>LIBXENON</Elem>
+              <Elem>USE_GUI</Elem>
             </preprocessorList>
           </cTool>
           <ccTool>

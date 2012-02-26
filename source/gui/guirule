@@ -1,0 +1,37 @@
+GUI_SRC		:=  source/gui source/gui/fonts source/gui/images source/gui/lang source/gui/libwiigui source/gui/sounds
+GUI_INC         :=  source/gui
+
+PNGFILES        :=      $(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.png)))
+TTFFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.ttf)))
+LANGFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.lang)))
+PNGFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.png)))
+OGGFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.ogg)))
+PCMFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.pcm)))
+
+GUI_OFILES	:=	$(TTFFILES:.ttf=.ttf.o) $(LANGFILES:.lang=.lang.o) \
+                        $(PNGFILES:.png=.png.o) \
+                        $(OGGFILES:.ogg=.ogg.o) $(PCMFILES:.pcm=.pcm.o)
+
+GUI_INCLUDE	:=	-I$(LIBXENON_INC)/freetype2
+
+GUI_LIBS	:=	-lfreetype
+
+%.ttf.o : %.ttf
+	@echo $(notdir $<)
+	$(bin2o)
+
+%.lang.o : %.lang
+	@echo $(notdir $<)
+	$(bin2o)
+
+%.png.o : %.png
+	@echo $(notdir $<)
+	$(bin2o)
+
+%.ogg.o : %.ogg
+	@echo $(notdir $<)
+	$(bin2o)
+
+%.pcm.o : %.pcm
+	@echo $(notdir $<)
+	$(bin2o)

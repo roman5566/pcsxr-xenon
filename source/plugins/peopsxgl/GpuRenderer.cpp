@@ -65,17 +65,9 @@ enum {
 };
 static float ScreenUv[4] = {0.f, 1.0f, 1.0f, 0.f};
 
-#ifdef LZX_GUI
-extern "C" {
-    struct XenosDevice * getLzxVideoDevice();
-}
-#endif
-
 extern "C" {
     void doScreenCapture();
 }
-
-
 
 struct XenosSurface * pPsx = NULL;
 
@@ -418,12 +410,13 @@ extern struct XenosDevice * g_pVideoDevice;
 
 void GpuRenderer::InitXe() {
 
-#ifndef LZX_GUI
+#ifndef USE_GUI
     xe = &_xe;
-
     Xe_Init(xe);
 #else
-    xe = getLzxVideoDevice();
+    // g_video.cpp
+    extern struct XenosDevice * g_pVideoDevice;
+    xe = g_pVideoDevice;
 #endif
 
     g_xe = xe;
@@ -462,7 +455,9 @@ void GpuRenderer::InitXe() {
 
     Xe_ShaderApplyVFetchPatches(xe, g_pVertexShader, 0, &vbf);
 
+#ifndef USE_GUI
     edram_init(xe);
+#endif
 
     for (int i = 0; i < 60; i++) {
         Xe_Resolve(xe);

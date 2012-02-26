@@ -1,4 +1,3 @@
-#if 0
 //#include <ogcsys.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -196,9 +195,9 @@ int WindowPrompt(const char *title, const char *msg, const char *btn1Label, cons
     btn2.SetSoundOver(&btnSoundOver);
     btn2.SetTrigger(&trigA);
     btn2.SetEffectGrow();
-       
+
     promptWindow.Append(&dialogBoxImg);
-       
+
     promptWindow.Append(&titleTxt);
     promptWindow.Append(&msgTxt);
     promptWindow.Append(&btn1);
@@ -208,10 +207,10 @@ int WindowPrompt(const char *title, const char *msg, const char *btn1Label, cons
 
     promptWindow.SetEffect(EFFECT_SLIDE_TOP | EFFECT_SLIDE_IN, 50);
     HaltGui();
-        
+
     mainWindow->SetState(STATE_DISABLED);
     mainWindow->Append(&promptWindow);
-    mainWindow->ChangeFocus(&promptWindow);    
+    mainWindow->ChangeFocus(&promptWindow);
     ResumeGui();
 
     while (choice == -1) {
@@ -234,7 +233,7 @@ int WindowPrompt(const char *title, const char *msg, const char *btn1Label, cons
     HaltGui();
     mainWindow->Remove(&promptWindow);
     mainWindow->SetState(STATE_DEFAULT);
-    
+
     ResumeGui();
 
     HaltGui();
@@ -543,24 +542,24 @@ void systemPoll() {
     old_ctrl = ctrl;
 
     if (pcsxr_exit_asked) {
-        if (WindowPrompt("Exit", "exit to menu", "Ok", "Cancel")) {
+        if (WindowPrompt("Exit", "Exit to menu", "Ok", "Cancel")) {
             pcsxr_running = 0;
             psxCpu->Shutdown();
         }
-        pcsxr_exit_asked=0;
+        pcsxr_exit_asked = 0;
     }
 }
 
-void gui_vsync(){
+void gui_vsync() {
     TH_UGUI();
 }
 
-static int MenuMain(){
+static int MenuMain() {
     int menu = MENU_NONE;
     settings_load();
-    
 
-    GuiText titleTxt(PCSXR_NAME , 28, ColorGrey);
+
+    GuiText titleTxt(PCSXR_NAME, 28, ColorGrey);
     titleTxt.SetAlignment(ALIGN_LEFT, ALIGN_TOP);
     titleTxt.SetPosition(50, 50);
 
@@ -730,8 +729,8 @@ static int MenuMain(){
             about_btn.ResetState();
 
             InfoPrompt(
-                "Genesis plus Xenon ..."
-            );
+                    PCSXR_NAME
+                    );
 
         }
     }
@@ -741,32 +740,37 @@ static int MenuMain(){
     return menu;
 }
 
-static int MenuConfig(){
+static int MenuConfig() {
     int menu = MENU_NONE;
     int ret;
     int i = 0;
     bool firstRun = true;
 
     TR;
-    
+
     //settings_load();
-    
+
     OptionList options;
-    for(i=0;i<c_emu_settings.len();i++){
-        //options[i].name
-        TR;
-        settings_entry * s = c_emu_settings.getEntry(i);
-        s->getName(options.name[i]);
-        TR;
-        strcpy(options.value[i], s->getSelectedValueName());
-        TR;
-    }
-    
-    TR;
-    
+    sprintf(options.name[i++], "Cpu");
+    sprintf(options.name[i++], "Xa Decoding");
+    sprintf(options.name[i++], "Sio Irq");
+    sprintf(options.name[i++], "Black and white movies");
+    sprintf(options.name[i++], "Auto Detect Region");
+    sprintf(options.name[i++], "Cd Audio");
+    sprintf(options.name[i++], "HLE");
+    sprintf(options.name[i++], "Slow Boot");
+    sprintf(options.name[i++], "Debugger");
+    sprintf(options.name[i++], "Console Ouput");
+    sprintf(options.name[i++], "Spu Irq");
+    sprintf(options.name[i++], "Parasite Eve 2, Vandal Hearts 1/2 Fix");
+    sprintf(options.name[i++], "Use network");
+    sprintf(options.name[i++], "InuYasha Sengoku Battle Fix");
     options.length = i;
 
-    GuiText titleTxt("Genesis Plus Xenon - Options", 28, ColorGrey);
+    for (i = 0; i < options.length; i++)
+        options.value[i][0] = 0;
+
+    GuiText titleTxt("PCSXR - Options", 28, ColorGrey);
     titleTxt.SetAlignment(ALIGN_LEFT, ALIGN_TOP);
     titleTxt.SetPosition(50, 50);
 
@@ -794,7 +798,7 @@ static int MenuConfig(){
     GuiOptionBrowser optionBrowser(1080, 496, &options);
     optionBrowser.SetPosition(0, 108);
     optionBrowser.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-    optionBrowser.SetCol2Position(185);
+    optionBrowser.SetCol2Position(500);
 
     HaltGui();
     GuiWindow w(screenwidth, screenheight);
@@ -808,23 +812,120 @@ static int MenuConfig(){
         TH_UGUI();
         usleep(THREAD_SLEEP);
 
-        ret = optionBrowser.GetClickedOption();       
+        ret = optionBrowser.GetClickedOption();
 
-        if (ret >= 0) {
+        switch (ret) {
+            case 0:
+                Config.Cpu++;
+                if (Config.Cpu>CPU_INTERPRETER)
+                    Config.Cpu = 0;
+                break;
+            case 1:
+                Config.Xa++;
+                if (Config.Xa>1)
+                    Config.Xa = 0;
+                break;
+            case 2:
+                Config.Sio++;
+                if (Config.Sio>1)
+                    Config.Sio = 0;
+                break;
+            case 3:
+                Config.Mdec++;
+                if (Config.Mdec>1)
+                    Config.Mdec = 0;
+                break;
+            case 4:
+                Config.PsxAuto++;
+                if (Config.PsxAuto>1)
+                    Config.PsxAuto = 0;
+                break;
+            case 5:
+                Config.Cdda++;
+                if (Config.Cdda>1)
+                    Config.Cdda = 0;
+                break;
+            case 6:
+                Config.HLE++;
+                if (Config.HLE>1)
+                    Config.HLE = 0;
+                break;
+            case 7:
+                Config.SlowBoot++;
+                if (Config.SlowBoot>1)
+                    Config.SlowBoot = 0;
+                break;
+            case 8:
+                Config.Debug++;
+                if (Config.Debug>1)
+                    Config.Debug = 0;
+                break;
+            case 9:
+                Config.PsxOut++;
+                if (Config.PsxOut>1)
+                    Config.PsxOut = 0;
+                break;
+            case 10:
+                Config.SpuIrq++;
+                if (Config.SpuIrq>1)
+                    Config.SpuIrq = 0;
+                break;
+            case 11:
+                Config.RCntFix++;
+                if (Config.RCntFix>1)
+                    Config.RCntFix = 0;
+                break;
+            case 12:
+                Config.UseNet++;
+                if (Config.UseNet>1)
+                    Config.UseNet = 0;
+                break;
+            case 13:
+                Config.VSyncWA++;
+                if (Config.VSyncWA>1)
+                    Config.VSyncWA = 0;
+                break;
+        }
+
+        if (ret >= 0 || firstRun) {
             firstRun = false;
-
-            int v  = c_emu_settings.getEntry(ret)->getValue();
-            c_emu_settings.getEntry(ret)->setValue(v++);
+            int j = 0;
+            if(Config.Cpu)
+                sprintf(options.value[j], "Interpreter");
+            else
+                sprintf(options.value[j], "Dynarec");
             
-            // update strings
-            sprintf(options.value[ret], c_emu_settings.getEntry(ret)->getSelectedValueName());
+#define enabled_disabled(x) j++; \ 
+            if(x) \
+                sprintf(options.value[j], "Enabled"); \
+            else \
+                sprintf(options.value[j], "Disabled"); \
 
-            // Update label
+#define disabled_enabled(x) j++; \ 
+            if(x) \
+                sprintf(options.value[j], "Disabled"); \
+            else \
+                sprintf(options.value[j], "Enabled"); \
+
+            disabled_enabled(Config.Xa);
+            enabled_disabled(Config.Sio);
+            enabled_disabled(Config.Mdec);
+            enabled_disabled(Config.PsxAuto);
+            disabled_enabled(Config.Cdda);
+            enabled_disabled(Config.HLE);
+            enabled_disabled(Config.SlowBoot);
+            enabled_disabled(Config.Debug);
+            enabled_disabled(Config.PsxOut);
+            enabled_disabled(Config.SpuIrq);
+            enabled_disabled(Config.RCntFix);
+            enabled_disabled(Config.UseNet);
+            enabled_disabled(Config.VSyncWA);
+            
             optionBrowser.TriggerUpdate();
         }
 
         if (backBtn.GetState() == STATE_CLICKED) {
-            
+            menu = MENU_MAIN;
         }
 
     }
@@ -835,16 +936,16 @@ static int MenuConfig(){
     return menu;
 }
 
-static int MenuConfigSPU(){
-    
+static int MenuConfigSPU() {
+
 }
 
-static int MenuConfigGPU(){
-    
+static int MenuConfigGPU() {
+
 }
 
-static int MenuSaveStates(){
-    
+static int MenuSaveStates() {
+
 }
 
 static int MenuEmulation() {
@@ -875,7 +976,7 @@ static int MenuEmulation() {
     Config.PsxAuto = 1; // autodetect system
     //Config.PsxType = PSX_TYPE_NTSC;
     Config.Cpu = CPU_DYNAREC;
-    
+
     pcsxr_running = 0;
 
     SetIso(cdfile);
@@ -997,4 +1098,4 @@ int main() {
 
     return 0;
 }
-#endif
+

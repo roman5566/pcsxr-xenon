@@ -17,11 +17,12 @@ MACHDEP =  -DXENON -m32 -mno-altivec -fno-pic  -fno-pic -mpowerpc64 -mhard-float
 #---------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------
 
-#GUI_SRC		:=  source/gui source/gui/fonts source/gui/images source/gui/lang source/gui/libwiigui source/gui/sounds
-#GUI_INC         :=  source/gui
+GUI_SRC		:=  source/gui source/gui/fonts source/gui/images source/gui/lang source/gui/libwiigui source/gui/sounds
+GUI_INC         :=  source/gui
 
-#GUI_INCLUDE	:=	-I$(LIBXENON_INC)/freetype2
-#GUI_LIBS	:=	-lfreetype
+GUI_INCLUDE	:=  -I$(LIBXENON_INC)/freetype2
+GUI_LIBS	:=  -lfreetype
+GUI_FLAGS	:=  -DUSE_GUI
 
 #---------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------
@@ -48,8 +49,7 @@ INCLUDES	:=  shaders include lib/zlib source/libpcsxcore $(GUI_INC)
 # options for code generation
 #---------------------------------------------------------------------------------
 ASFLAGS	= -Wa,$(INCLUDE) -Wa,-a32
-#CFLAGS	= -ffunction-sections -fdata-sections -g -Ofast -fno-tree-vectorize -fno-tree-slp-vectorize -ftree-vectorizer-verbose=1 -Wall $(MACHDEP) $(INCLUDE) -DLOG_STDOUT -DLIBXENON -D__BIG_ENDIAN__ -D__ppc__ -D__powerpc__ -D__POWERPC__ -DELF -D__BIGENDIAN__ -D__PPC__ -D__BIGENDIAN__ -DLZX_GUI
-CFLAGS	= -ffunction-sections -fdata-sections -g -Ofast -fno-tree-vectorize -fno-tree-slp-vectorize -ftree-vectorizer-verbose=1 -Wall $(MACHDEP) $(INCLUDE) -DLOG_STDOUT -DLIBXENON -D__BIG_ENDIAN__ -D__ppc__ -D__powerpc__ -D__POWERPC__ -DELF -D__BIGENDIAN__ -D__PPC__ -D__BIGENDIAN__ 
+CFLAGS	= -ffunction-sections -fdata-sections -g -Ofast -fno-tree-vectorize -fno-tree-slp-vectorize -ftree-vectorizer-verbose=1 -Wall $(MACHDEP) $(INCLUDE) -DLOG_STDOUT -DLIBXENON -D__BIG_ENDIAN__ -D__ppc__ -D__powerpc__ -D__POWERPC__ -DELF -D__BIGENDIAN__ -D__PPC__ -D__BIGENDIAN__ $(GUI_FLAGS)
 
 CXXFLAGS	=	$(CFLAGS)
 

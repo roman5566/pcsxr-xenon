@@ -1,4 +1,4 @@
-#if 1
+#ifndef USE_GUI
 #include "config.h"
 #include "r3000a.h"
 #include "psxcommon.h"
