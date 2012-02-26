@@ -13,11 +13,11 @@
 #include <stdlib.h>
 #include <zlib.h>
 #include <bzlib.h>
-
+#include <byteswap.h>
 #include "cdrcimg.h"
 
-#define SWAP16(v) ((((v) & 0xff00) >> 8) +(((v) & 0xff) << 8))
-#define SWAP32(v) ((((v) & 0xff000000ul) >> 24) + (((v) & 0xff0000ul) >> 8) + (((v) & 0xff00ul)<<8) +(((v) & 0xfful) << 24))
+#define SWAP16(x) bswap_16(x)
+#define SWAP32(x) __builtin_bswap32(x)
 
 #define PFX "cdrcimg: "
 #define err(f, ...) fprintf(stderr, PFX f, ##__VA_ARGS__)

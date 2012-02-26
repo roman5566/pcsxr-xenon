@@ -174,7 +174,7 @@ void SetExtGLFuncs(void) {
 
     // iUseExts = bAdvancedBlend = 1;
     
-    bAdvancedBlend=1;
+   // bAdvancedBlend=1;
 
     //----------------------------------------------------//
     if (iUseExts && bAdvancedBlend) { // advanced blending wanted ?
@@ -293,7 +293,7 @@ void SetExtGLFuncs(void) {
             break;
             //--------------------------------------------------//
     }
-    //TCF[0] = XP8BGRA_0;
+    TCF[0] = P8BGRA;
     //TCF[1] = XP8BGRA_1;
 
     bBlendEnable = FALSE; // init blending: off

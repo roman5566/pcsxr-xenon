@@ -407,7 +407,7 @@ void LoadSubTexturePageSort(int pageid, int mode, short cx, short cy) {
     ta = (uint32_t *) texturepart;
     x1 = dx - 1;
     y1 = dy - 1;
-#if 1
+#if 0
     if (bOpaquePass) {
         if (bSmallAlpha) {
             for (column = 0; column < dy; column++) {
@@ -482,6 +482,7 @@ void LoadSubTexturePageSort(int pageid, int mode, short cx, short cy) {
             }
         }
     } else
+#endif        
         for (column = 0; column < dy; column++) {
             for (row = 0; row < dx; row++) {
                 if (*ta == 0x00000000) {
@@ -507,7 +508,7 @@ void LoadSubTexturePageSort(int pageid, int mode, short cx, short cy) {
                 ta++;
             }
         }
-#endif
+
     DefineSubTextureSort();
 }
 

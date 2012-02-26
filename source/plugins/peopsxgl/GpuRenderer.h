@@ -39,6 +39,8 @@ enum GlExt {
 
 };
 
+void systemPoll();
+
 class GpuRenderer {
 private:
 

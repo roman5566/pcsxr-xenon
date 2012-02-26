@@ -31,6 +31,8 @@
 #include "r3000a.h"
 #include "psxhle.h"
 
+static int cpu_running = 0;
+
 void DCFlushRange(void* startaddr, unsigned int len) {
     if (len == 0) return;
     memdcbf(startaddr, len);
@@ -1019,6 +1021,7 @@ static int allocMem() {
 }
 
 int recInit() {
+    cpu_running=1;
     return allocMem();
 }
 
@@ -1037,6 +1040,7 @@ void recReset() {
 }
 
 static void recShutdown() {
+    cpu_running=0;
     ppcShutdown();
 }
 
@@ -1062,7 +1066,8 @@ __inline static void execute() {
 }
 
 void recExecute() {
-    while (1) execute();
+    while (cpu_running) 
+        execute();
 }
 
 void recExecuteBlock() {

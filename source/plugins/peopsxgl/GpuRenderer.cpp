@@ -73,8 +73,11 @@ extern "C" {
 
 extern "C" {
     void doScreenCapture();
-    void systemPoll(); // main.c
 }
+
+
+
+struct XenosSurface * pPsx = NULL;
 
 static int postprocessenabled = 1;
 static int debug_draw = 0;
@@ -110,6 +113,8 @@ GpuTex * GetFmvSurf() {
     return psxFmvSurf;
 }
 
+void gui_vsync();
+
 /**
  * Slow
  */
@@ -122,7 +127,6 @@ void GpuRenderer::RenderPostProcess() {
         Xe_InvalidateState(xe);
 
         EndPostProcess();
-
         Xe_SetCullMode(xe, XE_CULL_NONE);
 
         // set shaders
@@ -141,7 +145,6 @@ void GpuRenderer::RenderPostProcess() {
         //Xe_Resolve(xe);
         //Xe_Sync(xe); // wait for background render to finish !
         //Xe_InvalidateState(xe);
-
         // restore shader
         Xe_SetShader(xe, SHADER_TYPE_VERTEX, g_pVertexShader, 0);
     }
@@ -268,6 +271,8 @@ void GpuRenderer::InitPostProcess() {
     pPostRenderSurface->use_filtering = 1;
     //Xe_SetRenderTarget(xe, pPostRenderSurface);
 
+    pPsx = pPostRenderSurface;
+
     // create post vb
     float x = -1.0f;
     float y = 1.0f;
@@ -311,12 +316,11 @@ void GpuRenderer::UpdatesStates() {
         }
         Xe_SetTexture(xe, 0, m_RenderStates.surface);
 
-        if(m_RenderStates.blending_enabled){
+        if (m_RenderStates.blending_enabled) {
             Xe_SetSrcBlend(xe, m_RenderStates.blend_src);
             Xe_SetDestBlend(xe, m_RenderStates.blend_dst);
             Xe_SetBlendOp(xe, m_RenderStates.blend_op);
-        }
-        else{
+        } else {
             Xe_SetSrcBlend(xe, XE_BLEND_ONE);
             Xe_SetDestBlend(xe, XE_BLEND_ZERO);
             Xe_SetBlendOp(xe, XE_BLENDOP_ADD);
@@ -410,7 +414,10 @@ void GpuRenderer::InitStates() {
     b_StatesChanged = 1;
 }
 
+extern struct XenosDevice * g_pVideoDevice;
+
 void GpuRenderer::InitXe() {
+
 #ifndef LZX_GUI
     xe = &_xe;
 
@@ -418,6 +425,7 @@ void GpuRenderer::InitXe() {
 #else
     xe = getLzxVideoDevice();
 #endif
+
     g_xe = xe;
     pRenderSurface = Xe_GetFramebufferSurface(xe);
     Xe_SetRenderTarget(xe, pRenderSurface);
@@ -562,14 +570,14 @@ void GpuRenderer::DisableBlend() {
     // set disabled states
     // SetBlendFunc(XE_BLEND_ONE, XE_BLEND_ZERO);
     // SetBlendOp(XE_BLENDOP_ADD);
-   m_RenderStates.blending_enabled=0;
+    m_RenderStates.blending_enabled = 0;
 }
 
 void GpuRenderer::EnableBlend() {
     // restore saved states ...
     // SetBlendFunc(m_RenderStates.blend_src, m_RenderStates.blend_dst);
     // SetBlendOp(m_RenderStates.blend_op);
-    m_RenderStates.blending_enabled=1;
+    m_RenderStates.blending_enabled = 1;
 }
 
 void GpuRenderer::SetBlendFunc(int src, int dst) {
@@ -818,8 +826,7 @@ void GpuRenderer::Render() {
 
     Xe_Sync(xe); // wait for background render to finish !
 
-
-    systemPoll();
+    //gui_vsync();
 
     Xe_InvalidateState(xe);
 

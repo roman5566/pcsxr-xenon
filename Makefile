@@ -7,8 +7,26 @@ ifeq ($(strip $(DEVKITXENON)),)
 $(error "Please set DEVKITXENON in your environment. export DEVKITXENON=<path to>devkitPPC")
 endif
 
+
+
 include $(DEVKITXENON)/rules
+
 MACHDEP =  -DXENON -m32 -mno-altivec -fno-pic  -fno-pic -mpowerpc64 -mhard-float -L$(DEVKITXENON)/xenon/lib/32 -u read -u _start -u exc_base 
+
+#---------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
+
+#GUI_SRC		:=  source/gui source/gui/fonts source/gui/images source/gui/lang source/gui/libwiigui source/gui/sounds
+#GUI_INC         :=  source/gui
+
+#GUI_INCLUDE	:=	-I$(LIBXENON_INC)/freetype2
+#GUI_LIBS	:=	-lfreetype
+
+#---------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
+
 #---------------------------------------------------------------------------------
 # TARGET is the name of the output
 # BUILD is the directory where object files & intermediate files will be placed
@@ -22,9 +40,9 @@ PLUGINS		:=  source/plugins/dfinput source/shaders source/plugins/xenon_input so
 CORE		:=  lib/zlib source/libpcsxcore source/ppcr source/httpd	 # source/libpcsxcore/ppc #source/ppcr	
 #CORE		:=  lib/zlib source/libpcsxcore_df source/ppc
 #LIB		:=  source/fakegl
-SOURCES		:=  source/main  source/main/usb $(PLUGINS) $(CORE)
+SOURCES		:=  source/main  source/main/usb $(PLUGINS) $(CORE) $(GUI_SRC)
 DATA		:=  
-INCLUDES	:=  shaders include lib/zlib source/libpcsxcore
+INCLUDES	:=  shaders include lib/zlib source/libpcsxcore $(GUI_INC)
 
 #---------------------------------------------------------------------------------
 # options for code generation
@@ -41,7 +59,7 @@ LDFLAGS	=	-g $(MACHDEP) -Wl,--gc-sections -Wl,-Map,$(notdir $@).map
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
 #LIBS	:=	-lzlx  -lpng -lbz2  -lxenon -lm -lz
-LIBS	:=	-lpng -lbz2  -lxenon -lm -lz
+LIBS	:=	-lpng -lbz2  -lxenon -lm -lz $(GUI_LIBS)
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
 # include and lib
@@ -76,6 +94,13 @@ sFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.s)))
 SFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.S)))
 BINFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.*)))
 
+PNGFILES        :=      $(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.png)))
+TTFFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.ttf)))
+LANGFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.lang)))
+PNGFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.png)))
+OGGFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.ogg)))
+PCMFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.pcm)))
+
 #---------------------------------------------------------------------------------
 # use CXX for linking C++ projects, CC for standard C
 #---------------------------------------------------------------------------------
@@ -88,6 +113,9 @@ endif
 export OFILES	:=	$(addsuffix .o,$(BINFILES)) \
 					$(sFILES:.s=.o) $(SFILES:.S=.o) \
 					$(CPPFILES:.cpp=.o) $(CFILES:.c=.o) \
+					$(TTFFILES:.ttf=.ttf.o) $(LANGFILES:.lang=.lang.o) \
+					$(PNGFILES:.png=.png.o) \
+					$(OGGFILES:.ogg=.ogg.o) $(PCMFILES:.pcm=.pcm.o)
 					
 
 #---------------------------------------------------------------------------------
@@ -95,6 +123,7 @@ export OFILES	:=	$(addsuffix .o,$(BINFILES)) \
 #---------------------------------------------------------------------------------
 export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
 					$(foreach dir,$(LIBDIRS),-I$(dir)/include) \
+					$(GUI_INCLUDE) \
 					-I$(CURDIR)/$(BUILD) \
 					-I$(LIBXENON_INC)
 
@@ -144,6 +173,22 @@ $(OUTPUT).elf: $(OFILES)
 %.abc.o : %.abc
 	@echo $(notdir $<)
 	@$(bin2o)
+%.ttf.o : %.ttf
+	@echo $(notdir $<)
+	$(bin2o)
+%.lang.o : %.lang
+	@echo $(notdir $<)
+	$(bin2o)
+%.png.o : %.png
+	@echo $(notdir $<)
+	$(bin2o)
+%.ogg.o : %.ogg
+	@echo $(notdir $<)
+	$(bin2o)
+%.pcm.o : %.pcm
+	@echo $(notdir $<)
+	$(bin2o)	
+	
 #---------------------------------------------------------------------------------
 endif
 #---------------------------------------------------------------------------------
@@ -152,3 +197,5 @@ endif
 run: $(BUILD) $(OUTPUT).elf32
 	cp $(OUTPUT).elf32 /var/lib/tftpboot/tftpboot/xenon
 	$(PREFIX)strip /var/lib/tftpboot/tftpboot/xenon
+
+

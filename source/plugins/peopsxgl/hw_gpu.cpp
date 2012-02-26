@@ -939,7 +939,8 @@ static void ShowFPS() {
         frames = 0;
         lastTick = nowTick;
     }
-#endif
+#endif    
+    systemPoll();
 }
 
 EXTERN void CALLBACK GPUupdateLace(void) {
