@@ -54,6 +54,9 @@ extern int iZincEmu;
 char * pConfigFile = NULL;
 
 
+
+#include "../../main/gui.h"
+
 ////////////////////////////////////////////////////////////////////////
 // START EXTERNAL CFG TOOL
 ////////////////////////////////////////////////////////////////////////
@@ -345,5 +348,11 @@ void ReadConfig(void) {
 
     // always enable
     iUseDBufIrq = 1;
+    
+    
+    
+    iXAPitch=SpuConfig.change_xa_speed;
+    iSPUIRQWait=SpuConfig.irq_wait;
+    iUseXA=SpuConfig.enable_xa;
 }
 

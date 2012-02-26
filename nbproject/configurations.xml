@@ -218,6 +218,7 @@
           </df>
           <in>gamecube_plugins.h</in>
           <in>gui.cpp</in>
+          <in>gui.h</in>
           <in>libxenon_miss.c</in>
           <in>main.cpp</in>
           <in>no_debug.c</in>
@@ -228,8 +229,6 @@
           <in>profile.h</in>
           <in>screencapture.c</in>
           <in>screencapture.h</in>
-          <in>settings.cpp</in>
-          <in>settings.h</in>
           <in>sys.c</in>
           <in>x_thread.c</in>
           <in>x_thread.h</in>

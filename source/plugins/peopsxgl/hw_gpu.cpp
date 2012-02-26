@@ -2071,7 +2071,7 @@ EXTERN void CALLBACK GPUvisualVibration(uint32_t iSmall, uint32_t iBig) {
 ////////////////////////////////////////////////////////////////////////
 
 EXTERN void CALLBACK GPUdisplayFlags(uint32_t dwFlags) {
-    dwCoreFlags = dwFlags;
+//    dwCoreFlags = dwFlags;
 }
 
 EXTERN void CALLBACK GPUvBlank(int val) {

@@ -48,8 +48,10 @@
 #include "misc.h"
 #include "gamecube_plugins.h"
 
+#include "gui.h"
 
-#include "settings.h"
+SPU_Config SpuConfig;
+HW_GPU_Config HwGpuConfig;
 
 enum {
     MENU_EXIT = -1,
@@ -64,7 +66,9 @@ enum {
     MENU_BROWSE_DEVICE,
     MENU_GAME_SAVE,
     MENU_GAME_LOAD,
-    MENU_EMULATION
+    MENU_EMULATION,
+    MENU_SPU,
+    MENU_GPU,
 };
 
 
@@ -556,8 +560,6 @@ void gui_vsync() {
 
 static int MenuMain() {
     int menu = MENU_NONE;
-    settings_load();
-
 
     GuiText titleTxt(PCSXR_NAME, 28, ColorGrey);
     titleTxt.SetAlignment(ALIGN_LEFT, ALIGN_TOP);
@@ -675,6 +677,34 @@ static int MenuMain() {
     about_btn.SetTrigger(&trigHome);
     about_btn.SetEffectGrow();
 
+    GuiText configspuBtnTxt("SPU Config", 18, ColorGrey2);
+    configspuBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
+    GuiImage configspuBtnImg(&btnLargeOutline);
+    GuiImage configspuBtnImgOver(&btnLargeOutlineOver);
+    GuiButton configspuBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
+    configspuBtn.SetAlignment(ALIGN_LEFT, ALIGN_TOP);
+    configspuBtn.SetPosition(450, 120);
+    configspuBtn.SetLabel(&configspuBtnTxt);
+    configspuBtn.SetImage(&configspuBtnImg);
+    configspuBtn.SetImageOver(&configspuBtnImgOver);
+    configspuBtn.SetSoundOver(&btnSoundOver);
+    configspuBtn.SetTrigger(&trigA);
+    configspuBtn.SetEffectGrow();
+
+    GuiText configgpuBtnTxt("GPU Config", 18, ColorGrey2);
+    configgpuBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
+    GuiImage configgpuBtnImg(&btnLargeOutline);
+    GuiImage configgpuBtnImgOver(&btnLargeOutlineOver);
+    GuiButton configgpuBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
+    configgpuBtn.SetAlignment(ALIGN_LEFT, ALIGN_TOP);
+    configgpuBtn.SetPosition(800, 120);
+    configgpuBtn.SetLabel(&configgpuBtnTxt);
+    configgpuBtn.SetImage(&configgpuBtnImg);
+    configgpuBtn.SetImageOver(&configgpuBtnImgOver);
+    configgpuBtn.SetSoundOver(&btnSoundOver);
+    configgpuBtn.SetTrigger(&trigA);
+    configgpuBtn.SetEffectGrow();
+
     HaltGui();
     GuiWindow w(screenwidth, screenheight);
     w.Append(&titleTxt);
@@ -684,6 +714,9 @@ static int MenuMain() {
     //    w.Append(&savingBtn);
     // w.Append(&cheatsBtn); // unused
     w.Append(&exitBtn);
+    
+    w.Append(&configgpuBtn);
+    w.Append(&configspuBtn);
 
     mainWindow->Append(&w);
 
@@ -699,8 +732,12 @@ static int MenuMain() {
             menu = MENU_OPTIONS;
         } else if (savingBtn.GetState() == STATE_CLICKED) {
             menu = MENU_SAVE;
-        } else if (cheatsBtn.GetState() == STATE_CLICKED) {
-            menu = MENU_CHEATS;
+        }else if (optionBtn.GetState() == STATE_CLICKED) {
+            menu = MENU_OPTIONS;
+        } else if (configgpuBtn.GetState() == STATE_CLICKED) {
+            menu = MENU_GPU;
+        } else if (configspuBtn.GetState() == STATE_CLICKED) {
+            menu = MENU_SPU;
         } else if (exitBtn.GetState() == STATE_CLICKED) {
 
             exitBtn.ResetState();
@@ -817,72 +854,72 @@ static int MenuConfig() {
         switch (ret) {
             case 0:
                 Config.Cpu++;
-                if (Config.Cpu>CPU_INTERPRETER)
+                if (Config.Cpu > CPU_INTERPRETER)
                     Config.Cpu = 0;
                 break;
             case 1:
                 Config.Xa++;
-                if (Config.Xa>1)
+                if (Config.Xa > 1)
                     Config.Xa = 0;
                 break;
             case 2:
                 Config.Sio++;
-                if (Config.Sio>1)
+                if (Config.Sio > 1)
                     Config.Sio = 0;
                 break;
             case 3:
                 Config.Mdec++;
-                if (Config.Mdec>1)
+                if (Config.Mdec > 1)
                     Config.Mdec = 0;
                 break;
             case 4:
                 Config.PsxAuto++;
-                if (Config.PsxAuto>1)
+                if (Config.PsxAuto > 1)
                     Config.PsxAuto = 0;
                 break;
             case 5:
                 Config.Cdda++;
-                if (Config.Cdda>1)
+                if (Config.Cdda > 1)
                     Config.Cdda = 0;
                 break;
             case 6:
                 Config.HLE++;
-                if (Config.HLE>1)
+                if (Config.HLE > 1)
                     Config.HLE = 0;
                 break;
             case 7:
                 Config.SlowBoot++;
-                if (Config.SlowBoot>1)
+                if (Config.SlowBoot > 1)
                     Config.SlowBoot = 0;
                 break;
             case 8:
                 Config.Debug++;
-                if (Config.Debug>1)
+                if (Config.Debug > 1)
                     Config.Debug = 0;
                 break;
             case 9:
                 Config.PsxOut++;
-                if (Config.PsxOut>1)
+                if (Config.PsxOut > 1)
                     Config.PsxOut = 0;
                 break;
             case 10:
                 Config.SpuIrq++;
-                if (Config.SpuIrq>1)
+                if (Config.SpuIrq > 1)
                     Config.SpuIrq = 0;
                 break;
             case 11:
                 Config.RCntFix++;
-                if (Config.RCntFix>1)
+                if (Config.RCntFix > 1)
                     Config.RCntFix = 0;
                 break;
             case 12:
                 Config.UseNet++;
-                if (Config.UseNet>1)
+                if (Config.UseNet > 1)
                     Config.UseNet = 0;
                 break;
             case 13:
                 Config.VSyncWA++;
-                if (Config.VSyncWA>1)
+                if (Config.VSyncWA > 1)
                     Config.VSyncWA = 0;
                 break;
         }
@@ -890,22 +927,24 @@ static int MenuConfig() {
         if (ret >= 0 || firstRun) {
             firstRun = false;
             int j = 0;
-            if(Config.Cpu)
+            if (Config.Cpu)
                 sprintf(options.value[j], "Interpreter");
             else
                 sprintf(options.value[j], "Dynarec");
-            
+
 #define enabled_disabled(x) j++; \ 
-            if(x) \
+            if (x) \
                 sprintf(options.value[j], "Enabled"); \
             else \
-                sprintf(options.value[j], "Disabled"); \
+                sprintf(options.value[j], "Disabled");
+            \
 
 #define disabled_enabled(x) j++; \ 
-            if(x) \
+            if (x) \
                 sprintf(options.value[j], "Disabled"); \
             else \
-                sprintf(options.value[j], "Enabled"); \
+                sprintf(options.value[j], "Enabled");
+            \
 
             disabled_enabled(Config.Xa);
             enabled_disabled(Config.Sio);
@@ -920,7 +959,7 @@ static int MenuConfig() {
             enabled_disabled(Config.RCntFix);
             enabled_disabled(Config.UseNet);
             enabled_disabled(Config.VSyncWA);
-            
+
             optionBrowser.TriggerUpdate();
         }
 
@@ -937,11 +976,238 @@ static int MenuConfig() {
 }
 
 static int MenuConfigSPU() {
+    int menu = MENU_NONE;
+    int ret;
+    int i = 0;
+    bool firstRun = true;
 
+    TR;
+
+    OptionList options;
+    sprintf(options.name[i++], "XA playing");
+    sprintf(options.name[i++], "Change XA Speed");
+    sprintf(options.name[i++], "IRQ Wait");
+    options.length = i;
+
+    for (i = 0; i < options.length; i++)
+        options.value[i][0] = 0;
+
+    GuiText titleTxt("PCSXR - SPU Options", 28, ColorGrey);
+    titleTxt.SetAlignment(ALIGN_LEFT, ALIGN_TOP);
+    titleTxt.SetPosition(50, 50);
+
+    GuiSound btnSoundOver(button_over_pcm, button_over_pcm_size, SOUND_PCM);
+    GuiImageData btnOutline(xenon_button_png);
+    GuiImageData btnOutlineOver(xenon_button_over_png);
+
+    GuiTrigger trigA;
+    //	trigA.SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A, PAD_BUTTON_A);
+    trigA.SetSimpleTrigger(-1, 0, PAD_BUTTON_A);
+
+    GuiText backBtnTxt("Go Back", 22, ColorGrey2);
+    GuiImage backBtnImg(&btnOutline);
+    GuiImage backBtnImgOver(&btnOutlineOver);
+    GuiButton backBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    backBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
+    backBtn.SetPosition(100, -35);
+    backBtn.SetLabel(&backBtnTxt);
+    backBtn.SetImage(&backBtnImg);
+    backBtn.SetImageOver(&backBtnImgOver);
+    backBtn.SetSoundOver(&btnSoundOver);
+    backBtn.SetTrigger(&trigA);
+    backBtn.SetEffectGrow();
+
+    GuiOptionBrowser optionBrowser(1080, 496, &options);
+    optionBrowser.SetPosition(0, 108);
+    optionBrowser.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
+    optionBrowser.SetCol2Position(500);
+
+    HaltGui();
+    GuiWindow w(screenwidth, screenheight);
+    w.Append(&backBtn);
+    mainWindow->Append(&optionBrowser);
+    mainWindow->Append(&w);
+    mainWindow->Append(&titleTxt);
+    ResumeGui();
+
+    while (menu == MENU_NONE) {
+        TH_UGUI();
+        usleep(THREAD_SLEEP);
+
+        ret = optionBrowser.GetClickedOption();
+
+        switch (ret) {
+            case 0:
+                SpuConfig.enable_xa++;
+                if (SpuConfig.enable_xa > 1)
+                    SpuConfig.enable_xa = 0;
+                break;
+            case 1:
+                SpuConfig.change_xa_speed++;
+                if (SpuConfig.change_xa_speed > 1)
+                    SpuConfig.change_xa_speed = 0;
+                break;
+            case 2:
+                SpuConfig.irq_wait++;
+                if (SpuConfig.irq_wait > 1)
+                    SpuConfig.irq_wait = 0;
+                break;
+        }
+
+        if (ret >= 0 || firstRun) {
+            firstRun = false;
+
+            if (SpuConfig.enable_xa)
+                sprintf(options.value[0], "Enabled");
+            else
+                sprintf(options.value[0], "Disabled");
+
+            if (SpuConfig.change_xa_speed)
+                sprintf(options.value[2], "Enabled");
+            else
+                sprintf(options.value[2], "Disabled");
+
+            if (SpuConfig.irq_wait)
+                sprintf(options.value[2], "Enabled");
+            else
+                sprintf(options.value[2], "Disabled");
+
+
+            optionBrowser.TriggerUpdate();
+        }
+
+        if (backBtn.GetState() == STATE_CLICKED) {
+            menu = MENU_MAIN;
+        }
+
+    }
+    HaltGui();
+    mainWindow->Remove(&optionBrowser);
+    mainWindow->Remove(&w);
+    mainWindow->Remove(&titleTxt);
+    return menu;
 }
 
 static int MenuConfigGPU() {
+    int menu = MENU_NONE;
+    int ret;
+    int i = 0;
+    bool firstRun = true;
 
+    TR;
+
+
+    //settings_load();
+
+    OptionList options;
+    sprintf(options.name[i++], "Fps Limit");
+    sprintf(options.name[i++], "Hi Res texture");
+    sprintf(options.name[i++], "GTE Accuracy");
+    options.length = i;
+
+    for (i = 0; i < options.length; i++)
+        options.value[i][0] = 0;
+
+    GuiText titleTxt("PCSXR - GPU Options", 28, ColorGrey);
+    titleTxt.SetAlignment(ALIGN_LEFT, ALIGN_TOP);
+    titleTxt.SetPosition(50, 50);
+
+    GuiSound btnSoundOver(button_over_pcm, button_over_pcm_size, SOUND_PCM);
+    GuiImageData btnOutline(xenon_button_png);
+    GuiImageData btnOutlineOver(xenon_button_over_png);
+
+    GuiTrigger trigA;
+    //	trigA.SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A, PAD_BUTTON_A);
+    trigA.SetSimpleTrigger(-1, 0, PAD_BUTTON_A);
+
+    GuiText backBtnTxt("Go Back", 22, ColorGrey2);
+    GuiImage backBtnImg(&btnOutline);
+    GuiImage backBtnImgOver(&btnOutlineOver);
+    GuiButton backBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    backBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
+    backBtn.SetPosition(100, -35);
+    backBtn.SetLabel(&backBtnTxt);
+    backBtn.SetImage(&backBtnImg);
+    backBtn.SetImageOver(&backBtnImgOver);
+    backBtn.SetSoundOver(&btnSoundOver);
+    backBtn.SetTrigger(&trigA);
+    backBtn.SetEffectGrow();
+
+    GuiOptionBrowser optionBrowser(1080, 496, &options);
+    optionBrowser.SetPosition(0, 108);
+    optionBrowser.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
+    optionBrowser.SetCol2Position(500);
+
+    HaltGui();
+    GuiWindow w(screenwidth, screenheight);
+    w.Append(&backBtn);
+    mainWindow->Append(&optionBrowser);
+    mainWindow->Append(&w);
+    mainWindow->Append(&titleTxt);
+    ResumeGui();
+
+    while (menu == MENU_NONE) {
+        TH_UGUI();
+        usleep(THREAD_SLEEP);
+
+        ret = optionBrowser.GetClickedOption();
+
+        switch (ret) {
+            case 0:
+                HwGpuConfig.fps_limit++;
+                if (HwGpuConfig.fps_limit > 1)
+                    HwGpuConfig.fps_limit = 0;
+                break;
+            case 1:
+                HwGpuConfig.hires_texture++;
+                if (HwGpuConfig.hires_texture > 3)
+                    HwGpuConfig.hires_texture = 0;
+                break;
+            case 2:
+                HwGpuConfig.gte_accuracy++;
+                if (HwGpuConfig.gte_accuracy > 1)
+                    HwGpuConfig.gte_accuracy = 0;
+                break;
+        }
+
+        if (ret >= 0 || firstRun) {
+            firstRun = false;
+
+            if (HwGpuConfig.fps_limit)
+                sprintf(options.value[0], "On");
+            else
+                sprintf(options.value[0], "Off");
+
+            if (HwGpuConfig.gte_accuracy)
+                sprintf(options.value[2], "On");
+            else
+                sprintf(options.value[2], "Off");
+
+            switch (HwGpuConfig.hires_texture) {
+                case 0:
+                    sprintf(options.value[1], "None");
+                    break;
+                case 1:
+                    sprintf(options.value[1], "2XSaI");
+                    break;
+                case 2:
+                    sprintf(options.value[1], "Stretched");
+                    break;
+            }
+
+            optionBrowser.TriggerUpdate();
+        }
+
+        if (backBtn.GetState() == STATE_CLICKED) {
+            menu = MENU_MAIN;
+        }
+
+    }
+    HaltGui();
+    mainWindow->Remove(&optionBrowser);
+    mainWindow->Remove(&w);
+    mainWindow->Remove(&titleTxt);
+    return menu;
 }
 
 static int MenuSaveStates() {
@@ -1042,6 +1308,12 @@ void MainMenu(int menu) {
             case MENU_OPTIONS:
                 currentMenu = MenuConfig();
                 break;
+            case MENU_SPU:
+                currentMenu = MenuConfigSPU();
+                break;
+            case MENU_GPU:
+                currentMenu = MenuConfigGPU();
+                break;
             case MENU_BROWSE_DEVICE:
                 currentMenu = MenuBrowseDevice();
                 break;
@@ -1093,6 +1365,15 @@ int main() {
 
     // run gui
     InitGUIThreads();
+    
+    SpuConfig.change_xa_speed=1;
+    SpuConfig.enable_xa=1;
+    SpuConfig.irq_wait=1;
+    
+    HwGpuConfig.fps_limit=1;
+    HwGpuConfig.gte_accuracy=1;
+    HwGpuConfig.hires_texture=1;
+    
 
     MainMenu(MENU_MAIN);
 

@@ -30,6 +30,8 @@
 #include "externals.h"
 #include "cfg.h"
 
+#include "../../main/gui.h"
+
 BOOL bGteAccuracy; 
 
 namespace xegpu {
@@ -100,6 +102,12 @@ namespace xegpu {
         bUseFixes = TRUE;
         dwCfgFixes = 0x1;//f7 fixe
         if (bUseFixes) dwActFixes = dwCfgFixes; // init game fix global
+        
+        
+        // apply gui settings
+        bUseFrameLimit=HwGpuConfig.fps_limit;
+        iHiResTextures=HwGpuConfig.hires_texture;
+        bGteAccuracy=HwGpuConfig.gte_accuracy;
     }
 
 }

@@ -374,7 +374,7 @@ void XeSetExtGLFuncs(void) {
     bBlendEnable = FALSE; // init blending: off
     gpuRenderer.DisableBlend();
 
-    SetScanTrans(); // init scan lines (if wanted)
+    //SetScanTrans(); // init scan lines (if wanted)
 }
 
 ////////////////////////////////////////////////////////////////////////
