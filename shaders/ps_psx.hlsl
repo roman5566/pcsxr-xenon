@@ -20,6 +20,8 @@ float4 psG(_IN data): COLOR {
 
     Color = tex2D( tex0, data.uv.xy) * data.col;
 
+	Color.rgb*=2.0f;
+	
     return  Color;
 }
 
@@ -27,7 +29,7 @@ float4 psF(_IN data): COLOR {
     float4 Color;
 
     Color = tex2D( tex0, data.uv.xy);// + data.col;
-	
+	Color.rgb*=2.0f;
     return  Color;
 }
 
@@ -35,7 +37,7 @@ float4 psC(_IN data): COLOR {
     float4 Color;
 
     Color = data.col;
-	
+	//Color.rgb*=2.0f;
     return  Color;
 }
 

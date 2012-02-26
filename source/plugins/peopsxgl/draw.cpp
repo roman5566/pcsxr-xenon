@@ -172,7 +172,7 @@ void SetExtGLFuncs(void) {
     //----------------------------------------------------//
     gpuRenderer.SetBlendOp(XE_BLENDOP_ADD);
 
-    // iUseExts = bAdvancedBlend = 1;
+    iUseExts = bAdvancedBlend = 1;
     
    // bAdvancedBlend=1;
 

@@ -3,6 +3,58 @@
   <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
     <df name="pcsxr-xenon" root="Z:/xenon/share/pcsxr-xenon">
       <df name="build">
+        <in>bg_file_selection_entry_png.h</in>
+        <in>bg_file_selection_png.h</in>
+        <in>bg_options_entry_png.h</in>
+        <in>bg_options_png.h</in>
+        <in>button_click_pcm.h</in>
+        <in>button_gamesave_blank_png.h</in>
+        <in>button_gamesave_over_png.h</in>
+        <in>button_gamesave_png.h</in>
+        <in>button_large_over_png.h</in>
+        <in>button_large_png.h</in>
+        <in>button_over_pcm.h</in>
+        <in>button_over_png.h</in>
+        <in>button_png.h</in>
+        <in>debug_xenon_bg_png.h</in>
+        <in>dialogue_box_png.h</in>
+        <in>en_lang.h</in>
+        <in>folder_png.h</in>
+        <in>font_ttf.h</in>
+        <in>keyboard_key_over_png.h</in>
+        <in>keyboard_key_png.h</in>
+        <in>keyboard_largekey_over_png.h</in>
+        <in>keyboard_largekey_png.h</in>
+        <in>keyboard_mediumkey_over_png.h</in>
+        <in>keyboard_mediumkey_png.h</in>
+        <in>keyboard_textbox_png.h</in>
+        <in>player1_grab_png.h</in>
+        <in>player1_point_png.h</in>
+        <in>player2_grab_png.h</in>
+        <in>player2_point_png.h</in>
+        <in>player3_grab_png.h</in>
+        <in>player3_point_png.h</in>
+        <in>player4_grab_png.h</in>
+        <in>player4_point_png.h</in>
+        <in>scrollbar_arrowdown_over_png.h</in>
+        <in>scrollbar_arrowdown_png.h</in>
+        <in>scrollbar_arrowup_over_png.h</in>
+        <in>scrollbar_arrowup_png.h</in>
+        <in>scrollbar_box_over_png.h</in>
+        <in>scrollbar_box_png.h</in>
+        <in>scrollbar_png.h</in>
+        <in>xenon_bg_file_selection_entry_png.h</in>
+        <in>xenon_bg_png.h</in>
+        <in>xenon_button_large_over_png.h</in>
+        <in>xenon_button_large_png.h</in>
+        <in>xenon_button_over_png.h</in>
+        <in>xenon_button_png.h</in>
+        <in>xenon_filebrowser_png.h</in>
+        <in>xenon_popup_png.h</in>
+        <in>xenon_scrollbar_arrowdown_png.h</in>
+        <in>xenon_scrollbar_arrowup_png.h</in>
+        <in>xenon_scrollbar_box_png.h</in>
+        <in>xenon_scrollbar_png.h</in>
       </df>
       <df name="include">
         <df name="sys">
@@ -35,9 +87,67 @@
         <in>vs.h</in>
       </df>
       <df name="source">
-        <df name="fakegl">
-          <in>fakegl.c</in>
-          <in>fakegl.h</in>
+        <df name="gui">
+          <df name="fonts">
+          </df>
+          <df name="images">
+            <df name="psd">
+            </df>
+          </df>
+          <df name="lang">
+          </df>
+          <df name="libwiigui">
+            <in>gui.h</in>
+            <in>gui_button.cpp</in>
+            <in>gui_element.cpp</in>
+            <in>gui_filebrowser.cpp</in>
+            <in>gui_image.cpp</in>
+            <in>gui_imagedata.cpp</in>
+            <in>gui_keyboard.cpp</in>
+            <in>gui_optionbrowser.cpp</in>
+            <in>gui_savebrowser.cpp</in>
+            <in>gui_sound.cpp</in>
+            <in>gui_text.cpp</in>
+            <in>gui_trigger.cpp</in>
+            <in>gui_window.cpp</in>
+          </df>
+          <df name="shader">
+            <in>ps.c.h</in>
+            <in>ps.t.h</in>
+            <in>ps.tc.h</in>
+            <in>vs.h</in>
+          </df>
+          <df name="sounds">
+          </df>
+          <in>FreeTypeGX.cpp</in>
+          <in>FreeTypeGX.h</in>
+          <in>Vec.h</in>
+          <in>VecMatrix.cpp</in>
+          <in>VecVector.cpp</in>
+          <in>_pnginfo.h</in>
+          <in>demo.h</in>
+          <in>filelist.h</in>
+          <in>g_filebrowser.cpp</in>
+          <in>g_filebrowser.h</in>
+          <in>g_video.cpp</in>
+          <in>g_video.h</in>
+          <in>gettext.cpp</in>
+          <in>gettext.h</in>
+          <in>gui_audio.cpp</in>
+          <in>gui_audio.h</in>
+          <in>gui_debug.h</in>
+          <in>gui_input.cpp</in>
+          <in>gui_oggplayer.c</in>
+          <in>gui_romlist.h</in>
+          <in>gui_screencapture.c</in>
+          <in>gui_utils.cpp</in>
+          <in>gui_wchar.c</in>
+          <in>gui_wchar.h</in>
+          <in>input.h</in>
+          <in>oggplayer.h</in>
+          <in>pngu.c</in>
+          <in>pngu.h</in>
+          <in>w_input.h</in>
         </df>
         <df name="httpd">
           <in>fsdata.c</in>
@@ -109,16 +219,17 @@
           <in>gamecube_plugins.h</in>
           <in>gui.cpp</in>
           <in>libxenon_miss.c</in>
-          <in>main.c</in>
-          <in>menu.h</in>
+          <in>main.cpp</in>
           <in>no_debug.c</in>
           <in>plugin.c</in>
           <in>plugin.h</in>
+          <in>pp.c</in>
           <in>profile.c</in>
           <in>profile.h</in>
           <in>screencapture.c</in>
           <in>screencapture.h</in>
-          <in>spu_import.h</in>
+          <in>settings.cpp</in>
+          <in>settings.h</in>
           <in>sys.c</in>
           <in>x_thread.c</in>
           <in>x_thread.h</in>

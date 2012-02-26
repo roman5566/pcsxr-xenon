@@ -100,7 +100,7 @@ extern PluginTable plugins[];
 //#define cdfile "uda:/Final Fantasy VII (USA) (Disc 1).bin"
 #define cdfile "uda:/Tekken 3 (USA) (Track 1).bin.Z"
 
-#define cdfile "uda:/CTR - Crash Team Racing (USA).bin.Z"
+//#define cdfile "uda:/CTR - Crash Team Racing (USA).bin.Z"
 #endif
 
 void printConfigInfo() {
