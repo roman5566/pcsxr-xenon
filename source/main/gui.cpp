@@ -52,6 +52,8 @@
 
 SPU_Config SpuConfig;
 HW_GPU_Config HwGpuConfig;
+char ROMFilename[1024];
+char foldername[1024];
 
 enum {
     MENU_EXIT = -1,
@@ -60,11 +62,11 @@ enum {
     MENU_OPTIONS,
     MENU_CHEATS,
     MENU_SAVE,
+    MENU_LOAD,
     MENU_SETTINGS,
     MENU_SETTINGS_FILE,
     MENU_IN_GAME,
     MENU_BROWSE_DEVICE,
-    MENU_GAME_SAVE,
     MENU_GAME_LOAD,
     MENU_EMULATION,
     MENU_SPU,
@@ -401,6 +403,87 @@ static void ProgressUpdateCallback(void * e) {
     _this->SetText(progress_str);
 }
 
+void SetIso(const char * fname) {
+    FILE *fd = fopen(fname, "rb");
+    if (fd == NULL) {
+        printf("Error loading %s\r\n", fname);
+        return;
+    }
+    uint8_t header[0x10];
+    int n = fread(header, 0x10, 1, fd);
+
+    if (header[0] == 0x78 && header[1] == 0xDA) {
+        printf("Use CDRCIMG for  %s\r\n", fname);
+        strcpy(Config.Cdr, "CDRCIMG");
+        cdrcimg_set_fname(fname);
+    } else {
+        SetIsoFile(fname);
+    }
+    fclose(fd);
+}
+
+void makeRomName(char * fname, char * dest) {
+    char * end = strrchr(fname, '.');
+    strncpy(dest, fname, end - fname);
+}
+
+static int pcsxr_run(void) {
+    char cdfile[2048];
+
+    sprintf(foldername, "%s/", browser.dir);
+    makeRomName(browserList[browser.selIndex].filename, ROMFilename);
+    sprintf(cdfile, "%s/%s/%s", rootdir, browser.dir, browserList[browser.selIndex].filename);
+
+    printf("ROMFilename : %s\r\n", ROMFilename);
+
+    strcpy(Config.Net, "Disabled");
+    strcpy(Config.Cdr, "CDR");
+    strcpy(Config.Gpu, "GPU");
+    strcpy(Config.Spu, "SPU");
+    strcpy(Config.Pad1, "PAD1");
+    strcpy(Config.Pad2, "PAD2");
+
+    strcpy(Config.BiosDir, "uda:/pcsxr/bios");
+    strcpy(Config.Bios, "scph7502.bin");
+
+    strcpy(Config.Mcd1, "uda:/pcsxr/memcards/card1.mcd");
+    strcpy(Config.Mcd2, "uda:/pcsxr/memcards/card2.mcd");
+
+    pcsxr_running = 0;
+
+    SetIso(cdfile);
+    if (LoadPlugins() == 0) {
+        if (OpenPlugins() == 0) {
+            if (SysInit() == -1) {
+                ErrorPrompt("SysInit() Error!\n");
+                return -1;
+            }
+
+            SysReset();
+            // Check for hle ...
+            if (Config.HLE == 1) {
+                ErrorPrompt("Can't continue ... bios not found ...");
+                return -1;
+            }
+
+            int ret = CheckCdrom();
+            if (CheckCdrom() != 0) {
+                ErrorPrompt("Can't continue ... invalide cd-image detected ...");
+                return -1;
+            }
+            ret = LoadCdrom();
+            if (ret != 0) {
+                ErrorPrompt("Can't continue ... no executable found ...");
+                return -1;
+            }
+            pcsxr_running = 1;
+            return 1;
+        }
+    }
+
+    return -1;
+}
+
 /****************************************************************************
  * MenuBrowseDevice
  ***************************************************************************/
@@ -488,6 +571,8 @@ static int MenuBrowseDevice() {
                     fileBrowser.ResetState();
                     //mainWindow->SetState(STATE_DISABLED);
 
+                    pcsxr_run();
+
                     menu = MENU_EMULATION;
                     //mainWindow->SetState(STATE_DEFAULT);
                 }
@@ -503,24 +588,6 @@ static int MenuBrowseDevice() {
     return menu;
 }
 
-void SetIso(const char * fname) {
-    FILE *fd = fopen(fname, "rb");
-    if (fd == NULL) {
-        printf("Error loading %s\r\n", fname);
-        return;
-    }
-    uint8_t header[0x10];
-    int n = fread(header, 0x10, 1, fd);
-
-    if (header[0] == 0x78 && header[1] == 0xDA) {
-        printf("Use CDRCIMG for  %s\r\n", fname);
-        strcpy(Config.Cdr, "CDRCIMG");
-        cdrcimg_set_fname(fname);
-    } else {
-        SetIsoFile(fname);
-    }
-    fclose(fd);
-}
 
 struct controller_data_s ctrl;
 struct controller_data_s old_ctrl;
@@ -546,11 +613,8 @@ void systemPoll() {
     old_ctrl = ctrl;
 
     if (pcsxr_exit_asked) {
-        if (WindowPrompt("Exit", "Exit to menu", "Ok", "Cancel")) {
-            pcsxr_running = 0;
-            psxCpu->Shutdown();
-        }
         pcsxr_exit_asked = 0;
+        psxCpu->Shutdown();
     }
 }
 
@@ -559,6 +623,8 @@ void gui_vsync() {
 }
 
 static int MenuMain() {
+    pcsxr_running = 0;
+
     int menu = MENU_NONE;
 
     GuiText titleTxt(PCSXR_NAME, 28, ColorGrey);
@@ -714,7 +780,7 @@ static int MenuMain() {
     //    w.Append(&savingBtn);
     // w.Append(&cheatsBtn); // unused
     w.Append(&exitBtn);
-    
+
     w.Append(&configgpuBtn);
     w.Append(&configspuBtn);
 
@@ -732,7 +798,7 @@ static int MenuMain() {
             menu = MENU_OPTIONS;
         } else if (savingBtn.GetState() == STATE_CLICKED) {
             menu = MENU_SAVE;
-        }else if (optionBtn.GetState() == STATE_CLICKED) {
+        } else if (optionBtn.GetState() == STATE_CLICKED) {
             menu = MENU_OPTIONS;
         } else if (configgpuBtn.GetState() == STATE_CLICKED) {
             menu = MENU_GPU;
@@ -932,14 +998,14 @@ static int MenuConfig() {
             else
                 sprintf(options.value[j], "Dynarec");
 
-#define enabled_disabled(x) j++; \ 
+#define enabled_disabled(x) j++; \
             if (x) \
                 sprintf(options.value[j], "Enabled"); \
             else \
                 sprintf(options.value[j], "Disabled");
             \
 
-#define disabled_enabled(x) j++; \ 
+#define disabled_enabled(x) j++; \
             if (x) \
                 sprintf(options.value[j], "Disabled"); \
             else \
@@ -1063,9 +1129,9 @@ static int MenuConfigSPU() {
                 sprintf(options.value[0], "Disabled");
 
             if (SpuConfig.change_xa_speed)
-                sprintf(options.value[2], "Enabled");
+                sprintf(options.value[1], "Enabled");
             else
-                sprintf(options.value[2], "Disabled");
+                sprintf(options.value[1], "Disabled");
 
             if (SpuConfig.irq_wait)
                 sprintf(options.value[2], "Enabled");
@@ -1077,7 +1143,10 @@ static int MenuConfigSPU() {
         }
 
         if (backBtn.GetState() == STATE_CLICKED) {
-            menu = MENU_MAIN;
+            if (pcsxr_running == 0)
+                menu = MENU_MAIN;
+            else
+                menu = MENU_IN_GAME;
         }
 
     }
@@ -1199,7 +1268,10 @@ static int MenuConfigGPU() {
         }
 
         if (backBtn.GetState() == STATE_CLICKED) {
-            menu = MENU_MAIN;
+            if (pcsxr_running == 0)
+                menu = MENU_MAIN;
+            else
+                menu = MENU_IN_GAME;
         }
 
     }
@@ -1210,78 +1282,471 @@ static int MenuConfigGPU() {
     return menu;
 }
 
-static int MenuSaveStates() {
+/****************************************************************************
+ * FindGameSaveNum
+ *
+ * Determines the save file number of the given file name
+ * Returns -1 if none is found
+ ***************************************************************************/
+static int FindGameSaveNum(char * savefile, int device) {
+    printf("savefile => %s\r\n", savefile);
+    int n = -1;
+    int romlen = strlen(ROMFilename);
+    int savelen = strlen(savefile);
 
+    int diff = savelen - romlen;
+
+    if (strncmp(savefile, ROMFilename, romlen) != 0)
+        return -1;
+
+    if (savefile[romlen] == ' ') {
+        if (diff == 5 && strncmp(&savefile[romlen + 1], "Auto", 4) == 0)
+            n = 0; // found Auto save
+        else if (diff == 2 || diff == 3)
+            n = atoi(&savefile[romlen + 1]);
+    }
+
+    if (n >= 0 && n < MAX_SAVES)
+        return n;
+    else
+        return -1;
 }
 
-static int MenuEmulation() {
-    char cdfile[2048];
-    int menu = MENU_BROWSE_DEVICE;
-    sprintf(cdfile, "%s/%s/%s", rootdir, browser.dir, browserList[browser.selIndex].filename);
+static int MenuSaveStates(int action) {
+    int menu = MENU_NONE;
+    int ret;
+    int i, n, type, len, len2;
+    int j = 0;
+    SaveList saves;
+    char filepath[1024];
+    char scrfile[1024];
+    char tmp[MAXJOLIET + 1];
+    struct stat filestat;
+    struct tm * timeinfo;
 
-    memset(&Config, 0, sizeof (PcsxConfig));
+    GuiText titleTxt(NULL, 26, (GXColor) {
+        255, 255, 255, 255
+    });
+    titleTxt.SetAlignment(ALIGN_LEFT, ALIGN_TOP);
+    titleTxt.SetPosition(50, 50);
 
-    strcpy(Config.Net, "Disabled");
-    strcpy(Config.Cdr, "CDR");
-    strcpy(Config.Gpu, "GPU");
-    strcpy(Config.Spu, "SPU");
-    strcpy(Config.Pad1, "PAD1");
-    strcpy(Config.Pad2, "PAD2");
+    if (action == 0)
+        titleTxt.SetText("Load Game");
+    else
+        titleTxt.SetText("Save Game");
 
-    strcpy(Config.BiosDir, "uda:/pcsxr/bios");
-    strcpy(Config.Bios, "scph7502.bin");
+    GuiSound btnSoundOver(button_over_pcm, button_over_pcm_size, SOUND_PCM);
+    GuiSound btnSoundClick(button_click_pcm, button_click_pcm_size, SOUND_PCM);
+    GuiImageData btnOutline(xenon_button_png);
+    GuiImageData btnOutlineOver(xenon_button_over_png);
+    GuiImageData btnCloseOutline(xenon_button_png);
+    GuiImageData btnCloseOutlineOver(xenon_button_over_png);
 
-    strcpy(Config.Mcd1, "uda:/pcsxr/memcards/card1.mcd");
-    strcpy(Config.Mcd2, "uda:/pcsxr/memcards/card2.mcd");
+    GuiTrigger trigHome;
+    trigHome.SetButtonOnlyTrigger(-1, WPAD_BUTTON_HOME | WPAD_CLASSIC_BUTTON_HOME, 0);
+    
+    GuiTrigger trigA;
+    trigA.SetSimpleTrigger(-1, 0, PAD_BUTTON_A);
 
-    Config.PsxOut = 0; // Enable Console Output 
-    Config.SpuIrq = 0; // Spu Irq Always Enabled
-    //Config.HLE = 0; 
-    Config.Xa = 0; // Disable Xa Decoding
-    Config.Cdda = 0; // Disable Cd audio
-    Config.PsxAuto = 1; // autodetect system
-    //Config.PsxType = PSX_TYPE_NTSC;
-    Config.Cpu = CPU_DYNAREC;
+    GuiText backBtnTxt("Go Back", 22, (GXColor) {
+        0, 0, 0, 255
+    });
+    GuiImage backBtnImg(&btnOutline);
+    GuiImage backBtnImgOver(&btnOutlineOver);
+    GuiButton backBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    backBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
+    backBtn.SetPosition(50, -35);
+    backBtn.SetLabel(&backBtnTxt);
+    backBtn.SetImage(&backBtnImg);
+    backBtn.SetImageOver(&backBtnImgOver);
+    backBtn.SetSoundOver(&btnSoundOver);
+    backBtn.SetSoundClick(&btnSoundClick);
+    backBtn.SetTrigger(&trigA);
+    //    backBtn.SetTrigger(trig2);
+    backBtn.SetEffectGrow();
 
-    pcsxr_running = 0;
+    GuiText closeBtnTxt("Close", 20, (GXColor) {
+        0, 0, 0, 255
+    });
+    GuiImage closeBtnImg(&btnCloseOutline);
+    GuiImage closeBtnImgOver(&btnCloseOutlineOver);
+    GuiButton closeBtn(btnCloseOutline.GetWidth(), btnCloseOutline.GetHeight());
+    closeBtn.SetAlignment(ALIGN_RIGHT, ALIGN_TOP);
+    closeBtn.SetPosition(-50, 35);
+    closeBtn.SetLabel(&closeBtnTxt);
+    closeBtn.SetImage(&closeBtnImg);
+    closeBtn.SetImageOver(&closeBtnImgOver);
+    closeBtn.SetSoundOver(&btnSoundOver);
+    closeBtn.SetSoundClick(&btnSoundClick);
+    closeBtn.SetTrigger(&trigA);
+    //    closeBtn.SetTrigger(trig2);
+    closeBtn.SetTrigger(&trigHome);
+    closeBtn.SetEffectGrow();
 
-    SetIso(cdfile);
-    if (LoadPlugins() == 0) {
-        if (OpenPlugins() == 0) {
-            if (SysInit() == -1) {
-                ErrorPrompt("SysInit() Error!\n");
-                return menu;
+    HaltGui();
+    GuiWindow w(screenwidth, screenheight);
+    w.Append(&backBtn);
+    w.Append(&closeBtn);
+    mainWindow->Append(&w);
+    mainWindow->Append(&titleTxt);
+    ResumeGui();
+
+    memset(&saves, 0, sizeof (saves));
+
+    //len = strlen(ROMFilename);
+
+    printf("foldername : %s\r\n", foldername);
+    BrowseDevice(foldername, "uda:/");
+
+    printf("browser.dir : %s\r\n", browser.dir);
+    printf("rootdir : %s\r\n", rootdir);
+
+    for (i = 0; i < browser.numEntries; i++) {
+        len2 = strlen(browserList[i].filename);
+
+        if (len2 < 6 || len2 - len < 5)
+            continue;
+
+        if (strncmp(&browserList[i].filename[len2 - 4], ".srm", 4) == 0) {
+            type = FILE_SRAM;
+        } else if (strncmp(&browserList[i].filename[len2 - 4], ".gpz", 4) == 0) {
+            type = FILE_SNAPSHOT;
+        } else {
+            continue;
+        }
+        
+        printf("found : %s\r\n",browserList[i].filename);
+
+        strcpy(tmp, browserList[i].filename);
+        tmp[len2 - 4] = 0;
+        n = FindGameSaveNum(tmp, 0);
+
+        if (n >= 0) {
+            saves.type[j] = type;
+            saves.files[saves.type[j]][n] = 1;
+            strcpy(saves.filename[j], browserList[i].filename);
+
+            if (saves.type[j] == FILE_SNAPSHOT) {
+                //                sprintf(scrfile, "%s%s/%s.png", pathPrefix[GCSettings.SaveMethod], GCSettings.SaveFolder, tmp);
+                //
+                //                memset(savebuffer, 0, SAVEBUFFERSIZE);
+                //                if (LoadFile(scrfile, SILENT))
+                //                    saves.previewImg[j] = new GuiImageData(savebuffer, 64, 48);
             }
-
-            SysReset();
-            // Check for hle ...
-            if (Config.HLE == 1) {
-                ErrorPrompt("Can't continue ... bios not found ...");
-                return menu;
+            snprintf(filepath, 1024, "uda:/%s/%s", foldername, saves.filename[j]);
+            printf("filepath : %s\r\n", filepath);
+            if (stat(filepath, &filestat) == 0) {
+                timeinfo = localtime(&filestat.st_mtime);
+                //strftime(saves.date[j], 20, "%a %b %d", timeinfo);
+                //strftime(saves.time[j], 10, "%I:%M %p", timeinfo);
             }
-
-            int ret = CheckCdrom();
-            if (CheckCdrom() != 0) {
-                ErrorPrompt("Can't continue ... invalide cd-image detected ...");
-                return menu;
-            }
-            ret = LoadCdrom();
-            if (ret != 0) {
-                ErrorPrompt("Can't continue ... no executable found ...");
-                return menu;
-            }
-            pcsxr_running = 1;
-            psxCpu->Execute();
+            j++;
         }
     }
 
-    return MENU_BROWSE_DEVICE;
+    //    FreeSaveBuffer();
+    saves.length = j;
+
+    if (saves.length == 0 && action == 0) {
+        InfoPrompt("No game saves found.");
+        menu = MENU_IN_GAME;
+    }
+
+    GuiSaveBrowser saveBrowser(552, 248, &saves, action);
+    saveBrowser.SetPosition(0, 108);
+    saveBrowser.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
+
+    HaltGui();
+    mainWindow->Append(&saveBrowser);
+    mainWindow->ChangeFocus(&saveBrowser);
+    ResumeGui();
+
+    while (menu == MENU_NONE) {
+        TH_UGUI();
+        usleep(THREAD_SLEEP);
+
+        ret = saveBrowser.GetClickedSave();
+
+        // load or save game
+        if (ret > -3) {
+            TR;
+            int result = 0;
+
+            if (action == 0) // load
+            {
+                TR;
+                MakeFilePath(filepath, FILE_SNAPSHOT, saves.filename[ret]);
+                LoadState(filepath);
+                menu = MENU_EMULATION;
+            } else // save
+            {
+                TR;
+                if (ret == -3) // overwrite SRAM/Snapshot
+                {
+                    TR;
+                    MakeFilePath(filepath, FILE_SNAPSHOT, saves.filename[ret]);
+                    SaveState(filepath);
+                    menu = MENU_SAVE;
+                } else // new Snapshot
+                {
+                    for (i = 1; i < 100; i++)
+                        if (saves.files[FILE_SNAPSHOT][i] == 0)
+                            break;
+                    TR;
+                    printf("%d\r\n", i);
+                    if (i < 100) {
+                        TR;
+
+                        //MakeFilePath(filepath, FILE_SNAPSHOT, ROMFilename, i);
+                        MakeFilePath(filepath, FILE_SNAPSHOT, ROMFilename, i);
+
+                        printf("filepath :%s\r\n", filepath);
+                        printf("ROMFilename :%s\r\n", ROMFilename);
+
+                        SaveState(filepath);
+                        menu = MENU_SAVE;
+                    }
+                }
+            }
+        }
+
+        if (backBtn.GetState() == STATE_CLICKED) {
+            menu = MENU_IN_GAME;
+        } else if (closeBtn.GetState() == STATE_CLICKED) {
+            menu = MENU_IN_GAME;
+
+            //            exitSound->Play();
+            //            bgTopImg->SetEffect(EFFECT_SLIDE_TOP | EFFECT_SLIDE_OUT, 15);
+            closeBtn.SetEffect(EFFECT_SLIDE_TOP | EFFECT_SLIDE_OUT, 15);
+            titleTxt.SetEffect(EFFECT_SLIDE_TOP | EFFECT_SLIDE_OUT, 15);
+            backBtn.SetEffect(EFFECT_SLIDE_BOTTOM | EFFECT_SLIDE_OUT, 15);
+            //            bgBottomImg->SetEffect(EFFECT_SLIDE_BOTTOM | EFFECT_SLIDE_OUT, 15);
+            //            btnLogo->SetEffect(EFFECT_SLIDE_BOTTOM | EFFECT_SLIDE_OUT, 15);
+
+            w.SetEffect(EFFECT_FADE, -15);
+
+            usleep(350000); // wait for effects to finish
+        }
+    }
+
+    HaltGui();
+
+    for (i = 0; i < saves.length; i++)
+        if (saves.previewImg[i])
+            delete saves.previewImg[i];
+
+    mainWindow->Remove(&saveBrowser);
+    mainWindow->Remove(&w);
+    mainWindow->Remove(&titleTxt);
+    ResetBrowser();
+    return menu;
+}
+
+static int MenuCheats() {
+    int menu = MENU_NONE;
+    return menu;
+}
+
+static int MenuInGame() {
+    int menu = MENU_NONE;
+
+    GuiText titleTxt(PCSXR_NAME" IN GAME", 28, ColorGrey);
+    titleTxt.SetAlignment(ALIGN_LEFT, ALIGN_TOP);
+    titleTxt.SetPosition(50, 50);
+
+    GuiSound btnSoundOver(button_over_pcm, button_over_pcm_size, SOUND_PCM);
+    GuiImageData btnOutline(xenon_button_png);
+    GuiImageData btnOutlineOver(xenon_button_over_png);
+    GuiImageData btnLargeOutline(xenon_button_large_png);
+    GuiImageData btnLargeOutlineOver(xenon_button_large_over_png);
+
+    GuiTrigger trigA;
+    trigA.SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A, PAD_BUTTON_A);
+    //    trigA.SetSimpleTrigger(-1, 0, PAD_BUTTON_A);
+    GuiTrigger trigHome;
+    trigHome.SetButtonOnlyTrigger(-1, WPAD_BUTTON_HOME | WPAD_CLASSIC_BUTTON_HOME, PAD_BUTTON_LOGO);
+    //    trigHome.SetButtonOnlyTrigger(-1, 0, PAD_BUTTON_LOGO);
+
+    GuiText fileBtnTxt("Load Game", 18, ColorGrey2);
+    fileBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
+    GuiImage fileBtnImg(&btnLargeOutline);
+    GuiImage fileBtnImgOver(&btnLargeOutlineOver);
+    GuiButton fileBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
+    fileBtn.SetAlignment(ALIGN_LEFT, ALIGN_TOP);
+    fileBtn.SetPosition(50, 120);
+    fileBtn.SetLabel(&fileBtnTxt);
+    fileBtn.SetImage(&fileBtnImg);
+    fileBtn.SetImageOver(&fileBtnImgOver);
+    fileBtn.SetSoundOver(&btnSoundOver);
+    fileBtn.SetTrigger(&trigA);
+    fileBtn.SetEffectGrow();
+
+    GuiText savingBtnTxt1("Save", 18, ColorGrey2);
+    savingBtnTxt1.SetWrap(true, btnLargeOutline.GetWidth() - 30);
+    GuiImage savingBtnImg(&btnLargeOutline);
+    GuiImage savingBtnImgOver(&btnLargeOutlineOver);
+    GuiButton savingBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
+    savingBtn.SetAlignment(ALIGN_RIGHT, ALIGN_TOP);
+    savingBtn.SetPosition(-50, 120);
+    savingBtn.SetLabel(&savingBtnTxt1);
+    savingBtn.SetImage(&savingBtnImg);
+    savingBtn.SetImageOver(&savingBtnImgOver);
+    savingBtn.SetSoundOver(&btnSoundOver);
+    savingBtn.SetTrigger(&trigA);
+    savingBtn.SetEffectGrow();
+    
+    GuiText loadingBtnTxt1("Load", 18, ColorGrey2);
+    loadingBtnTxt1.SetWrap(true, btnLargeOutline.GetWidth() - 30);
+    GuiImage loadingBtnImg(&btnLargeOutline);
+    GuiImage loadingBtnImgOver(&btnLargeOutlineOver);
+    GuiButton loadingBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
+    loadingBtn.SetAlignment(ALIGN_RIGHT, ALIGN_TOP);
+    loadingBtn.SetPosition(-100, 120);
+    loadingBtn.SetLabel(&loadingBtnTxt1);
+    loadingBtn.SetImage(&loadingBtnImg);
+    loadingBtn.SetImageOver(&loadingBtnImgOver);
+    loadingBtn.SetSoundOver(&btnSoundOver);
+    loadingBtn.SetTrigger(&trigA);
+    loadingBtn.SetEffectGrow();
+
+    GuiText cheatsBtnTxt("Cheats", 18, ColorGrey2);
+    cheatsBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
+    GuiImage cheatsBtnImg(&btnLargeOutline);
+    GuiImage cheatsBtnImgOver(&btnLargeOutlineOver);
+    GuiButton cheatsBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
+    cheatsBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
+    cheatsBtn.SetPosition(0, 250);
+    cheatsBtn.SetLabel(&cheatsBtnTxt);
+    cheatsBtn.SetImage(&cheatsBtnImg);
+    cheatsBtn.SetImageOver(&cheatsBtnImgOver);
+    cheatsBtn.SetSoundOver(&btnSoundOver);
+    cheatsBtn.SetTrigger(&trigA);
+    cheatsBtn.SetEffectGrow();
+
+    GuiText backBtnTxt("Go Back", 22, ColorGrey2);
+    GuiImage backBtnImg(&btnOutline);
+    GuiImage backBtnImgOver(&btnOutlineOver);
+    GuiButton backBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    backBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
+    backBtn.SetPosition(100, -35);
+    backBtn.SetLabel(&backBtnTxt);
+    backBtn.SetImage(&backBtnImg);
+    backBtn.SetImageOver(&backBtnImgOver);
+    backBtn.SetSoundOver(&btnSoundOver);
+    backBtn.SetTrigger(&trigA);
+    backBtn.SetEffectGrow();
+
+    GuiText about_btnTxt("About", 18, ColorGrey2);
+    GuiImage about_btnImg(&btnOutline);
+    GuiImage about_btnImgOver(&btnOutlineOver);
+    GuiButton about_btn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    about_btn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
+    about_btn.SetPosition(450, -35);
+    about_btn.SetLabel(&about_btnTxt);
+    about_btn.SetImage(&about_btnImg);
+    about_btn.SetImageOver(&about_btnImgOver);
+    about_btn.SetSoundOver(&btnSoundOver);
+    about_btn.SetTrigger(&trigA);
+    about_btn.SetTrigger(&trigHome);
+    about_btn.SetEffectGrow();
+
+    GuiText configspuBtnTxt("SPU Config", 18, ColorGrey2);
+    configspuBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
+    GuiImage configspuBtnImg(&btnLargeOutline);
+    GuiImage configspuBtnImgOver(&btnLargeOutlineOver);
+    GuiButton configspuBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
+    configspuBtn.SetAlignment(ALIGN_LEFT, ALIGN_TOP);
+    configspuBtn.SetPosition(450, 120);
+    configspuBtn.SetLabel(&configspuBtnTxt);
+    configspuBtn.SetImage(&configspuBtnImg);
+    configspuBtn.SetImageOver(&configspuBtnImgOver);
+    configspuBtn.SetSoundOver(&btnSoundOver);
+    configspuBtn.SetTrigger(&trigA);
+    configspuBtn.SetEffectGrow();
+
+    GuiText configgpuBtnTxt("GPU Config", 18, ColorGrey2);
+    configgpuBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
+    GuiImage configgpuBtnImg(&btnLargeOutline);
+    GuiImage configgpuBtnImgOver(&btnLargeOutlineOver);
+    GuiButton configgpuBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
+    configgpuBtn.SetAlignment(ALIGN_LEFT, ALIGN_TOP);
+    configgpuBtn.SetPosition(800, 120);
+    configgpuBtn.SetLabel(&configgpuBtnTxt);
+    configgpuBtn.SetImage(&configgpuBtnImg);
+    configgpuBtn.SetImageOver(&configgpuBtnImgOver);
+    configgpuBtn.SetSoundOver(&btnSoundOver);
+    configgpuBtn.SetTrigger(&trigA);
+    configgpuBtn.SetEffectGrow();
+
+    HaltGui();
+    GuiWindow w(screenwidth, screenheight);
+    w.Append(&titleTxt);
+    w.Append(&savingBtn);
+    w.Append(&loadingBtn);
+    //w.Append(&cheatsBtn);
+    w.Append(&backBtn);
+    w.Append(&fileBtn);
+    w.Append(&configgpuBtn);
+    w.Append(&configspuBtn);
+
+    mainWindow->Append(&w);
+
+    ResumeGui();
+
+    while (menu == MENU_NONE) {
+        TH_UGUI();
+        usleep(THREAD_SLEEP);
+
+        if (savingBtn.GetState() == STATE_CLICKED) {
+            menu = MENU_SAVE;
+        } else if (loadingBtn.GetState() == STATE_CLICKED) {
+            menu = MENU_LOAD;
+        } else if (configgpuBtn.GetState() == STATE_CLICKED) {
+            menu = MENU_GPU;
+        } else if (configspuBtn.GetState() == STATE_CLICKED) {
+            menu = MENU_SPU;
+        } else if (cheatsBtn.GetState() == STATE_CLICKED) {
+            menu = MENU_CHEATS;
+        } else if (fileBtn.GetState() == STATE_CLICKED) {
+            if (WindowPrompt("Load", "Load a new game", "Ok", "Cancel")) {
+                menu = MENU_BROWSE_DEVICE;
+            }
+        } else if (backBtn.GetState() == STATE_CLICKED) {
+            menu = MENU_EMULATION;
+
+        } else if (about_btn.GetState() == STATE_CLICKED) {
+            about_btn.ResetState();
+
+            InfoPrompt(
+                    PCSXR_NAME
+                    );
+
+        }
+
+
+    }
+
+    HaltGui();
+    mainWindow->Remove(&w);
+    return menu;
+}
+
+static int MenuEmulation() {
+    pcsxr_running = 1;
+    // fix input repitition
+    usb_do_poll();
+    TR;
+    psxCpu->Execute();
+    TR;
+    return MENU_IN_GAME;
 }
 
 /****************************************************************************
  * MainMenu
  ***************************************************************************/
 void MainMenu(int menu) {
+
+
     TR;
     int currentMenu = menu;
 
@@ -1314,11 +1779,23 @@ void MainMenu(int menu) {
             case MENU_GPU:
                 currentMenu = MenuConfigGPU();
                 break;
+            case MENU_SAVE:
+                currentMenu = MenuSaveStates(1);
+                break;
+            case MENU_LOAD:
+                currentMenu = MenuSaveStates(0);
+                break;
+            case MENU_CHEATS:
+                currentMenu = MenuCheats();
+                break;
             case MENU_BROWSE_DEVICE:
                 currentMenu = MenuBrowseDevice();
                 break;
             case MENU_EMULATION:
                 currentMenu = MenuEmulation();
+                break;
+            case MENU_IN_GAME:
+                currentMenu = MenuInGame();
                 break;
             default:
                 currentMenu = menu;
@@ -1365,15 +1842,17 @@ int main() {
 
     // run gui
     InitGUIThreads();
-    
-    SpuConfig.change_xa_speed=1;
-    SpuConfig.enable_xa=1;
-    SpuConfig.irq_wait=1;
-    
-    HwGpuConfig.fps_limit=1;
-    HwGpuConfig.gte_accuracy=1;
-    HwGpuConfig.hires_texture=1;
-    
+
+    SpuConfig.change_xa_speed = 1;
+    SpuConfig.enable_xa = 1;
+    SpuConfig.irq_wait = 1;
+
+    HwGpuConfig.fps_limit = 1;
+    HwGpuConfig.gte_accuracy = 1;
+    HwGpuConfig.hires_texture = 1;
+
+
+    memset(&Config, 0, sizeof (PcsxConfig));
 
     MainMenu(MENU_MAIN);
 

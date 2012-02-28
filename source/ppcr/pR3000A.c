@@ -1041,7 +1041,7 @@ void recReset() {
 
 static void recShutdown() {
     cpu_running=0;
-    ppcShutdown();
+    //ppcShutdown();
 }
 
 static void recError() {
@@ -1066,6 +1066,7 @@ __inline static void execute() {
 }
 
 void recExecute() {
+    cpu_running=1;
     while (cpu_running) 
         execute();
 }
@@ -2570,7 +2571,7 @@ static void recMTC0() {
                 RLWINM(0, GetHWReg32(_Rt_), 0, 22, 15); // & ~(0xfc00)
                 STW(0, OFFSET(&psxRegs, &psxRegs.CP0.r[_Rd_]), GetHWRegSpecial(PSXREGS));
                 break;
-            default:
+            default://12
                 STW(GetHWReg32(_Rt_), OFFSET(&psxRegs, &psxRegs.CP0.r[_Rd_]), GetHWRegSpecial(PSXREGS));
                 break;
         }
@@ -2581,13 +2582,14 @@ static void recMTC0() {
         LIW(PutHWRegSpecial(PSXPC), (u32) pc);
         FlushAllHWReg();
         CALLFunc((u32) psxTestSWInts);
-        
+// CC        
+/*        
         if (_Rd_ == 12) {
             LWZ(0, OFFSET(&psxRegs, &psxRegs.interrupt), GetHWRegSpecial(PSXREGS));
             ORIS(0, 0, 0x8000);
             STW(0, OFFSET(&psxRegs, &psxRegs.interrupt), GetHWRegSpecial(PSXREGS));
         }
-        
+*/        
         if (branch == 0) {
             branch = 2;
             iRet();

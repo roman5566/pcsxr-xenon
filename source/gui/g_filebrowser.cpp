@@ -15,6 +15,13 @@
 //#include <sys/dir.h>
 #include <malloc.h>
 
+enum {
+	FILE_SRAM,
+	FILE_SNAPSHOT,
+	FILE_ROM,
+	FILE_CHEAT
+};
+
 #include "g_filebrowser.h"
 
 BROWSERINFO browser;
@@ -45,18 +52,53 @@ static void CleanupPath(char * path) {
 }
 
 
+extern char foldername[1024];
 bool MakeFilePath(char filepath[], int type, char * filename, int filenum) {
     char file[512];
     char ext[4];
     char temppath[MAXPATHLEN];
+    
+    printf("%s - %s - %s - %s\r\n",browser.dir, browserList[browser.selIndex].filename,filename,foldername);
 
-    // Check path length
-    if ((strlen(browser.dir) + 1 + strlen(browserList[browser.selIndex].filename)) >= MAXPATHLEN) {
+    if (type == FILE_ROM) {
+        // Check path length
+        if ((strlen(browser.dir) + 1 + strlen(browserList[browser.selIndex].filename)) >= MAXPATHLEN) {
 //            ErrorPrompt("Maximum filepath length reached!");
-        filepath[0] = 0;
-        return false;
+            filepath[0] = 0;
+            return false;
+        } else {
+            sprintf(temppath, "%s%s", browser.dir, browserList[browser.selIndex].filename);
+        }
     } else {
-        sprintf(temppath, "%s%s", browser.dir, browserList[browser.selIndex].filename);
+//        if (GCSettings.SaveMethod == DEVICE_AUTO)
+//            GCSettings.SaveMethod = autoSaveMethod(SILENT);
+//
+//        if (GCSettings.SaveMethod == DEVICE_AUTO)
+//            return false;
+
+        switch (type) {
+            case FILE_SRAM:
+            case FILE_SNAPSHOT:
+
+                if (type == FILE_SRAM) sprintf(ext, "srm");
+                else sprintf(ext, "gpz");
+
+                if (filenum >= -1) {
+                    if (filenum == -1)
+                        sprintf(file, "%s.%s", filename, ext);
+                    else if (filenum == 0)
+                        sprintf(file, "%s Auto.%s", filename, ext);
+                    else
+                        sprintf(file, "%s %i.%s", filename, filenum, ext);
+                } else {
+                    sprintf(file, "%s", filename);
+                }
+                break;
+            case FILE_CHEAT:
+                sprintf(file, "%s.cht", "test");
+                break;
+        }
+        sprintf(temppath, "uda:/%s/%s", foldername, file);
     }
     CleanupPath(temppath); // cleanup path
     snprintf(filepath, MAXPATHLEN, "%s", temppath);

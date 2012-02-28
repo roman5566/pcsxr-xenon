@@ -913,7 +913,7 @@ void GpuRenderer::primTexCoord(float * st) {
 void GpuRenderer::primVertex(float * v) {
     pCurrentVertex[0].x = v[0];
     pCurrentVertex[0].y = v[1];
-    pCurrentVertex[0].z = -v[2];
+    pCurrentVertex[0].z = v[2];
     pCurrentVertex[0].u = textcoord_u;
     pCurrentVertex[0].v = textcoord_v;
     pCurrentVertex[0].color = m_primColor;

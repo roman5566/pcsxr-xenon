@@ -1224,6 +1224,7 @@ static void intReset() {
 }
 
 static void intExecute() {
+    cpu_running=1;
     while (cpu_running)
         execI();
 }

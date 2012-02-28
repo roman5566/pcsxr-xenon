@@ -64,7 +64,7 @@ namespace xegpu {
        // bOpaquePass = FALSE;//TRUE
         bOpaquePass = TRUE;//TRUE
         iTexQuality = 4; // 4 - B8 G8 R8 A8 - Slightly faster with some cards | 3 - R8 G8 B8 A8 - Best colors, more ram needed
-        iUseMask =  FALSE;
+        iUseMask =  TRUE;
         iZBufferDepth = 16;
         bUseFastMdec = TRUE;
         dwCfgFixes = 0;

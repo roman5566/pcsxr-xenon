@@ -16,7 +16,7 @@
 #include <newlib/vfs.h>
 
 #define MAXJOLIET 255
-#define MAXDISPLAY 45
+#define MAXDISPLAY 90
 
 typedef struct {
     char dir[MAXPATHLEN]; // directory path of browserList

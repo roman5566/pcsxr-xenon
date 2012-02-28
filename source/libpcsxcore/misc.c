@@ -504,6 +504,7 @@ static const char PcsxrHeader[32] = "STv4 PCSXR v" PACKAGE_VERSION;
 static const u32 SaveVersion = 0x8b410007;
 
 int SaveState(const char *file) {
+    printf("%s\r\n",file);
     gzFile f;
     GPUFreeze_t *gpufP;
     SPUFreeze_t *spufP;
@@ -561,6 +562,7 @@ int SaveState(const char *file) {
 }
 
 int LoadState(const char *file) {
+    printf("%s\r\n",file);
     gzFile f;
     GPUFreeze_t *gpufP;
     SPUFreeze_t *spufP;

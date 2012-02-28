@@ -113,12 +113,12 @@ GuiFileBrowser::GuiFileBrowser(int w, int h) {
         });
         fileListText[i]->SetAlignment(ALIGN_LEFT, ALIGN_MIDDLE);
         fileListText[i]->SetPosition(5, 0);
-        fileListText[i]->SetMaxWidth(512);
+        fileListText[i]->SetMaxWidth(1024);
 
         fileListBg[i] = new GuiImage(bgFileSelectionEntry);
         fileListFolder[i] = new GuiImage(fileFolder);
 
-        fileList[i] = new GuiButton(512, 30);
+        fileList[i] = new GuiButton(1024, 30);
         fileList[i]->SetParent(this);
         fileList[i]->SetLabel(fileListText[i]);
         fileList[i]->SetImageOver(fileListBg[i]);
