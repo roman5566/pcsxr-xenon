@@ -65,7 +65,7 @@ extern FreeTypeGX *fontSystem[];
 #define PAGESIZE 		16
 #define MAX_OPTIONS 		150
 #define MAX_KEYBOARD_DISPLAY	32
-#define SAVELISTSIZE            6
+#define SAVELISTSIZE            12
 #define MAX_SAVES               100
 #define MAX_OPTIONS             150
 #define MAX_KEYBOARD_DISPLAY    32

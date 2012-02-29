@@ -76,20 +76,24 @@ GuiSaveBrowser::GuiSaveBrowser(int w, int h, SaveList * s, int a) {
     arrowDownBtn->SetSoundOver(btnSoundOver);
     arrowDownBtn->SetSoundClick(btnSoundClick);
 
+    int j = -1;
     for (int i = 0; i < SAVELISTSIZE; i++) {
 
         saveDate[i] = new GuiText(NULL, 18, (GXColor) {
-            0, 0, 0, 0xff});
+            0, 0, 0, 0xff
+        });
         saveDate[i]->SetAlignment(ALIGN_LEFT, ALIGN_TOP);
         saveDate[i]->SetPosition(80, 5);
 
         saveTime[i] = new GuiText(NULL, 18, (GXColor) {
-            0, 0, 0, 0xff});
+            0, 0, 0, 0xff
+        });
         saveTime[i]->SetAlignment(ALIGN_LEFT, ALIGN_TOP);
         saveTime[i]->SetPosition(80, 27);
 
         saveType[i] = new GuiText(NULL, 18, (GXColor) {
-            0, 0, 0, 0xff});
+            0, 0, 0, 0xff
+        });
         saveType[i]->SetAlignment(ALIGN_LEFT, ALIGN_TOP);
         saveType[i]->SetPosition(80, 50);
 
@@ -108,7 +112,17 @@ GuiSaveBrowser::GuiSaveBrowser(int w, int h, SaveList * s, int a) {
         saveBtn[i]->SetImageOver(saveBgOverImg[i]);
         saveBtn[i]->SetIcon(savePreviewImg[i]);
         saveBtn[i]->SetAlignment(ALIGN_LEFT, ALIGN_TOP);
-        saveBtn[i]->SetPosition(257 * (i % 2), 87 * (i >> 1));
+
+//        if (a) {
+//            if (j == -1)
+//                saveBtn[i]->SetPosition(0, 0);
+//            else
+//                saveBtn[i]->SetPosition(257 * (j % 4), 87 * ((j >> 2) + 1));
+//        } else 
+        {
+            saveBtn[i]->SetPosition(257 * (i % 4), 87 * ((i >> 2)));
+        }
+
         saveBtn[i]->SetTrigger(trigA);
         saveBtn[i]->SetTrigger(trig2);
         saveBtn[i]->SetState(STATE_DISABLED);
@@ -117,6 +131,9 @@ GuiSaveBrowser::GuiSaveBrowser(int w, int h, SaveList * s, int a) {
         saveBtn[i]->SetSoundOver(btnSoundOver);
         saveBtn[i]->SetSoundClick(btnSoundClick);
         saveBtnLastOver[i] = false;
+
+        j++;
+        ;
     }
     saveBtn[0]->SetState(STATE_SELECTED, -1);
     saveBtn[0]->SetVisible(true);
@@ -203,9 +220,9 @@ void GuiSaveBrowser::Draw() {
     for (int i = 0; i < SAVELISTSIZE; i++)
         saveBtn[i]->Draw();
 
-    scrollbarImg->Draw();
-    arrowUpBtn->Draw();
-    arrowDownBtn->Draw();
+    //    scrollbarImg->Draw();
+    //    arrowUpBtn->Draw();
+    //    arrowDownBtn->Draw();
 
     this->UpdateEffects();
 }
@@ -288,12 +305,12 @@ endNavigation:
             saveDate[1]->SetText(NULL);
             saveTime[0]->SetText("New");
             saveTime[1]->SetText("New");
-            saveType[0]->SetText("SRAM");
-            saveType[1]->SetText("Snapshot");
+            saveType[0]->SetText("Snapshot");
+            //saveType[1]->SetText("Snapshot");
             savePreviewImg[0]->SetImage(gameSaveBlank);
             savePreviewImg[1]->SetImage(gameSaveBlank);
             saveBtn[0]->SetVisible(true);
-            saveBtn[1]->SetVisible(true);
+            saveBtn[1]->SetVisible(false);
 
             if (saveBtn[0]->GetState() == STATE_DISABLED)
                 saveBtn[0]->SetState(STATE_DEFAULT);

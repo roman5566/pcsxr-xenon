@@ -1385,7 +1385,7 @@ static int MenuSaveStates(int action) {
 
     HaltGui();
     GuiWindow w(screenwidth, screenheight);
-    w.Append(&backBtn);
+    //w.Append(&backBtn);
     w.Append(&closeBtn);
     mainWindow->Append(&w);
     mainWindow->Append(&titleTxt);
@@ -1395,8 +1395,10 @@ static int MenuSaveStates(int action) {
 
     //len = strlen(ROMFilename);
 
+    sprintf(foldername,"/states/");
+    
     printf("foldername : %s\r\n", foldername);
-    BrowseDevice(foldername, "uda:/");
+    BrowseDevice("/states/", "uda:/");
 
     printf("browser.dir : %s\r\n", browser.dir);
     printf("rootdir : %s\r\n", rootdir);
@@ -1406,10 +1408,8 @@ static int MenuSaveStates(int action) {
 
         if (len2 < 6 || len2 - len < 5)
             continue;
-
-        if (strncmp(&browserList[i].filename[len2 - 4], ".srm", 4) == 0) {
-            type = FILE_SRAM;
-        } else if (strncmp(&browserList[i].filename[len2 - 4], ".gpz", 4) == 0) {
+        
+        if (strncmp(&browserList[i].filename[len2 - 4], ".gpz", 4) == 0) {
             type = FILE_SNAPSHOT;
         } else {
             continue;
@@ -1437,6 +1437,7 @@ static int MenuSaveStates(int action) {
             printf("filepath : %s\r\n", filepath);
             if (stat(filepath, &filestat) == 0) {
                 timeinfo = localtime(&filestat.st_mtime);
+                sprintf(saves.date[j],"Save %d",j);
                 //strftime(saves.date[j], 20, "%a %b %d", timeinfo);
                 //strftime(saves.time[j], 10, "%I:%M %p", timeinfo);
             }
@@ -1452,7 +1453,7 @@ static int MenuSaveStates(int action) {
         menu = MENU_IN_GAME;
     }
 
-    GuiSaveBrowser saveBrowser(552, 248, &saves, action);
+    GuiSaveBrowser saveBrowser(1080, 496, &saves, action);
     saveBrowser.SetPosition(0, 108);
     saveBrowser.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
 
@@ -1567,7 +1568,7 @@ static int MenuInGame() {
     trigHome.SetButtonOnlyTrigger(-1, WPAD_BUTTON_HOME | WPAD_CLASSIC_BUTTON_HOME, PAD_BUTTON_LOGO);
     //    trigHome.SetButtonOnlyTrigger(-1, 0, PAD_BUTTON_LOGO);
 
-    GuiText fileBtnTxt("Load Game", 18, ColorGrey2);
+    GuiText fileBtnTxt("New game", 18, ColorGrey2);
     fileBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
     GuiImage fileBtnImg(&btnLargeOutline);
     GuiImage fileBtnImgOver(&btnLargeOutlineOver);
@@ -1580,83 +1581,14 @@ static int MenuInGame() {
     fileBtn.SetSoundOver(&btnSoundOver);
     fileBtn.SetTrigger(&trigA);
     fileBtn.SetEffectGrow();
-
-    GuiText savingBtnTxt1("Save", 18, ColorGrey2);
-    savingBtnTxt1.SetWrap(true, btnLargeOutline.GetWidth() - 30);
-    GuiImage savingBtnImg(&btnLargeOutline);
-    GuiImage savingBtnImgOver(&btnLargeOutlineOver);
-    GuiButton savingBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
-    savingBtn.SetAlignment(ALIGN_RIGHT, ALIGN_TOP);
-    savingBtn.SetPosition(-50, 120);
-    savingBtn.SetLabel(&savingBtnTxt1);
-    savingBtn.SetImage(&savingBtnImg);
-    savingBtn.SetImageOver(&savingBtnImgOver);
-    savingBtn.SetSoundOver(&btnSoundOver);
-    savingBtn.SetTrigger(&trigA);
-    savingBtn.SetEffectGrow();
     
-    GuiText loadingBtnTxt1("Load", 18, ColorGrey2);
-    loadingBtnTxt1.SetWrap(true, btnLargeOutline.GetWidth() - 30);
-    GuiImage loadingBtnImg(&btnLargeOutline);
-    GuiImage loadingBtnImgOver(&btnLargeOutlineOver);
-    GuiButton loadingBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
-    loadingBtn.SetAlignment(ALIGN_RIGHT, ALIGN_TOP);
-    loadingBtn.SetPosition(-100, 120);
-    loadingBtn.SetLabel(&loadingBtnTxt1);
-    loadingBtn.SetImage(&loadingBtnImg);
-    loadingBtn.SetImageOver(&loadingBtnImgOver);
-    loadingBtn.SetSoundOver(&btnSoundOver);
-    loadingBtn.SetTrigger(&trigA);
-    loadingBtn.SetEffectGrow();
-
-    GuiText cheatsBtnTxt("Cheats", 18, ColorGrey2);
-    cheatsBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
-    GuiImage cheatsBtnImg(&btnLargeOutline);
-    GuiImage cheatsBtnImgOver(&btnLargeOutlineOver);
-    GuiButton cheatsBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
-    cheatsBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-    cheatsBtn.SetPosition(0, 250);
-    cheatsBtn.SetLabel(&cheatsBtnTxt);
-    cheatsBtn.SetImage(&cheatsBtnImg);
-    cheatsBtn.SetImageOver(&cheatsBtnImgOver);
-    cheatsBtn.SetSoundOver(&btnSoundOver);
-    cheatsBtn.SetTrigger(&trigA);
-    cheatsBtn.SetEffectGrow();
-
-    GuiText backBtnTxt("Go Back", 22, ColorGrey2);
-    GuiImage backBtnImg(&btnOutline);
-    GuiImage backBtnImgOver(&btnOutlineOver);
-    GuiButton backBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
-    backBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
-    backBtn.SetPosition(100, -35);
-    backBtn.SetLabel(&backBtnTxt);
-    backBtn.SetImage(&backBtnImg);
-    backBtn.SetImageOver(&backBtnImgOver);
-    backBtn.SetSoundOver(&btnSoundOver);
-    backBtn.SetTrigger(&trigA);
-    backBtn.SetEffectGrow();
-
-    GuiText about_btnTxt("About", 18, ColorGrey2);
-    GuiImage about_btnImg(&btnOutline);
-    GuiImage about_btnImgOver(&btnOutlineOver);
-    GuiButton about_btn(btnOutline.GetWidth(), btnOutline.GetHeight());
-    about_btn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
-    about_btn.SetPosition(450, -35);
-    about_btn.SetLabel(&about_btnTxt);
-    about_btn.SetImage(&about_btnImg);
-    about_btn.SetImageOver(&about_btnImgOver);
-    about_btn.SetSoundOver(&btnSoundOver);
-    about_btn.SetTrigger(&trigA);
-    about_btn.SetTrigger(&trigHome);
-    about_btn.SetEffectGrow();
-
     GuiText configspuBtnTxt("SPU Config", 18, ColorGrey2);
     configspuBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
     GuiImage configspuBtnImg(&btnLargeOutline);
     GuiImage configspuBtnImgOver(&btnLargeOutlineOver);
     GuiButton configspuBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
     configspuBtn.SetAlignment(ALIGN_LEFT, ALIGN_TOP);
-    configspuBtn.SetPosition(450, 120);
+    configspuBtn.SetPosition(250, 120);
     configspuBtn.SetLabel(&configspuBtnTxt);
     configspuBtn.SetImage(&configspuBtnImg);
     configspuBtn.SetImageOver(&configspuBtnImgOver);
@@ -1670,14 +1602,86 @@ static int MenuInGame() {
     GuiImage configgpuBtnImgOver(&btnLargeOutlineOver);
     GuiButton configgpuBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
     configgpuBtn.SetAlignment(ALIGN_LEFT, ALIGN_TOP);
-    configgpuBtn.SetPosition(800, 120);
+    configgpuBtn.SetPosition(450, 120);
     configgpuBtn.SetLabel(&configgpuBtnTxt);
     configgpuBtn.SetImage(&configgpuBtnImg);
     configgpuBtn.SetImageOver(&configgpuBtnImgOver);
     configgpuBtn.SetSoundOver(&btnSoundOver);
     configgpuBtn.SetTrigger(&trigA);
     configgpuBtn.SetEffectGrow();
+    
+    GuiText loadingBtnTxt1("Load", 18, ColorGrey2);
+    loadingBtnTxt1.SetWrap(true, btnLargeOutline.GetWidth() - 30);
+    GuiImage loadingBtnImg(&btnLargeOutline);
+    GuiImage loadingBtnImgOver(&btnLargeOutlineOver);
+    GuiButton loadingBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
+    loadingBtn.SetAlignment(ALIGN_LEFT, ALIGN_TOP);
+    loadingBtn.SetPosition(650, 120);
+    loadingBtn.SetLabel(&loadingBtnTxt1);
+    loadingBtn.SetImage(&loadingBtnImg);
+    loadingBtn.SetImageOver(&loadingBtnImgOver);
+    loadingBtn.SetSoundOver(&btnSoundOver);
+    loadingBtn.SetTrigger(&trigA);
+    loadingBtn.SetEffectGrow();    
+        
+    GuiText savingBtnTxt1("Save", 18, ColorGrey2);
+    savingBtnTxt1.SetWrap(true, btnLargeOutline.GetWidth() - 30);
+    GuiImage savingBtnImg(&btnLargeOutline);
+    GuiImage savingBtnImgOver(&btnLargeOutlineOver);
+    GuiButton savingBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
+    savingBtn.SetAlignment(ALIGN_LEFT, ALIGN_TOP);
+    savingBtn.SetPosition(850, 120);
+    savingBtn.SetLabel(&savingBtnTxt1);
+    savingBtn.SetImage(&savingBtnImg);
+    savingBtn.SetImageOver(&savingBtnImgOver);
+    savingBtn.SetSoundOver(&btnSoundOver);
+    savingBtn.SetTrigger(&trigA);
+    savingBtn.SetEffectGrow();
 
+    
+//
+//    GuiText cheatsBtnTxt("Cheats", 18, ColorGrey2);
+//    cheatsBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
+//    GuiImage cheatsBtnImg(&btnLargeOutline);
+//    GuiImage cheatsBtnImgOver(&btnLargeOutlineOver);
+//    GuiButton cheatsBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
+//    cheatsBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
+//    cheatsBtn.SetPosition(0, 250);
+//    cheatsBtn.SetLabel(&cheatsBtnTxt);
+//    cheatsBtn.SetImage(&cheatsBtnImg);
+//    cheatsBtn.SetImageOver(&cheatsBtnImgOver);
+//    cheatsBtn.SetSoundOver(&btnSoundOver);
+//    cheatsBtn.SetTrigger(&trigA);
+//    cheatsBtn.SetEffectGrow();
+
+    GuiText backBtnTxt("Return to game", 22, ColorGrey2);
+    GuiImage backBtnImg(&btnOutline);
+    GuiImage backBtnImgOver(&btnOutlineOver);
+    GuiButton backBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    backBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
+    backBtn.SetPosition(100, -35);
+    backBtn.SetLabel(&backBtnTxt);
+    backBtn.SetImage(&backBtnImg);
+    backBtn.SetImageOver(&backBtnImgOver);
+    backBtn.SetSoundOver(&btnSoundOver);
+    backBtn.SetTrigger(&trigA);
+    backBtn.SetEffectGrow();
+
+//    GuiText about_btnTxt("About", 18, ColorGrey2);
+//    GuiImage about_btnImg(&btnOutline);
+//    GuiImage about_btnImgOver(&btnOutlineOver);
+//    GuiButton about_btn(btnOutline.GetWidth(), btnOutline.GetHeight());
+//    about_btn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
+//    about_btn.SetPosition(450, -35);
+//    about_btn.SetLabel(&about_btnTxt);
+//    about_btn.SetImage(&about_btnImg);
+//    about_btn.SetImageOver(&about_btnImgOver);
+//    about_btn.SetSoundOver(&btnSoundOver);
+//    about_btn.SetTrigger(&trigA);
+//    about_btn.SetTrigger(&trigHome);
+//    about_btn.SetEffectGrow();
+
+    
     HaltGui();
     GuiWindow w(screenwidth, screenheight);
     w.Append(&titleTxt);
@@ -1705,23 +1709,28 @@ static int MenuInGame() {
             menu = MENU_GPU;
         } else if (configspuBtn.GetState() == STATE_CLICKED) {
             menu = MENU_SPU;
-        } else if (cheatsBtn.GetState() == STATE_CLICKED) {
+        } 
+        /*
+        else if (cheatsBtn.GetState() == STATE_CLICKED) {
             menu = MENU_CHEATS;
-        } else if (fileBtn.GetState() == STATE_CLICKED) {
+        } 
+         */
+        else if (fileBtn.GetState() == STATE_CLICKED) {
             if (WindowPrompt("Load", "Load a new game", "Ok", "Cancel")) {
                 menu = MENU_BROWSE_DEVICE;
             }
         } else if (backBtn.GetState() == STATE_CLICKED) {
             menu = MENU_EMULATION;
 
-        } else if (about_btn.GetState() == STATE_CLICKED) {
+        } /*
+        else if (about_btn.GetState() == STATE_CLICKED) {
             about_btn.ResetState();
 
             InfoPrompt(
                     PCSXR_NAME
                     );
 
-        }
+        }*/
 
 
     }

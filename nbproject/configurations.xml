@@ -28,6 +28,7 @@
         <in>keyboard_mediumkey_over_png.h</in>
         <in>keyboard_mediumkey_png.h</in>
         <in>keyboard_textbox_png.h</in>
+        <in>pasm.d</in>
         <in>player1_grab_png.h</in>
         <in>player1_point_png.h</in>
         <in>player2_grab_png.h</in>

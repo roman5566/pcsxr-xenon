@@ -57,49 +57,22 @@ bool MakeFilePath(char filepath[], int type, char * filename, int filenum) {
     char file[512];
     char ext[4];
     char temppath[MAXPATHLEN];
+    char foldername[512];
     
-    printf("%s - %s - %s - %s\r\n",browser.dir, browserList[browser.selIndex].filename,filename,foldername);
-
-    if (type == FILE_ROM) {
-        // Check path length
-        if ((strlen(browser.dir) + 1 + strlen(browserList[browser.selIndex].filename)) >= MAXPATHLEN) {
-//            ErrorPrompt("Maximum filepath length reached!");
-            filepath[0] = 0;
-            return false;
-        } else {
-            sprintf(temppath, "%s%s", browser.dir, browserList[browser.selIndex].filename);
-        }
+    sprintf(foldername,"states");
+    sprintf(ext, "gpz");
+    if (filenum >= -1) {
+        if (filenum == -1)
+            sprintf(file, "%s.%s", filename, ext);
+        else if (filenum == 0)
+            sprintf(file, "%s Auto.%s", filename, ext);
+        else
+            sprintf(file, "%s %i.%s", filename, filenum, ext);
     } else {
-//        if (GCSettings.SaveMethod == DEVICE_AUTO)
-//            GCSettings.SaveMethod = autoSaveMethod(SILENT);
-//
-//        if (GCSettings.SaveMethod == DEVICE_AUTO)
-//            return false;
-
-        switch (type) {
-            case FILE_SRAM:
-            case FILE_SNAPSHOT:
-
-                if (type == FILE_SRAM) sprintf(ext, "srm");
-                else sprintf(ext, "gpz");
-
-                if (filenum >= -1) {
-                    if (filenum == -1)
-                        sprintf(file, "%s.%s", filename, ext);
-                    else if (filenum == 0)
-                        sprintf(file, "%s Auto.%s", filename, ext);
-                    else
-                        sprintf(file, "%s %i.%s", filename, filenum, ext);
-                } else {
-                    sprintf(file, "%s", filename);
-                }
-                break;
-            case FILE_CHEAT:
-                sprintf(file, "%s.cht", "test");
-                break;
-        }
-        sprintf(temppath, "uda:/%s/%s", foldername, file);
+        sprintf(file, "%s", filename);
     }
+    sprintf(temppath, "uda:/%s/%s", foldername, file);
+        
     CleanupPath(temppath); // cleanup path
     snprintf(filepath, MAXPATHLEN, "%s", temppath);
     return true;
@@ -197,6 +170,27 @@ int FileSortCallback(const void *f1, const void *f2) {
     return stricmp(((BROWSERENTRY *) f1)->filename, ((BROWSERENTRY *) f2)->filename);
 }
 
+int extValid(char * ext) {
+    if (ext) {
+        if (stricmp(ext, ".z") == 0) {
+            return 1;
+        } else if (stricmp(ext, ".gpz") == 0) {
+            return 1;
+        } else if (stricmp(ext, ".cue") == 0) {
+            return 1;
+        } else if (stricmp(ext, ".bin") == 0) {
+            return 1;
+        } else
+            if (stricmp(ext, ".iso") == 0) {
+            return 1;
+        } else if (stricmp(ext, ".nrg") == 0) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 /***************************************************************************
  * Browse subdirectories
  **************************************************************************/
@@ -205,6 +199,7 @@ ParseDirectory() {
     DIR *dir = NULL;
     char fulldir[MAXPATHLEN];
     struct dirent *entry;
+    char * ext = NULL;
 
     // reset browser
     ResetBrowser();
@@ -243,17 +238,22 @@ ParseDirectory() {
 
         strncpy(browserList[entryNum].filename, entry->d_name, MAXJOLIET);
 
+        // 
+        ext = strrchr(entry->d_name, '.');
+
         if (strcmp(entry->d_name, "..") == 0) {
             sprintf(browserList[entryNum].displayname, "Up One Level");
             browserList[entryNum].isdir = 1; // flag this as a dir
-        } else {
+        } else if (extValid(ext)||entry->d_type == DT_DIR) {
             strncpy(browserList[entryNum].displayname, entry->d_name, MAXDISPLAY); // crop name for display
 
             if (entry->d_type == DT_DIR)
                 browserList[entryNum].isdir = 1; // flag this as a dir
+        } else {
+            continue;
         }
 
-        printf("entry->d_name = %s\r\n",entry->d_name);
+        printf("entry->d_name = %s\r\n", entry->d_name);
 
         entryNum++;
     }
@@ -292,7 +292,6 @@ int BrowseDevice() {
     ParseDirectory(); // Parse root directory
     return browser.numEntries;
 }
-
 
 /****************************************************************************
  * BrowseDevice
