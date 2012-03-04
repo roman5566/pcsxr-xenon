@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   XeRenderer.h
  * Author: cc
  *
@@ -39,7 +39,7 @@ enum GlExt {
 
 };
 
-void systemPoll();
+extern "C" void systemPoll();
 
 class GpuRenderer {
 private:
@@ -74,7 +74,7 @@ private:
     GpuPS * g_pPixelShaderG;
 
     /**
-     * Post process 
+     * Post process
      */
     GpuVB *pVbPost;
     GpuVS * g_pVertexShaderPost;
@@ -173,7 +173,7 @@ public:
     void DisableTexture();
 
     /**
-     * 
+     *
      */
 
     /**

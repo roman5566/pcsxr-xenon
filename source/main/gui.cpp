@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
-#include <string>  
+#include <string>
 
 
 //xenon stuff
@@ -23,6 +23,8 @@
 #include <xenos/xe.h>
 #include <xenon_sound/sound.h>
 #include <xenos/edram.h>
+#include <libntfs/ntfs.h>
+#include <libext2fs/ext2.h>
 
 #include <newlib/malloc_lock.h>
 
@@ -49,6 +51,11 @@
 #include "gamecube_plugins.h"
 
 #include "gui.h"
+
+extern "C" {
+    void useSoftGpu();
+    void useHwGpu();
+}
 
 SPU_Config SpuConfig;
 HW_GPU_Config HwGpuConfig;
@@ -592,7 +599,7 @@ static int MenuBrowseDevice() {
 struct controller_data_s ctrl;
 struct controller_data_s old_ctrl;
 
-void systemPoll() {
+ extern "C" void systemPoll() {
     get_controller_data(&ctrl, 0);
     static int reset_time = 0;
     if (ctrl.logo) {
@@ -763,7 +770,7 @@ static int MenuMain() {
     GuiImage configgpuBtnImgOver(&btnLargeOutlineOver);
     GuiButton configgpuBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
     configgpuBtn.SetAlignment(ALIGN_LEFT, ALIGN_TOP);
-    configgpuBtn.SetPosition(800, 120);
+    configgpuBtn.SetPosition(650, 120);
     configgpuBtn.SetLabel(&configgpuBtnTxt);
     configgpuBtn.SetImage(&configgpuBtnImg);
     configgpuBtn.SetImageOver(&configgpuBtnImgOver);
@@ -849,24 +856,26 @@ static int MenuConfig() {
     int i = 0;
     bool firstRun = true;
 
+    int gpu_plugin = 0;
     TR;
 
     //settings_load();
 
     OptionList options;
+    sprintf(options.name[i++], "Gpu plugin");
     sprintf(options.name[i++], "Cpu");
     sprintf(options.name[i++], "Xa Decoding");
     sprintf(options.name[i++], "Sio Irq");
     sprintf(options.name[i++], "Black and white movies");
     sprintf(options.name[i++], "Auto Detect Region");
     sprintf(options.name[i++], "Cd Audio");
-    sprintf(options.name[i++], "HLE");
+    //    sprintf(options.name[i++], "HLE");
     sprintf(options.name[i++], "Slow Boot");
-    sprintf(options.name[i++], "Debugger");
-    sprintf(options.name[i++], "Console Ouput");
+    //    sprintf(options.name[i++], "Debugger");
+    //    sprintf(options.name[i++], "Console Ouput");
     sprintf(options.name[i++], "Spu Irq");
     sprintf(options.name[i++], "Parasite Eve 2, Vandal Hearts 1/2 Fix");
-    sprintf(options.name[i++], "Use network");
+    //    sprintf(options.name[i++], "Use network");
     sprintf(options.name[i++], "InuYasha Sengoku Battle Fix");
     options.length = i;
 
@@ -919,71 +928,76 @@ static int MenuConfig() {
 
         switch (ret) {
             case 0:
+                gpu_plugin++;
+                if (gpu_plugin > 1)
+                    gpu_plugin = 0;
+                break;
+            case 1:
                 Config.Cpu++;
                 if (Config.Cpu > CPU_INTERPRETER)
                     Config.Cpu = 0;
                 break;
-            case 1:
+            case 2:
                 Config.Xa++;
                 if (Config.Xa > 1)
                     Config.Xa = 0;
                 break;
-            case 2:
+            case 3:
                 Config.Sio++;
                 if (Config.Sio > 1)
                     Config.Sio = 0;
                 break;
-            case 3:
+            case 4:
                 Config.Mdec++;
                 if (Config.Mdec > 1)
                     Config.Mdec = 0;
                 break;
-            case 4:
+            case 5:
                 Config.PsxAuto++;
                 if (Config.PsxAuto > 1)
                     Config.PsxAuto = 0;
                 break;
-            case 5:
+            case 6:
                 Config.Cdda++;
                 if (Config.Cdda > 1)
                     Config.Cdda = 0;
                 break;
-            case 6:
-                Config.HLE++;
-                if (Config.HLE > 1)
-                    Config.HLE = 0;
-                break;
+                //            case 6:
+                //                Config.HLE++;
+                //                if (Config.HLE > 1)
+                //                    Config.HLE = 0;
+                //                break;
             case 7:
                 Config.SlowBoot++;
                 if (Config.SlowBoot > 1)
                     Config.SlowBoot = 0;
                 break;
+                //            case 8:
+                //                Config.Debug++;
+                //                if (Config.Debug > 1)
+                //                    Config.Debug = 0;
+                //                break;
+                //            case 9:
+                //                Config.PsxOut++;
+                //                if (Config.PsxOut > 1)
+                //                    Config.PsxOut = 0;
+                //                break;
             case 8:
-                Config.Debug++;
-                if (Config.Debug > 1)
-                    Config.Debug = 0;
-                break;
-            case 9:
-                Config.PsxOut++;
-                if (Config.PsxOut > 1)
-                    Config.PsxOut = 0;
-                break;
-            case 10:
                 Config.SpuIrq++;
                 if (Config.SpuIrq > 1)
                     Config.SpuIrq = 0;
                 break;
-            case 11:
+            case 9:
                 Config.RCntFix++;
                 if (Config.RCntFix > 1)
                     Config.RCntFix = 0;
                 break;
-            case 12:
-                Config.UseNet++;
-                if (Config.UseNet > 1)
-                    Config.UseNet = 0;
-                break;
-            case 13:
+                //            case 12:
+                //                Config.UseNet++;
+                //                if (Config.UseNet > 1)
+                //                    Config.UseNet = 0;
+                //                break;
+            case 10:
                 Config.VSyncWA++;
                 if (Config.VSyncWA > 1)
                     Config.VSyncWA = 0;
@@ -993,6 +1007,11 @@ static int MenuConfig() {
         if (ret >= 0 || firstRun) {
             firstRun = false;
             int j = 0;
+            if (gpu_plugin)
+                sprintf(options.value[j], "Soft");
+            else
+                sprintf(options.value[j], "Hw");
+            j++;
             if (Config.Cpu)
                 sprintf(options.value[j], "Interpreter");
             else
@@ -1035,6 +1054,15 @@ static int MenuConfig() {
 
     }
     HaltGui();
+
+
+    // apply plugn selection
+    if (gpu_plugin) {
+        useSoftGpu();
+    } else {
+        useHwGpu();
+    }
+
     mainWindow->Remove(&optionBrowser);
     mainWindow->Remove(&w);
     mainWindow->Remove(&titleTxt);
@@ -1344,7 +1372,7 @@ static int MenuSaveStates(int action) {
 
     GuiTrigger trigHome;
     trigHome.SetButtonOnlyTrigger(-1, WPAD_BUTTON_HOME | WPAD_CLASSIC_BUTTON_HOME, 0);
-    
+
     GuiTrigger trigA;
     trigA.SetSimpleTrigger(-1, 0, PAD_BUTTON_A);
 
@@ -1395,8 +1423,8 @@ static int MenuSaveStates(int action) {
 
     //len = strlen(ROMFilename);
 
-    sprintf(foldername,"/states/");
-    
+    sprintf(foldername, "/states/");
+
     printf("foldername : %s\r\n", foldername);
     BrowseDevice("/states/", "uda:/");
 
@@ -1408,14 +1436,14 @@ static int MenuSaveStates(int action) {
 
         if (len2 < 6 || len2 - len < 5)
             continue;
-        
+
         if (strncmp(&browserList[i].filename[len2 - 4], ".gpz", 4) == 0) {
             type = FILE_SNAPSHOT;
         } else {
             continue;
         }
-        
-        printf("found : %s\r\n",browserList[i].filename);
+
+        printf("found : %s\r\n", browserList[i].filename);
 
         strcpy(tmp, browserList[i].filename);
         tmp[len2 - 4] = 0;
@@ -1437,7 +1465,7 @@ static int MenuSaveStates(int action) {
             printf("filepath : %s\r\n", filepath);
             if (stat(filepath, &filestat) == 0) {
                 timeinfo = localtime(&filestat.st_mtime);
-                sprintf(saves.date[j],"Save %d",j);
+                sprintf(saves.date[j], "Save %d", j);
                 //strftime(saves.date[j], 20, "%a %b %d", timeinfo);
                 //strftime(saves.time[j], 10, "%I:%M %p", timeinfo);
             }
@@ -1581,7 +1609,7 @@ static int MenuInGame() {
     fileBtn.SetSoundOver(&btnSoundOver);
     fileBtn.SetTrigger(&trigA);
     fileBtn.SetEffectGrow();
-    
+
     GuiText configspuBtnTxt("SPU Config", 18, ColorGrey2);
     configspuBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
     GuiImage configspuBtnImg(&btnLargeOutline);
@@ -1609,7 +1637,7 @@ static int MenuInGame() {
     configgpuBtn.SetSoundOver(&btnSoundOver);
     configgpuBtn.SetTrigger(&trigA);
     configgpuBtn.SetEffectGrow();
-    
+
     GuiText loadingBtnTxt1("Load", 18, ColorGrey2);
     loadingBtnTxt1.SetWrap(true, btnLargeOutline.GetWidth() - 30);
     GuiImage loadingBtnImg(&btnLargeOutline);
@@ -1622,8 +1650,8 @@ static int MenuInGame() {
     loadingBtn.SetImageOver(&loadingBtnImgOver);
     loadingBtn.SetSoundOver(&btnSoundOver);
     loadingBtn.SetTrigger(&trigA);
-    loadingBtn.SetEffectGrow();    
-        
+    loadingBtn.SetEffectGrow();
+
     GuiText savingBtnTxt1("Save", 18, ColorGrey2);
     savingBtnTxt1.SetWrap(true, btnLargeOutline.GetWidth() - 30);
     GuiImage savingBtnImg(&btnLargeOutline);
@@ -1638,21 +1666,21 @@ static int MenuInGame() {
     savingBtn.SetTrigger(&trigA);
     savingBtn.SetEffectGrow();
 
-    
-//
-//    GuiText cheatsBtnTxt("Cheats", 18, ColorGrey2);
-//    cheatsBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
-//    GuiImage cheatsBtnImg(&btnLargeOutline);
-//    GuiImage cheatsBtnImgOver(&btnLargeOutlineOver);
-//    GuiButton cheatsBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
-//    cheatsBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-//    cheatsBtn.SetPosition(0, 250);
-//    cheatsBtn.SetLabel(&cheatsBtnTxt);
-//    cheatsBtn.SetImage(&cheatsBtnImg);
-//    cheatsBtn.SetImageOver(&cheatsBtnImgOver);
-//    cheatsBtn.SetSoundOver(&btnSoundOver);
-//    cheatsBtn.SetTrigger(&trigA);
-//    cheatsBtn.SetEffectGrow();
+
+    //
+    //    GuiText cheatsBtnTxt("Cheats", 18, ColorGrey2);
+    //    cheatsBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
+    //    GuiImage cheatsBtnImg(&btnLargeOutline);
+    //    GuiImage cheatsBtnImgOver(&btnLargeOutlineOver);
+    //    GuiButton cheatsBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
+    //    cheatsBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
+    //    cheatsBtn.SetPosition(0, 250);
+    //    cheatsBtn.SetLabel(&cheatsBtnTxt);
+    //    cheatsBtn.SetImage(&cheatsBtnImg);
+    //    cheatsBtn.SetImageOver(&cheatsBtnImgOver);
+    //    cheatsBtn.SetSoundOver(&btnSoundOver);
+    //    cheatsBtn.SetTrigger(&trigA);
+    //    cheatsBtn.SetEffectGrow();
 
     GuiText backBtnTxt("Return to game", 22, ColorGrey2);
     GuiImage backBtnImg(&btnOutline);
@@ -1667,21 +1695,21 @@ static int MenuInGame() {
     backBtn.SetTrigger(&trigA);
     backBtn.SetEffectGrow();
 
-//    GuiText about_btnTxt("About", 18, ColorGrey2);
-//    GuiImage about_btnImg(&btnOutline);
-//    GuiImage about_btnImgOver(&btnOutlineOver);
-//    GuiButton about_btn(btnOutline.GetWidth(), btnOutline.GetHeight());
-//    about_btn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
-//    about_btn.SetPosition(450, -35);
-//    about_btn.SetLabel(&about_btnTxt);
-//    about_btn.SetImage(&about_btnImg);
-//    about_btn.SetImageOver(&about_btnImgOver);
-//    about_btn.SetSoundOver(&btnSoundOver);
-//    about_btn.SetTrigger(&trigA);
-//    about_btn.SetTrigger(&trigHome);
-//    about_btn.SetEffectGrow();
+    //    GuiText about_btnTxt("About", 18, ColorGrey2);
+    //    GuiImage about_btnImg(&btnOutline);
+    //    GuiImage about_btnImgOver(&btnOutlineOver);
+    //    GuiButton about_btn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    //    about_btn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
+    //    about_btn.SetPosition(450, -35);
+    //    about_btn.SetLabel(&about_btnTxt);
+    //    about_btn.SetImage(&about_btnImg);
+    //    about_btn.SetImageOver(&about_btnImgOver);
+    //    about_btn.SetSoundOver(&btnSoundOver);
+    //    about_btn.SetTrigger(&trigA);
+    //    about_btn.SetTrigger(&trigHome);
+    //    about_btn.SetEffectGrow();
 
-    
+
     HaltGui();
     GuiWindow w(screenwidth, screenheight);
     w.Append(&titleTxt);
@@ -1709,11 +1737,10 @@ static int MenuInGame() {
             menu = MENU_GPU;
         } else if (configspuBtn.GetState() == STATE_CLICKED) {
             menu = MENU_SPU;
-        } 
-        /*
+        }            /*
         else if (cheatsBtn.GetState() == STATE_CLICKED) {
             menu = MENU_CHEATS;
-        } 
+        }
          */
         else if (fileBtn.GetState() == STATE_CLICKED) {
             if (WindowPrompt("Load", "Load a new game", "Ok", "Cancel")) {
@@ -1833,9 +1860,12 @@ void MainMenu(int menu) {
 }
 
 int main() {
-    xenos_init(VIDEO_MODE_HDMI_720P);
+    xenos_init(VIDEO_MODE_AUTO);
     xenon_sound_init();
     console_init();
+
+    ntfs_vfs_init();
+    ext2fs_init();
 
     xenon_make_it_faster(XENON_SPEED_FULL);
 

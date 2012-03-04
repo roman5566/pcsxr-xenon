@@ -24,13 +24,15 @@
 #include "misc.h"
 #include "sio.h"
 
+#include "gamecube_plugins.h"
+
 int ShowPic = 0;
 
 const char * PcsxrDir = "uda:/";
 extern void LidInterrupt();
 
 void gpuShowPic() {
-    
+
 }
 
 void GetStateFilename(char *out, int i) {
@@ -72,7 +74,7 @@ int _OpenPlugins() {
         SysMessage(_("Error Opening CDR Plugin"));
         return -1;
     }
-    
+
     ret = GPU_open(NULL, "PCSXR", NULL);
     if (ret < 0) {
         SysMessage(_("Error Opening GPU Plugin (%d)"), ret);
@@ -180,3 +182,16 @@ void ResetPlugins() {
     }
     NetOpened = FALSE;
 }
+
+extern PluginTable plugins[];
+
+void useSoftGpu(){
+    PluginTable softGpu = GPU_PEOPS_PLUGIN;
+    plugins[5] = softGpu;
+}
+
+void useHwGpu(){
+    PluginTable hwGpu = GPU_HW_PEOPS_PLUGIN;
+    plugins[5] = hwGpu;
+}
+

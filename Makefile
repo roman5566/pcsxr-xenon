@@ -11,7 +11,7 @@ endif
 
 include $(DEVKITXENON)/rules
 
-MACHDEP =  -DXENON -m32 -mno-altivec -fno-pic  -fno-pic -mpowerpc64 -mhard-float -L$(DEVKITXENON)/xenon/lib/32 -u read -u _start -u exc_base 
+MACHDEP =  -DXENON -m32 -mno-altivec -fno-pic  -fno-pic -mpowerpc64 -mhard-float -L$(DEVKITXENON)/xenon/lib/32 -u read -u _start -u exc_base
 
 #---------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------
@@ -36,13 +36,13 @@ GUI_FLAGS	:=  -DUSE_GUI
 #---------------------------------------------------------------------------------
 TARGET		:=  $(notdir $(CURDIR))
 BUILD		:=  build
-#SOURCES		:=  source/shaders lib/zlib source/libpcsxcore_df source/main  source/main/usb source/plugins/xenon_input source/plugins/xenon_audio_repair source/fakegl   source/plugins/cdr   source/plugins/xenon_gfx source/ppc #  source/plugins/gxvideo # source/dynarec 
-PLUGINS		:=  source/plugins/dfinput source/shaders source/plugins/xenon_input source/plugins/xenon_audio_repair110  source/plugins/cdrcimg source/plugins/peopsxgl source/plugins/xenon_gfx
-CORE		:=  lib/zlib source/libpcsxcore source/ppcr source/httpd	 # source/libpcsxcore/ppc #source/ppcr	
+#SOURCES		:=  source/shaders lib/zlib source/libpcsxcore_df source/main  source/main/usb source/plugins/xenon_input source/plugins/xenon_audio_repair source/fakegl   source/plugins/cdr   source/plugins/xenon_gfx source/ppc #  source/plugins/gxvideo # source/dynarec
+PLUGINS		:=  source/plugins/dfinput source/shaders source/plugins/xenon_input source/plugins/xenon_audio_repair  source/plugins/cdrcimg source/plugins/peopsxgl source/plugins/xenon_gfx
+CORE		:=  lib/zlib source/libpcsxcore source/ppcr source/httpd	 # source/libpcsxcore/ppc #source/ppcr
 #CORE		:=  lib/zlib source/libpcsxcore_df source/ppc
 #LIB		:=  source/fakegl
 SOURCES		:=  source/main  source/main/usb $(PLUGINS) $(CORE) $(GUI_SRC)
-DATA		:=  
+DATA		:=
 INCLUDES	:=  shaders include lib/zlib source/libpcsxcore $(GUI_INC)
 
 #---------------------------------------------------------------------------------
@@ -59,12 +59,12 @@ LDFLAGS	=	-g $(MACHDEP) -Wl,--gc-sections -Wl,-Map,$(notdir $@).map
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
 #LIBS	:=	-lzlx  -lpng -lbz2  -lxenon -lm -lz
-LIBS	:=	-lpng -lbz2  -lxenon -lm -lz $(GUI_LIBS)
+LIBS	:=	-lpng -lbz2  -lxenon -lntfs -lext2fs -lm -lz $(GUI_LIBS)
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
 # include and lib
 #---------------------------------------------------------------------------------
-LIBDIRS	:= libs 
+LIBDIRS	:= libs
 
 #---------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional
@@ -116,7 +116,7 @@ export OFILES	:=	$(addsuffix .o,$(BINFILES)) \
 					$(TTFFILES:.ttf=.ttf.o) $(LANGFILES:.lang=.lang.o) \
 					$(PNGFILES:.png=.png.o) \
 					$(OGGFILES:.ogg=.ogg.o) $(PCMFILES:.pcm=.pcm.o)
-					
+
 
 #---------------------------------------------------------------------------------
 # build a list of include paths
@@ -187,8 +187,8 @@ $(OUTPUT).elf: $(OFILES)
 	$(bin2o)
 %.pcm.o : %.pcm
 	@echo $(notdir $<)
-	$(bin2o)	
-	
+	$(bin2o)
+
 #---------------------------------------------------------------------------------
 endif
 #---------------------------------------------------------------------------------

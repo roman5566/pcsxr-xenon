@@ -58,7 +58,7 @@
 #endif
  */
 
-#ifdef LZX_GUI 
+#ifdef LZX_GUI
 struct XenosDevice * getLzxVideoDevice();
 #endif
 
@@ -182,22 +182,14 @@ void CreateTexture(int width, int height) {
 
 void CreateDisplay(void) {
 
-#ifndef LZX_GUI    
-    g_pVideoDevice = &_xe;
-    Xe_Init(g_pVideoDevice);
-#else
-
-    g_pVideoDevice = getLzxVideoDevice();
-#endif
-    
 #ifndef USE_GUI
-    g_pVideoDevice = &_xe;
-    Xe_Init(g_pVideoDevice);
+    xe = &_xe;
+    Xe_Init(xe);
 #else
     // g_video.cpp
     g_pVideoDevice=getVideoDevice();
-#endif    
-    
+#endif
+
     fb = Xe_GetFramebufferSurface(g_pVideoDevice);
     Xe_SetRenderTarget(g_pVideoDevice, fb);
 
@@ -310,9 +302,9 @@ void CreateDisplay(void) {
     Xe_SetClearColor(g_pVideoDevice, 0);
 }
 
-#define R(x)    ((x << 19) & 0xf80000) 
-#define B(x)    ((x << 6) & 0xf800) 
-#define G(x)    ((x >> 7) & 0xf8) 
+#define R(x)    ((x << 19) & 0xf80000)
+#define B(x)    ((x << 6) & 0xf800)
+#define G(x)    ((x >> 7) & 0xf8)
 #define RGB(x)  (R(x)|B(x)|G(x))
 
 #define GCC_SPLIT_BLOCK __asm__ ("");
@@ -324,7 +316,7 @@ void BlitScreen32(unsigned char * _surf, int32_t x, int32_t y) {
     uint8_t * __restrict pD;
     uint32_t * __restrict rdest;
     uint32_t * __restrict destpix;
-    
+
     uint32_t startxy;
     uint32_t lu;
     uint16_t s,s0, s1, s2, s3, s4, s5, s6, s7;
@@ -384,9 +376,9 @@ void BlitScreen32(unsigned char * _surf, int32_t x, int32_t y) {
 
             for (row = 0; row < dx; row += 8) {
                 rdest = &destpix[row];
-                
+
                 GCC_SPLIT_BLOCK
-                
+
                 s0 = GETLE16(&psxVuw[startxy++]);
                 s1 = GETLE16(&psxVuw[startxy++]);
                 s2 = GETLE16(&psxVuw[startxy++]);
@@ -397,7 +389,7 @@ void BlitScreen32(unsigned char * _surf, int32_t x, int32_t y) {
                 s7 = GETLE16(&psxVuw[startxy++]);
 
                 GCC_SPLIT_BLOCK
-                
+
                 d0 = RGB(s0) | 0xff000000;
                 d1 = RGB(s1) | 0xff000000;
                 d2 = RGB(s2) | 0xff000000;
@@ -408,7 +400,7 @@ void BlitScreen32(unsigned char * _surf, int32_t x, int32_t y) {
                 d7 = RGB(s7) | 0xff000000;
 
                 GCC_SPLIT_BLOCK
-                
+
                 rdest[0] = d0;
                 rdest[1] = d1;
                 rdest[2] = d2;

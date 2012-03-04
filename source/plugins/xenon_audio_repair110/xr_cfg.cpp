@@ -337,7 +337,7 @@ void ReadConfig(void) {
         /*
         Novastorm - lowest value allowed
         - keeps intro cutscene in sync (see video playback)
-		
+
                 10ms run speed (ePSXe 170 shark)
          */
 
@@ -348,11 +348,11 @@ void ReadConfig(void) {
 
     // always enable
     iUseDBufIrq = 1;
-    
-    
-    
-    iXAPitch=SpuConfig.change_xa_speed;
-    iSPUIRQWait=SpuConfig.irq_wait;
-    iUseXA=SpuConfig.enable_xa;
+
+
+
+//    iXAPitch=SpuConfig.change_xa_speed;
+//    iSPUIRQWait=SpuConfig.irq_wait;
+//    iUseXA=SpuConfig.enable_xa;
 }
 

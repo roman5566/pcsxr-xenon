@@ -141,7 +141,7 @@ char * pGetConfigInfos(int iCfg) {
 }
 
 void CALLBACK GPUmakeSnapshot(void) {
-    
+
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -491,6 +491,7 @@ static void ShowFPS() {
         frames = 0;
         lastTick = nowTick;
     }
+    systemPoll();
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -1072,7 +1073,7 @@ ENDVRAM:
 
             if (gpuDataC == 0) {
                 command = (unsigned char) ((gdata >> 24) & 0xff);
-                
+
 
                 //if(command>=0xb0 && command<0xc0) auxprintf("b0 %x!!!!!!!!!\n",command);
 

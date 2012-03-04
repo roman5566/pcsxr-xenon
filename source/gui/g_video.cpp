@@ -346,6 +346,8 @@ void SetRS() {
 
     Xe_SetCullMode(g_pVideoDevice, XE_CULL_NONE);
     Xe_SetStreamSource(g_pVideoDevice, 0, vb, nb_vertices, sizeof (DrawVerticeFormats));
+    /* disable scissor */
+    Xe_SetScissor(g_pVideoDevice,0,0,0,0,0);
 }
 
 void Draw() {
@@ -384,21 +386,21 @@ void UpdatesMatrices(f32 xpos, f32 ypos, f32 width, f32 height, f32 degrees, f32
 
 XenosSurface * _RenderFbToTarget(){
     XenosSurface * fb = Xe_GetFramebufferSurface(g_pVideoDevice);
-    
+
     XenosSurface * rt = Xe_CreateTexture(g_pVideoDevice,fb->width,fb->height,0,fb->format,fb->tiled);
-    
-    Menu_DrawImg(0,0,fb->width,fb->height,fb,0,1,1,0xFF);    
+
+    Menu_DrawImg(0,0,fb->width,fb->height,fb,0,1,1,0xFF);
 
     Xe_ResolveInto(g_pVideoDevice, rt, XE_SOURCE_COLOR, XE_CLEAR_DS);
-    
+
     while (!Xe_IsVBlank(g_pVideoDevice));
 
     Xe_Sync(g_pVideoDevice);
 
     Xe_InvalidateState(g_pVideoDevice);
-    
+
     nb_vertices = 0;
-    
+
     TR;
 
     return rt;
@@ -462,13 +464,13 @@ static void setTextureData(void * tex, void * buffer) {
 
 XenosSurface * RenderFbToTarget(){
     XenosSurface * fb = Xe_GetFramebufferSurface(g_pVideoDevice);
-    
+
     XenosSurface * rt = Xe_CreateTexture(g_pVideoDevice,fb->width,fb->height,0,fb->format,fb->tiled);
-    
+
     unsigned int * fb_data = get_framebuffer_tiled();
-    
+
     setTextureData(rt,fb_data);
-    
+
     free(fb_data);
 
     return rt;
