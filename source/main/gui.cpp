@@ -1038,13 +1038,13 @@ static int MenuConfig() {
             enabled_disabled(Config.Mdec);
             enabled_disabled(Config.PsxAuto);
             disabled_enabled(Config.Cdda);
-            enabled_disabled(Config.HLE);
+//            enabled_disabled(Config.HLE);
             enabled_disabled(Config.SlowBoot);
-            enabled_disabled(Config.Debug);
-            enabled_disabled(Config.PsxOut);
+//            enabled_disabled(Config.Debug);
+//            enabled_disabled(Config.PsxOut);
             enabled_disabled(Config.SpuIrq);
             enabled_disabled(Config.RCntFix);
-            enabled_disabled(Config.UseNet);
+//            enabled_disabled(Config.UseNet);
             enabled_disabled(Config.VSyncWA);
 
             optionBrowser.TriggerUpdate();

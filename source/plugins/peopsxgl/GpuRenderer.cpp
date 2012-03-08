@@ -357,8 +357,15 @@ void GpuRenderer::SubmitVertices() {
         {
             // update render states
             UpdatesStates();
+
+
             // Draw
-            Xe_DrawIndexedPrimitive(xe, XE_PRIMTYPE_TRIANGLELIST, 0, 0, verticesCount(), prevIndicesCount, (indicesCount() - prevIndicesCount) / 3);
+            if(m_PrimType!=PRIM_RECTLIST){
+                Xe_DrawIndexedPrimitive(xe, XE_PRIMTYPE_TRIANGLELIST, 0, 0, verticesCount(), prevIndicesCount, (indicesCount() - prevIndicesCount) / 3);
+            }
+            else{
+                Xe_DrawPrimitive(xe,XE_PRIMTYPE_RECTLIST,vbBaseVertexIndex,1);
+            }
 
             prevIndicesCount = indicesCount();
 
@@ -895,6 +902,14 @@ void GpuRenderer::primEnd() {
         {
             for (int i = 0; i < 6; i++) {
                 pCurrentIndice[0] = prevVerticesCount + indices_quad[i];
+                NextIndice();
+            }
+            break;
+        }
+        case PRIM_RECTLIST:{
+            // don't use indice buffer but fake them
+            for (int i = 0; i < 6; i++) {
+                pCurrentIndice[0] = prevVerticesCount + 0;
                 NextIndice();
             }
             break;

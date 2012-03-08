@@ -188,7 +188,7 @@ TODO:
 - I-cache / D-cache swapping
 - Isolate D-cache from RAM
 */
-
+#if 0
 static inline u32 *Read_ICache(u32 pc, boolean isolate) {
 	u32 pc_bank, pc_offset, pc_cache;
 	u8 *IAddr, *ICode;
@@ -252,6 +252,11 @@ static inline u32 *Read_ICache(u32 pc, boolean isolate) {
 	// default
 	return (u32 *)PSXM(pc);
 }
+#else
+static inline u32 *Read_ICache(u32 pc, boolean isolate) {
+    return (u32 *)PSXM(pc);
+}
+#endif
 
 #if defined(__BIGENDIAN__)
 

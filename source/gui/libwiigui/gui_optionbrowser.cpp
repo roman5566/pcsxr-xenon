@@ -42,41 +42,6 @@ GuiOptionBrowser::GuiOptionBrowser(int w, int h, OptionList * l) {
 
     bgOptionsEntry = new GuiImageData(xenon_bg_file_selection_entry_png);
 
-    scrollbar = new GuiImageData(xenon_scrollbar_png);
-    scrollbarImg = new GuiImage(scrollbar);
-    scrollbarImg->SetParent(this);
-    scrollbarImg->SetAlignment(ALIGN_RIGHT, ALIGN_TOP);
-    scrollbarImg->SetPosition(0, 30);
-
-    arrowDown = new GuiImageData(scrollbar_arrowdown_png);
-    arrowDownImg = new GuiImage(arrowDown);
-    arrowDownOver = new GuiImageData(scrollbar_arrowdown_over_png);
-    arrowDownOverImg = new GuiImage(arrowDownOver);
-    arrowUp = new GuiImageData(scrollbar_arrowup_png);
-    arrowUpImg = new GuiImage(arrowUp);
-    arrowUpOver = new GuiImageData(scrollbar_arrowup_over_png);
-    arrowUpOverImg = new GuiImage(arrowUpOver);
-
-    arrowUpBtn = new GuiButton(arrowUpImg->GetWidth(), arrowUpImg->GetHeight());
-    arrowUpBtn->SetParent(this);
-    arrowUpBtn->SetImage(arrowUpImg);
-    arrowUpBtn->SetImageOver(arrowUpOverImg);
-    arrowUpBtn->SetAlignment(ALIGN_RIGHT, ALIGN_TOP);
-    arrowUpBtn->SetSelectable(false);
-    arrowUpBtn->SetTrigger(trigA);
-    arrowUpBtn->SetSoundOver(btnSoundOver);
-    arrowUpBtn->SetSoundClick(btnSoundClick);
-
-    arrowDownBtn = new GuiButton(arrowDownImg->GetWidth(), arrowDownImg->GetHeight());
-    arrowDownBtn->SetParent(this);
-    arrowDownBtn->SetImage(arrowDownImg);
-    arrowDownBtn->SetImageOver(arrowDownOverImg);
-    arrowDownBtn->SetAlignment(ALIGN_RIGHT, ALIGN_BOTTOM);
-    arrowDownBtn->SetSelectable(false);
-    arrowDownBtn->SetTrigger(trigA);
-    arrowDownBtn->SetSoundOver(btnSoundOver);
-    arrowDownBtn->SetSoundClick(btnSoundClick);
-
     for (int i = 0; i < PAGESIZE; i++) {
 
         optionTxt[i] = new GuiText(NULL, 20, (GXColor) {
@@ -109,23 +74,11 @@ GuiOptionBrowser::GuiOptionBrowser(int w, int h, OptionList * l) {
  * Destructor for the GuiOptionBrowser class.
  */
 GuiOptionBrowser::~GuiOptionBrowser() {
-    delete arrowUpBtn;
-    delete arrowDownBtn;
 
     delete bgOptionsImg;
-    delete scrollbarImg;
-    delete arrowDownImg;
-    delete arrowDownOverImg;
-    delete arrowUpImg;
-    delete arrowUpOverImg;
 
     delete bgOptions;
     delete bgOptionsEntry;
-    delete scrollbar;
-    delete arrowDown;
-    delete arrowDownOver;
-    delete arrowUp;
-    delete arrowUpOver;
 
     delete trigA;
     delete trig2;
@@ -220,9 +173,6 @@ void GuiOptionBrowser::Draw() {
             break;
     }
 
-    scrollbarImg->Draw();
-    arrowUpBtn->Draw();
-    arrowDownBtn->Draw();
 
     this->UpdateEffects();
 }
@@ -248,9 +198,6 @@ void GuiOptionBrowser::Update(GuiTrigger * t) {
         return;
 
     int next, prev;
-
-    arrowUpBtn->Update(t);
-    arrowDownBtn->Update(t);
 
     next = listOffset;
 
@@ -296,7 +243,7 @@ void GuiOptionBrowser::Update(GuiTrigger * t) {
     if (!focus)
         return; // skip navigation
 
-    if (t->Down() || arrowDownBtn->GetState() == STATE_CLICKED) {
+    if (t->Down()) {
         next = this->FindMenuItem(optionIndex[selectedItem], 1);
 
         if (next >= 0) {
@@ -310,8 +257,7 @@ void GuiOptionBrowser::Update(GuiTrigger * t) {
                 ++selectedItem;
             }
         }
-        arrowDownBtn->ResetState();
-    } else if (t->Up() || arrowUpBtn->GetState() == STATE_CLICKED) {
+    } else if (t->Up()) {
         prev = this->FindMenuItem(optionIndex[selectedItem], -1);
 
         if (prev >= 0) {
@@ -325,7 +271,6 @@ void GuiOptionBrowser::Update(GuiTrigger * t) {
                 --selectedItem;
             }
         }
-        arrowUpBtn->ResetState();
     }
 
     if (updateCB)

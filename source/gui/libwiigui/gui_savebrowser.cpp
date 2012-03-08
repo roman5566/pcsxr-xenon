@@ -37,44 +37,10 @@ GuiSaveBrowser::GuiSaveBrowser(int w, int h, SaveList * s, int a) {
     btnSoundOver = new GuiSound(button_over_pcm, button_over_pcm_size, SOUND_PCM);
     btnSoundClick = new GuiSound(button_click_pcm, button_click_pcm_size, SOUND_PCM);
 
-    gameSave = new GuiImageData(button_gamesave_png);
-    gameSaveOver = new GuiImageData(button_gamesave_over_png);
-    gameSaveBlank = new GuiImageData(button_gamesave_blank_png);
+    gameSave = new GuiImageData(xenon_button_gamesave_png);
+    gameSaveOver = new GuiImageData(xenon_button_gamesave_over_png);
+    gameSaveBlank = new GuiImageData(xenon_button_gamesave_blank_png);
 
-    scrollbar = new GuiImageData(scrollbar_png);
-    scrollbarImg = new GuiImage(scrollbar);
-    scrollbarImg->SetParent(this);
-    scrollbarImg->SetAlignment(ALIGN_RIGHT, ALIGN_TOP);
-    scrollbarImg->SetPosition(0, 30);
-
-    arrowDown = new GuiImageData(scrollbar_arrowdown_png);
-    arrowDownImg = new GuiImage(arrowDown);
-    arrowDownOver = new GuiImageData(scrollbar_arrowdown_over_png);
-    arrowDownOverImg = new GuiImage(arrowDownOver);
-    arrowUp = new GuiImageData(scrollbar_arrowup_png);
-    arrowUpImg = new GuiImage(arrowUp);
-    arrowUpOver = new GuiImageData(scrollbar_arrowup_over_png);
-    arrowUpOverImg = new GuiImage(arrowUpOver);
-
-    arrowUpBtn = new GuiButton(arrowUpImg->GetWidth(), arrowUpImg->GetHeight());
-    arrowUpBtn->SetParent(this);
-    arrowUpBtn->SetImage(arrowUpImg);
-    arrowUpBtn->SetImageOver(arrowUpOverImg);
-    arrowUpBtn->SetAlignment(ALIGN_RIGHT, ALIGN_TOP);
-    arrowUpBtn->SetSelectable(false);
-    arrowUpBtn->SetTrigger(trigA);
-    arrowUpBtn->SetSoundOver(btnSoundOver);
-    arrowUpBtn->SetSoundClick(btnSoundClick);
-
-    arrowDownBtn = new GuiButton(arrowDownImg->GetWidth(), arrowDownImg->GetHeight());
-    arrowDownBtn->SetParent(this);
-    arrowDownBtn->SetImage(arrowDownImg);
-    arrowDownBtn->SetImageOver(arrowDownOverImg);
-    arrowDownBtn->SetAlignment(ALIGN_RIGHT, ALIGN_BOTTOM);
-    arrowDownBtn->SetSelectable(false);
-    arrowDownBtn->SetTrigger(trigA);
-    arrowDownBtn->SetSoundOver(btnSoundOver);
-    arrowDownBtn->SetSoundClick(btnSoundClick);
 
     int j = -1;
     for (int i = 0; i < SAVELISTSIZE; i++) {
@@ -118,7 +84,7 @@ GuiSaveBrowser::GuiSaveBrowser(int w, int h, SaveList * s, int a) {
 //                saveBtn[i]->SetPosition(0, 0);
 //            else
 //                saveBtn[i]->SetPosition(257 * (j % 4), 87 * ((j >> 2) + 1));
-//        } else 
+//        } else
         {
             saveBtn[i]->SetPosition(257 * (i % 4), 87 * ((i >> 2)));
         }
@@ -143,23 +109,9 @@ GuiSaveBrowser::GuiSaveBrowser(int w, int h, SaveList * s, int a) {
  * Destructor for the GuiSaveBrowser class.
  */
 GuiSaveBrowser::~GuiSaveBrowser() {
-    delete arrowUpBtn;
-    delete arrowDownBtn;
-
-    delete scrollbarImg;
-    delete arrowDownImg;
-    delete arrowDownOverImg;
-    delete arrowUpImg;
-    delete arrowUpOverImg;
-
     delete gameSave;
     delete gameSaveOver;
     delete gameSaveBlank;
-    delete scrollbar;
-    delete arrowDown;
-    delete arrowDownOver;
-    delete arrowUp;
-    delete arrowUpOver;
 
     delete btnSoundOver;
     delete btnSoundClick;
@@ -234,9 +186,6 @@ void GuiSaveBrowser::Update(GuiTrigger * t) {
     int i, len;
     char savetext[50];
 
-    arrowUpBtn->Update(t);
-    arrowDownBtn->Update(t);
-
     // pad/joystick navigation
     if (!focus)
         goto endNavigation; // skip navigation
@@ -266,7 +215,7 @@ void GuiSaveBrowser::Update(GuiTrigger * t) {
         } else {
             selectedItem -= 1;
         }
-    } else if (t->Down() || arrowDownBtn->GetState() == STATE_CLICKED) {
+    } else if (t->Down()) {
         if (selectedItem >= SAVELISTSIZE - 2) {
             if (listOffset + SAVELISTSIZE + 1 < saves->length) {
                 listOffset += 2;
@@ -279,7 +228,7 @@ void GuiSaveBrowser::Update(GuiTrigger * t) {
         } else if (saveBtn[selectedItem + 2]->IsVisible()) {
             selectedItem += 2;
         }
-    } else if (t->Up() || arrowUpBtn->GetState() == STATE_CLICKED) {
+    } else if (t->Up()) {
         if (selectedItem < 2) {
             if ((listOffset - 2 >= 0 && action == 0) ||
                     (listOffset >= 0 && action == 1)) {
@@ -292,12 +241,6 @@ void GuiSaveBrowser::Update(GuiTrigger * t) {
     }
 
 endNavigation:
-
-    if (arrowDownBtn->GetState() == STATE_CLICKED)
-        arrowDownBtn->ResetState();
-
-    if (arrowUpBtn->GetState() == STATE_CLICKED)
-        arrowUpBtn->ResetState();
 
     for (i = 0; i < SAVELISTSIZE; i++) {
         if (listOffset + i < 0 && action == 1) {

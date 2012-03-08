@@ -9,7 +9,7 @@
  ***************************************************************************/
 
 #include "gui.h"
-
+#include "../gui_debug.h"
 /**
  * Constructor for the Object class.
  */

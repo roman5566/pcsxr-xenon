@@ -11,7 +11,6 @@
 #include "gui.h"
 #include "../gui_debug.h"
 
-
 /**
  * Constructor for the GuiButton class.
  */
@@ -201,7 +200,8 @@ void GuiButton::Update(GuiTrigger * t) {
     else if (parentElement && parentElement->GetState() == STATE_DISABLED)
         return;
 
-//#ifdef HW_RVL
+    //#ifdef HW_RVL
+#if 0
     // cursor
     if (t->wpad->ir.valid && t->chan >= 0) {
         if (this->IsInside(t->wpad->ir.x, t->wpad->ir.y)) {
@@ -234,7 +234,8 @@ void GuiButton::Update(GuiTrigger * t) {
             }
         }
     }
-//#endif
+    //#endif
+#endif
 
     // button triggers
     if (this->IsClickable()) {

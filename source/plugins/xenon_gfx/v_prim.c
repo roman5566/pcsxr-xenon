@@ -116,24 +116,20 @@ __inline void SetRenderMode(uint32_t DrawAttributes) {
         g_m2 = (short) ((DrawAttributes >> 8)&0xff);
         g_m3 = (short) ((DrawAttributes >> 16)&0xff);
     }
-    if(o_gm1!=g_m1){
-    printf("g_m1 = %d | g_m1 = %d | g_m1 = %d\r\n",g_m1,g_m2,g_m3);
-    o_gm1=g_m1;
-    }
 }
 
 ////////////////////////////////////////////////////////////////////////
 
 // oki, here are the psx gpu coord rules: poly coords are
-// 11 bit signed values (-1024...1023). If the x or y distance 
-// exceeds 1024, the polygon will not be drawn. 
+// 11 bit signed values (-1024...1023). If the x or y distance
+// exceeds 1024, the polygon will not be drawn.
 // Since quads are treated as two triangles by the real gpu,
-// this 'discard rule' applies to each of the quad's triangle 
-// (so one triangle can be drawn, the other one discarded). 
+// this 'discard rule' applies to each of the quad's triangle
+// (so one triangle can be drawn, the other one discarded).
 // Also, y drawing is wrapped at 512 one time,
 // then it will get negative (and therefore not drawn). The
 // 'CheckCoord' funcs are a simple (not comlete!) approach to
-// do things right, I will add a better detection soon... the 
+// do things right, I will add a better detection soon... the
 // current approach will be easier to do in hw/accel plugins, imho
 
 // 11 bit signed
@@ -190,7 +186,7 @@ static inline void AdjustCoord1() {
 // y   20 -228 222 -100
 
 // 0 __1
-//  \ / \ 
+//  \ / \
 //   2___3
 
 static inline  BOOL CheckCoord4() {
@@ -561,9 +557,9 @@ void primMoveImage(unsigned char * baseAddr) {
     if (imageSY <= 0) return;
 
     // ZN SF2: screwed moves
-    // 
+    //
     // move sgpuData[2],sgpuData[3],sgpuData[4],sgpuData[5],sgpuData[6],sgpuData[7]
-    // 
+    //
     // move 365 182 32723 -21846 17219  15427
     // move 127 160 147   -1     20817  13409
     // move 141 165 16275 -21862 -32126 13442
@@ -641,7 +637,7 @@ void primMoveImage(unsigned char * baseAddr) {
 }
 
 ////////////////////////////////////////////////////////////////////////
-// cmd: draw free-size Tile 
+// cmd: draw free-size Tile
 ////////////////////////////////////////////////////////////////////////
 
 //#define SMALLDEBUG

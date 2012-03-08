@@ -118,7 +118,7 @@ static void __dump() {
 static __inline void UpdateGlobalTP(unsigned short gdata) {
     GlobalTextAddrX = (gdata << 6) & 0x3c0; // texture addr
 
-        
+
     GlobalTextAddrY = (gdata << 4) & 0x100; // "normal" psx gpu
 
     usMirror = gdata & 0x3000;
@@ -128,7 +128,7 @@ static __inline void UpdateGlobalTP(unsigned short gdata) {
     GlobalTextABR = (gdata >> 5) & 0x3; // blend mode
 
     GlobalTexturePage = (GlobalTextAddrX >> 6)+(GlobalTextAddrY >> 4);
-    
+
     //printf("GlobalTexturePage : %08x\r\n",GlobalTexturePage);
 #if 0
     STATUSREG &= ~0x07ff; // Clear the necessary bits
@@ -170,7 +170,7 @@ __inline unsigned short BGR24to16(uint32_t BGR) {
 
 static __inline void PRIMdrawTexturedQuad(OGLVertex* vertex1, OGLVertex* vertex2,
         OGLVertex* vertex3, OGLVertex* vertex4) {
-    gpuRenderer.primBegin(PRIM_TRIANGLE_STRIP);
+    gpuRenderer.primBegin(PRIM_RECTLIST);
     gpuRenderer.primTexCoord(&vertex1->sow);
     gpuRenderer.primVertex(&vertex1->x);
 
@@ -358,7 +358,7 @@ static __inline void PRIMdrawQuad(OGLVertex* vertex1, OGLVertex* vertex2,
 typedef struct SEMITRANSTAG {
     uint32_t srcFac;
     uint32_t dstFac;
-    
+
     uint32_t alpha;
     int blendop;
 } SemiTransParams;
@@ -386,7 +386,7 @@ SemiTransParams TransTex[4] = {
     {XE_BLEND_ZERO, XE_BLEND_INVSRCCOLOR, 255, XE_BLENDOP_REVSUBTRACT},
      {XE_BLEND_ONE, XE_BLEND_ONE, 192, XE_BLENDOP_ADD}
 };
- */ 
+ */
 
 SemiTransParams TransSets[4]=
 {
@@ -477,7 +477,7 @@ void SetSemiTransMulti(int Pass) {
 
     ubGloAlpha = 255;
     ubGloColAlpha = 255;
-    
+
     gpuRenderer.SetBlendOp(XE_BLENDOP_ADD);
 
     // are we enabling SemiTransparent mode?
@@ -639,14 +639,14 @@ static void SetRenderMode(uint32_t DrawAttributes, BOOL bSCol) {
 
         gTexName = currTex;
 
-        if (!bTexEnabled) 
+        if (!bTexEnabled)
             bTexEnabled = TRUE;
-        
+
         // -> turn texturing on
         gpuRenderer.EnableTexture();
-        
+
         gpuRenderer.SetTexture(currTex);
-    } 
+    }
     else
     {
         // no texture ?
@@ -654,7 +654,7 @@ static void SetRenderMode(uint32_t DrawAttributes, BOOL bSCol) {
             bTexEnabled = FALSE;
         // -> turn texturing off
         gpuRenderer.DisableTexture();
-    } 
+    }
 
     if (bSCol) // also set color ?
     {
@@ -681,7 +681,7 @@ static void SetRenderMode(uint32_t DrawAttributes, BOOL bSCol) {
         //   else                  glShadeModel(GL_FLAT);
         bOldSmoothShaded = bDrawSmoothShaded;
     }
-    
+
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -1209,7 +1209,7 @@ static void UploadScreenEx(int Position) {
 ////////////////////////////////////////////////////////////////////////
 
 void UploadScreen(int Position) {
-    
+
     short YStep, XStep;
 
     if (xrUploadArea.x0 > 1023) xrUploadArea.x0 = 1023;
@@ -1232,20 +1232,20 @@ void UploadScreen(int Position) {
         return;
     }
 
-    
+
     bUsingMovie = TRUE;
     bDrawTextured = TRUE;
     bDrawSmoothShaded = FALSE;
 
-    if (bGLBlend) 
+    if (bGLBlend)
         vertex[0].c.lcol = 0xff7f7f7f; // set solid col
-    else 
+    else
         vertex[0].c.lcol = 0xffffffff;
-    
+
     SETCOL(vertex[0]);
 
     SetOGLDisplaySettings(0);
-  
+
     {
         lx0 = lx3 = xrMovieArea.x0 = xrUploadArea.x0;
         ly0 = ly1 = xrMovieArea.y0 = xrUploadArea.y0;
@@ -1258,7 +1258,7 @@ void UploadScreen(int Position) {
         SetRenderState((uint32_t) 0x01000000);
         SetRenderMode((uint32_t) 0x01000000, FALSE); // upload texture data
         offsetScreenUpload(Position);
-        
+
         vertex[0].sow = 0;
         vertex[0].tow = 0;
 
@@ -1270,7 +1270,7 @@ void UploadScreen(int Position) {
 
         vertex[3].sow = 0;
         vertex[3].tow = ((float)YStep/1024.f);
-                
+
         PRIMdrawTexturedQuad(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
     }
 
@@ -2532,7 +2532,7 @@ static void primSprt8(unsigned char * baseAddr) {
         SetSemiTransMulti(1);
         PRIMdrawTexturedQuad(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
     }
-    
+
     if (ubOpaqueDraw) {
         SetZMask4O();
         if (bUseMultiPass) SetOpaqueColor(GETLE32(&gpuData[0]));
@@ -2645,12 +2645,12 @@ static void primSprt16(unsigned char * baseAddr) {
         DrawMultiFilterSprite();
     else
         PRIMdrawTexturedQuad(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
-        
+
     if (bDrawMultiPass) {
         SetSemiTransMulti(1);
         PRIMdrawTexturedQuad(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
     }
-    
+
     if (ubOpaqueDraw) {
         SetZMask4O();
         if (bUseMultiPass) SetOpaqueColor(GETLE32(&gpuData[0]));
@@ -2834,7 +2834,7 @@ static void primSprtSRest(unsigned char * baseAddr, unsigned short type) {
         SetSemiTransMulti(1);
         PRIMdrawTexturedQuad(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
     }
-    
+
     if (ubOpaqueDraw) {
         SetZMask4O();
         if (bUseMultiPass) SetOpaqueColor(GETLE32(&gpuData[0]));
@@ -2971,7 +2971,7 @@ static void primSprtS(unsigned char * baseAddr) {
         SetSemiTransMulti(1);
         PRIMdrawTexturedQuad(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
     }
-    
+
     if (ubOpaqueDraw) {
         SetZMask4O();
         if (bUseMultiPass) SetOpaqueColor(GETLE32(&gpuData[0]));
@@ -3276,7 +3276,7 @@ static BOOL DoLineCheck(uint32_t *gpuData) {
         SetSemiTransMulti(1);
         PRIMdrawTexturedQuad(&vertex[0], &vertex[1], &vertex[3], &vertex[2]);
     }
-    
+
     if (ubOpaqueDraw) {
         SetZMask4O();
         if (bUseMultiPass) SetOpaqueColor(GETLE32(&gpuData[0]));
@@ -3346,7 +3346,7 @@ static void primPolyFT3(unsigned char * baseAddr) {
         SetSemiTransMulti(1);
         PRIMdrawTexturedTri(&vertex[0], &vertex[1], &vertex[2]);
     }
-    
+
     if (ubOpaqueDraw) {
         SetZMask3O();
         if (bUseMultiPass) SetOpaqueColor(GETLE32(&gpuData[0]));
@@ -3732,7 +3732,7 @@ static void primPolyFT4(unsigned char * baseAddr) {
         SetSemiTransMulti(1);
         PRIMdrawTexturedQuad(&vertex[0], &vertex[1], &vertex[3], &vertex[2]);
     }
-    
+
     if (ubOpaqueDraw) {
         SetZMask4O();
         if (bUseMultiPass) SetOpaqueColor(GETLE32(&gpuData[0]));
@@ -3846,7 +3846,7 @@ static void primPolyGT3(unsigned char *baseAddr) {
         SetSemiTransMulti(1);
         PRIMdrawTexGouraudTriColor(&vertex[0], &vertex[1], &vertex[2]);
     }
-    
+
     if (ubOpaqueDraw) {
         SetZMask3O();
         if (bUseMultiPass) {
@@ -3959,7 +3959,7 @@ static void primPolyGT4(unsigned char *baseAddr) {
     assignTexture4();
 
     RectTexAlign();
-    
+
     if (bDrawNonShaded) {
         //if(!bUseMultiPass) vertex[0].lcol=DoubleBGR2RGB(gpuData[0]); else vertex[0].lcol=gpuData[0];
         if (bGLBlend) vertex[0].c.lcol = 0x7f7f7f;
@@ -3978,7 +3978,7 @@ static void primPolyGT4(unsigned char *baseAddr) {
         }
         return;
     }
- 
+
     if (!bUseMultiPass && !bGLBlend) {
         vertex[0].c.lcol = DoubleBGR2RGB(GETLE32(&gpuData[0]));
         vertex[1].c.lcol = DoubleBGR2RGB(GETLE32(&gpuData[3]));
@@ -3999,7 +3999,7 @@ static void primPolyGT4(unsigned char *baseAddr) {
         SetSemiTransMulti(1);
         PRIMdrawTexGouraudTriColorQuad(&vertex[0], &vertex[1], &vertex[3], &vertex[2]);
     }
-    
+
     if (ubOpaqueDraw) {
         SetZMask4O();
         if (bUseMultiPass) {
@@ -4014,7 +4014,7 @@ static void primPolyGT4(unsigned char *baseAddr) {
         PRIMdrawTexGouraudTriColorQuad(&vertex[0], &vertex[1], &vertex[3], &vertex[2]);
         DEFOPAQUEOFF
     }
-    
+
     iDrawnSomething = 1;
 }
 

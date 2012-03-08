@@ -901,7 +901,7 @@ typedef struct _optionlist {
         int max;//maximum
         int curr;//current value
     } v[50];
-    
+
 } OptionList;
 
 //!Display a list of menu options
@@ -931,23 +931,10 @@ protected:
     int listOffset;
     OptionList * options;
 
-    GuiButton * arrowUpBtn;
-    GuiButton * arrowDownBtn;
-
     GuiImage * bgOptionsImg;
-    GuiImage * scrollbarImg;
-    GuiImage * arrowDownImg;
-    GuiImage * arrowDownOverImg;
-    GuiImage * arrowUpImg;
-    GuiImage * arrowUpOverImg;
 
     GuiImageData * bgOptions;
     GuiImageData * bgOptionsEntry;
-    GuiImageData * scrollbar;
-    GuiImageData * arrowDown;
-    GuiImageData * arrowDownOver;
-    GuiImageData * arrowUp;
-    GuiImageData * arrowUpOver;
 
     GuiSound * btnSoundOver;
     GuiSound * btnSoundClick;
@@ -975,29 +962,11 @@ protected:
     GuiImage * fileListBg[FILE_PAGESIZE];
     GuiImage * fileListFolder[FILE_PAGESIZE];
 
-    GuiButton * arrowUpBtn;
-    GuiButton * arrowDownBtn;
-    GuiButton * scrollbarBoxBtn;
-
     GuiImage * bgFileSelectionImg;
-    GuiImage * scrollbarImg;
-    GuiImage * arrowDownImg;
-    GuiImage * arrowDownOverImg;
-    GuiImage * arrowUpImg;
-    GuiImage * arrowUpOverImg;
-    GuiImage * scrollbarBoxImg;
-    GuiImage * scrollbarBoxOverImg;
 
     GuiImageData * bgFileSelection;
     GuiImageData * bgFileSelectionEntry;
     GuiImageData * fileFolder;
-    GuiImageData * scrollbar;
-    GuiImageData * arrowDown;
-    GuiImageData * arrowDownOver;
-    GuiImageData * arrowUp;
-    GuiImageData * arrowUpOver;
-    GuiImageData * scrollbarBox;
-    GuiImageData * scrollbarBoxOver;
 
     GuiSound * btnSoundOver;
     GuiSound * btnSoundClick;
@@ -1045,23 +1014,12 @@ protected:
     GuiImage * saveBgOverImg[SAVELISTSIZE];
     GuiImage * savePreviewImg[SAVELISTSIZE];
 
-    GuiButton * arrowUpBtn;
-    GuiButton * arrowDownBtn;
-
-    GuiImage * scrollbarImg;
-    GuiImage * arrowDownImg;
-    GuiImage * arrowDownOverImg;
-    GuiImage * arrowUpImg;
-    GuiImage * arrowUpOverImg;
-
     GuiImageData * gameSave;
     GuiImageData * gameSaveOver;
     GuiImageData * gameSaveBlank;
     GuiImageData * scrollbar;
     GuiImageData * arrowDown;
-    GuiImageData * arrowDownOver;
     GuiImageData * arrowUp;
-    GuiImageData * arrowUpOver;
 
     GuiSound * btnSoundOver;
     GuiSound * btnSoundClick;

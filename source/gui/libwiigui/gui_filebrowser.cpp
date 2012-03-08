@@ -49,63 +49,6 @@ GuiFileBrowser::GuiFileBrowser(int w, int h) {
     bgFileSelectionEntry = new GuiImageData(xenon_bg_file_selection_entry_png);
     fileFolder = new GuiImageData(folder_png);
 
-    scrollbar = new GuiImageData(xenon_scrollbar_png);
-    scrollbarImg = new GuiImage(scrollbar);
-    scrollbarImg->SetParent(this);
-    scrollbarImg->SetAlignment(ALIGN_RIGHT, ALIGN_TOP);
-    scrollbarImg->SetPosition(0, 30);
-
-    arrowDown = new GuiImageData(xenon_scrollbar_arrowdown_png);
-    arrowDownImg = new GuiImage(arrowDown);
-    arrowDownOver = new GuiImageData(scrollbar_arrowdown_over_png);
-    arrowDownOverImg = new GuiImage(arrowDownOver);
-    arrowUp = new GuiImageData(xenon_scrollbar_arrowup_png);
-    arrowUpImg = new GuiImage(arrowUp);
-    arrowUpOver = new GuiImageData(scrollbar_arrowup_over_png);
-    arrowUpOverImg = new GuiImage(arrowUpOver);
-    scrollbarBox = new GuiImageData(xenon_scrollbar_box_png);
-    scrollbarBoxImg = new GuiImage(scrollbarBox);
-    scrollbarBoxOver = new GuiImageData(scrollbar_box_over_png);
-    scrollbarBoxOverImg = new GuiImage(scrollbarBoxOver);
-
-    arrowUpBtn = new GuiButton(arrowUpImg->GetWidth(), arrowUpImg->GetHeight());
-    arrowUpBtn->SetParent(this);
-    arrowUpBtn->SetImage(arrowUpImg);
-    arrowUpBtn->SetImageOver(arrowUpOverImg);
-    arrowUpBtn->SetAlignment(ALIGN_RIGHT, ALIGN_TOP);
-    arrowUpBtn->SetPosition(0, -2);
-    arrowUpBtn->SetSelectable(false);
-    arrowUpBtn->SetClickable(false);
-    arrowUpBtn->SetHoldable(true);
-    arrowUpBtn->SetTrigger(trigHeldA);
-    arrowUpBtn->SetSoundOver(btnSoundOver);
-    arrowUpBtn->SetSoundClick(btnSoundClick);
-
-    arrowDownBtn = new GuiButton(arrowDownImg->GetWidth(), arrowDownImg->GetHeight());
-    arrowDownBtn->SetParent(this);
-    arrowDownBtn->SetImage(arrowDownImg);
-    arrowDownBtn->SetImageOver(arrowDownOverImg);
-    arrowDownBtn->SetAlignment(ALIGN_RIGHT, ALIGN_BOTTOM);
-    arrowDownBtn->SetSelectable(false);
-    arrowDownBtn->SetClickable(false);
-    arrowDownBtn->SetHoldable(true);
-    arrowDownBtn->SetTrigger(trigHeldA);
-    arrowDownBtn->SetSoundOver(btnSoundOver);
-    arrowDownBtn->SetSoundClick(btnSoundClick);
-
-    scrollbarBoxBtn = new GuiButton(scrollbarBoxImg->GetWidth(), scrollbarBoxImg->GetHeight());
-    scrollbarBoxBtn->SetParent(this);
-    scrollbarBoxBtn->SetImage(scrollbarBoxImg);
-    scrollbarBoxBtn->SetImageOver(scrollbarBoxOverImg);
-    scrollbarBoxBtn->SetAlignment(ALIGN_RIGHT, ALIGN_TOP);
-    scrollbarBoxBtn->SetMinY(0);
-//    scrollbarBoxBtn->SetMaxY(130);
-//    scrollbarBoxBtn->SetMaxY(360);
-    scrollbarBoxBtn->SetSelectable(false);
-    scrollbarBoxBtn->SetClickable(false);
-    scrollbarBoxBtn->SetHoldable(true);
-    scrollbarBoxBtn->SetTrigger(trigHeldA);
-
     for (int i = 0; i < FILE_PAGESIZE; ++i) {
 
         fileListText[i] = new GuiText(NULL, 20, (GXColor) {
@@ -133,29 +76,11 @@ GuiFileBrowser::GuiFileBrowser(int w, int h) {
  * Destructor for the GuiFileBrowser class.
  */
 GuiFileBrowser::~GuiFileBrowser() {
-    delete arrowUpBtn;
-    delete arrowDownBtn;
-    delete scrollbarBoxBtn;
-
     delete bgFileSelectionImg;
-    delete scrollbarImg;
-    delete arrowDownImg;
-    delete arrowDownOverImg;
-    delete arrowUpImg;
-    delete arrowUpOverImg;
-    delete scrollbarBoxImg;
-    delete scrollbarBoxOverImg;
 
     delete bgFileSelection;
     delete bgFileSelectionEntry;
     delete fileFolder;
-    delete scrollbar;
-    delete arrowDown;
-    delete arrowDownOver;
-    delete arrowUp;
-    delete arrowUpOver;
-    delete scrollbarBox;
-    delete scrollbarBoxOver;
 
     delete btnSoundOver;
     delete btnSoundClick;
@@ -208,11 +133,6 @@ void GuiFileBrowser::Draw() {
         fileList[i]->Draw();
     }
 
-    scrollbarImg->Draw();
-    arrowUpBtn->Draw();
-    arrowDownBtn->Draw();
-    scrollbarBoxBtn->Draw();
-
     this->UpdateEffects();
 }
 
@@ -226,44 +146,6 @@ void GuiFileBrowser::Update(GuiTrigger * t) {
     int position = 0;
     int positionWiimote = 0;
 
-    arrowUpBtn->Update(t);
-    arrowDownBtn->Update(t);
-    scrollbarBoxBtn->Update(t);
-
-    // move the file listing to respond to wiimote cursor movement
-    if (scrollbarBoxBtn->GetState() == STATE_HELD &&
-            scrollbarBoxBtn->GetStateChan() == t->chan &&
-            t->wpad->ir.valid &&
-            browser.numEntries > FILE_PAGESIZE
-            ) {
-        scrollbarBoxBtn->SetPosition(0, 0);
-        positionWiimote = t->wpad->ir.y - 60 - scrollbarBoxBtn->GetTop();
-
-        if (positionWiimote < scrollbarBoxBtn->GetMinY())
-            positionWiimote = scrollbarBoxBtn->GetMinY();
-        else if (positionWiimote > scrollbarBoxBtn->GetMaxY())
-            positionWiimote = scrollbarBoxBtn->GetMaxY();
-
-        browser.pageIndex = (positionWiimote * browser.numEntries) / 130.0 - selectedItem;
-
-        if (browser.pageIndex <= 0) {
-            browser.pageIndex = 0;
-        } else if (browser.pageIndex + FILE_PAGESIZE >= browser.numEntries) {
-            browser.pageIndex = browser.numEntries - FILE_PAGESIZE;
-        }
-        listChanged = true;
-        focus = false;
-    }
-
-    if (arrowDownBtn->GetState() == STATE_HELD && arrowDownBtn->GetStateChan() == t->chan) {
-        t->wpad->btns_d |= WPAD_BUTTON_DOWN;
-        if (!this->IsFocused())
-            ((GuiWindow *)this->GetParent())->ChangeFocus(this);
-    } else if (arrowUpBtn->GetState() == STATE_HELD && arrowUpBtn->GetStateChan() == t->chan) {
-        t->wpad->btns_d |= WPAD_BUTTON_UP;
-        if (!this->IsFocused())
-            ((GuiWindow *)this->GetParent())->ChangeFocus(this);
-    }
 
     // pad/joystick navigation
     if (!focus) {
@@ -355,25 +237,6 @@ endNavigation:
             fileListText[i]->SetScroll(SCROLL_HORIZONTAL);
         else
             fileListText[i]->SetScroll(SCROLL_NONE);
-    }
-
-    // update the location of the scroll box based on the position in the file list
-    if (positionWiimote > 0) {
-        position = positionWiimote; // follow wiimote cursor
-        scrollbarBoxBtn->SetPosition(0, position + 36);
-    } else if (listChanged || numEntries != browser.numEntries) {
-        
-//        if (float((browser.pageIndex << 1)) / (float(FILE_PAGESIZE)) < 1.0) {
-        if ((browser.pageIndex)==0){
-            position = 0;
-        } else if (browser.pageIndex + FILE_PAGESIZE >= browser.numEntries) {
-            position = 380;
-        } else {
-            position = 380 * (browser.pageIndex + FILE_PAGESIZE / 2) / (float) browser.numEntries;
-        } 
-        scrollbarBoxBtn->SetPosition(0, position + 36);
-        
-        scrollbarBoxBtn->SetPosition(0, position + 36);
     }
 
     listChanged = false;

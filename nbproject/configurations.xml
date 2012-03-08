@@ -3,47 +3,16 @@
   <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
     <df name="pcsxr-xenon" root="Z:/xenon/share/pcsxr-xenon">
       <df name="build">
-        <in>bg_file_selection_entry_png.h</in>
-        <in>bg_file_selection_png.h</in>
-        <in>bg_options_entry_png.h</in>
-        <in>bg_options_png.h</in>
         <in>button_click_pcm.h</in>
         <in>button_gamesave_blank_png.h</in>
-        <in>button_gamesave_over_png.h</in>
-        <in>button_gamesave_png.h</in>
-        <in>button_large_over_png.h</in>
-        <in>button_large_png.h</in>
         <in>button_over_pcm.h</in>
-        <in>button_over_png.h</in>
-        <in>button_png.h</in>
         <in>debug_xenon_bg_png.h</in>
         <in>dialogue_box_png.h</in>
         <in>en_lang.h</in>
         <in>folder_png.h</in>
         <in>font_ttf.h</in>
-        <in>keyboard_key_over_png.h</in>
-        <in>keyboard_key_png.h</in>
-        <in>keyboard_largekey_over_png.h</in>
-        <in>keyboard_largekey_png.h</in>
-        <in>keyboard_mediumkey_over_png.h</in>
-        <in>keyboard_mediumkey_png.h</in>
         <in>keyboard_textbox_png.h</in>
         <in>pasm.d</in>
-        <in>player1_grab_png.h</in>
-        <in>player1_point_png.h</in>
-        <in>player2_grab_png.h</in>
-        <in>player2_point_png.h</in>
-        <in>player3_grab_png.h</in>
-        <in>player3_point_png.h</in>
-        <in>player4_grab_png.h</in>
-        <in>player4_point_png.h</in>
-        <in>scrollbar_arrowdown_over_png.h</in>
-        <in>scrollbar_arrowdown_png.h</in>
-        <in>scrollbar_arrowup_over_png.h</in>
-        <in>scrollbar_arrowup_png.h</in>
-        <in>scrollbar_box_over_png.h</in>
-        <in>scrollbar_box_png.h</in>
-        <in>scrollbar_png.h</in>
         <in>xenon_bg_file_selection_entry_png.h</in>
         <in>xenon_bg_png.h</in>
         <in>xenon_button_large_over_png.h</in>

@@ -147,9 +147,9 @@ extern const u8 xenon_button_large_over_png[];
 
 extern const u8 xenon_bg_file_selection_entry_png[];
 
-extern const u8 button_gamesave_blank_png[];
-extern const u8 button_gamesave_over_png[];
-extern const u8 button_gamesave_png[];
+extern const u8 xenon_button_gamesave_blank_png[];
+extern const u8 xenon_button_gamesave_over_png[];
+extern const u8 xenon_button_gamesave_png[];
 
 
 #endif

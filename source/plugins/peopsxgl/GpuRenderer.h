@@ -31,7 +31,8 @@ typedef struct XeColor {
 enum GpuPrimTypes {
     PRIM_TRIANGLE,
     PRIM_TRIANGLE_STRIP,
-    PRIM_QUAD
+    PRIM_QUAD,
+    PRIM_RECTLIST /* new => used for video */
 };
 
 enum GlExt {
