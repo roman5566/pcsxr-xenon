@@ -35,7 +35,7 @@ static int cpu_running = 0;
 // These macros are used to assemble the repassembler functions
 
 #ifdef PSXCPU_LOG
-#define debugI() PSXCPU_LOG("%s\n", disR3000AF(psxRegs.code, psxRegs.pc)); 
+#define debugI() PSXCPU_LOG("%s\n", disR3000AF(psxRegs.code, psxRegs.pc));
 #else
 #define debugI()
 #endif
@@ -99,12 +99,12 @@ static void delayReadWrite(int reg, u32 bpc) {
     psxBranchTest();
 }
 
-// this defines shall be used with the tmp 
+// this defines shall be used with the tmp
 // of the next func (instead of _Funct_...)
-#define _tFunct_  ((tmp      ) & 0x3F)  // The funct part of the instruction register 
-#define _tRd_     ((tmp >> 11) & 0x1F)  // The rd part of the instruction register 
-#define _tRt_     ((tmp >> 16) & 0x1F)  // The rt part of the instruction register 
-#define _tRs_     ((tmp >> 21) & 0x1F)  // The rs part of the instruction register 
+#define _tFunct_  ((tmp      ) & 0x3F)  // The funct part of the instruction register
+#define _tRd_     ((tmp >> 11) & 0x1F)  // The rd part of the instruction register
+#define _tRt_     ((tmp >> 16) & 0x1F)  // The rt part of the instruction register
+#define _tRs_     ((tmp >> 21) & 0x1F)  // The rs part of the instruction register
 #define _tSa_     ((tmp >>  6) & 0x1F)  // The sa part of the instruction register
 
 int psxTestLoadDelay(int reg, u32 tmp) {
@@ -796,7 +796,7 @@ void psxJALR() {
 #define _oB_ (_u32(_rRs_) + _Imm_)
 
 void psxLB() {
-#ifndef LIBXENON    
+#ifndef LIBXENON
     // load delay = 1 latency
     if (branch == 0) {
         // simulate: beq r0,r0,lw+4 / lw / (delay slot)
@@ -836,7 +836,7 @@ void psxLBU() {
 }
 
 void psxLH() {
-#ifndef LIBXENON    
+#ifndef LIBXENON
     // load delay = 1 latency
     if (branch == 0) {
         // simulate: beq r0,r0,lw+4 / lw / (delay slot)
@@ -856,7 +856,7 @@ void psxLH() {
 }
 
 void psxLHU() {
-#ifndef LIBXENON    
+#ifndef LIBXENON
     // load delay = 1 latency
     if (branch == 0) {
         // simulate: beq r0,r0,lw+4 / lw / (delay slot)
@@ -876,7 +876,7 @@ void psxLHU() {
 }
 
 void psxLW() {
-#ifndef LIBXENON    
+#ifndef LIBXENON
     // load delay = 1 latency
     if (branch == 0) {
         // simulate: beq r0,r0,lw+4 / lw / (delay slot)
@@ -1021,7 +1021,7 @@ void psxSWR() {
  * Format:  OP rt, fs                                     *
  *********************************************************/
 void psxMFC0() {
-#ifndef LIBXENON    
+#ifndef LIBXENON
     // load delay = 1 latency
     if (branch == 0) {
         // simulate: beq r0,r0,lw+4 / lw / (delay slot)
@@ -1038,7 +1038,7 @@ void psxMFC0() {
 }
 
 void psxCFC0() {
-#ifndef LIBXENON    
+#ifndef LIBXENON
     // load delay = 1 latency
     if (branch == 0) {
         // simulate: beq r0,r0,lw+4 / lw / (delay slot)
@@ -1059,6 +1059,7 @@ void psxTestSWInts() {
     // tell me if it works ok or not (linuzappz)
     if (psxRegs.CP0.n.Cause & psxRegs.CP0.n.Status & 0x0300 &&
             psxRegs.CP0.n.Status & 0x1) {
+        psxRegs.CP0.n.Cause &= ~0x7c;
         psxException(psxRegs.CP0.n.Cause, branch);
     }
 }
@@ -1072,7 +1073,9 @@ __inline void MTC0(int reg, u32 val) {
             break;
 
         case 13: // Cause
-            psxRegs.CP0.n.Cause = val & ~(0xfc00);
+            //psxRegs.CP0.n.Cause = val & ~(0xfc00);
+            psxRegs.CP0.n.Cause &= ~0x0300;
+            psxRegs.CP0.n.Cause |= val & 0x0300;
             psxTestSWInts();
             break;
 
@@ -1091,7 +1094,7 @@ void psxCTC0() {
 }
 
 void psxMFC2() {
-#ifndef LIBXENON   
+#ifndef LIBXENON
     // load delay = 1 latency
     if (branch == 0) {
         // simulate: beq r0,r0,lw+4 / lw / (delay slot)
@@ -1199,7 +1202,7 @@ void (*psxCP2[64])() = {
     gteDPCS, gteINTPL, gteMVMVA, gteNCDS, gteCDP, psxNULL, gteNCDT, psxNULL, // 10
     psxNULL, psxNULL, psxNULL, gteNCCS, gteCC, psxNULL, gteNCS, psxNULL, // 18
     gteNCT, psxNULL, psxNULL, psxNULL, psxNULL, psxNULL, psxNULL, psxNULL, // 20
-    gteSQR, gteDCPL, gteDPCT, psxNULL, psxNULL, gteAVSZ3, gteAVSZ4, psxNULL, // 28 
+    gteSQR, gteDCPL, gteDPCT, psxNULL, psxNULL, gteAVSZ3, gteAVSZ4, psxNULL, // 28
     gteRTPT, psxNULL, psxNULL, psxNULL, psxNULL, psxNULL, psxNULL, psxNULL, // 30
     psxNULL, psxNULL, psxNULL, psxNULL, psxNULL, gteGPF, gteGPL, gteNCCT // 38
 };

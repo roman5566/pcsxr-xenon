@@ -58,7 +58,7 @@ bool MakeFilePath(char filepath[], int type, char * filename, int filenum) {
     char ext[4];
     char temppath[MAXPATHLEN];
     char foldername[512];
-    
+
     sprintf(foldername,"states");
     sprintf(ext, "gpz");
     if (filenum >= -1) {
@@ -72,7 +72,7 @@ bool MakeFilePath(char filepath[], int type, char * filename, int filenum) {
         sprintf(file, "%s", filename);
     }
     sprintf(temppath, "uda:/%s/%s", foldername, file);
-        
+
     CleanupPath(temppath); // cleanup path
     snprintf(filepath, MAXPATHLEN, "%s", temppath);
     return true;
@@ -171,24 +171,24 @@ int FileSortCallback(const void *f1, const void *f2) {
 }
 
 int extValid(char * ext) {
-    if (ext) {
-        if (stricmp(ext, ".z") == 0) {
-            return 1;
-        } else if (stricmp(ext, ".gpz") == 0) {
-            return 1;
-        } else if (stricmp(ext, ".cue") == 0) {
-            return 1;
-        } else if (stricmp(ext, ".bin") == 0) {
-            return 1;
-        } else
-            if (stricmp(ext, ".iso") == 0) {
-            return 1;
-        } else if (stricmp(ext, ".nrg") == 0) {
-            return 1;
-        }
-    }
-
-    return 0;
+//    if (ext) {
+//        if (stricmp(ext, ".z") == 0) {
+//            return 1;
+//        } else if (stricmp(ext, ".gpz") == 0) {
+//            return 1;
+//        } else if (stricmp(ext, ".cue") == 0) {
+//            return 1;
+//        } else if (stricmp(ext, ".bin") == 0) {
+//            return 1;
+//        } else if (stricmp(ext, ".iso") == 0) {
+//            return 1;
+//        } else if (stricmp(ext, ".nrg") == 0) {
+//            return 1;
+//        }
+//    }
+//
+//    return 0;
+    return 1;
 }
 
 /***************************************************************************
@@ -238,13 +238,14 @@ ParseDirectory() {
 
         strncpy(browserList[entryNum].filename, entry->d_name, MAXJOLIET);
 
-        // 
+        //
         ext = strrchr(entry->d_name, '.');
 
         if (strcmp(entry->d_name, "..") == 0) {
             sprintf(browserList[entryNum].displayname, "Up One Level");
             browserList[entryNum].isdir = 1; // flag this as a dir
-        } else if (extValid(ext)||entry->d_type == DT_DIR) {
+        } else if (extValid(ext) || entry->d_type == DT_DIR) {
+        //}else if(1){
             strncpy(browserList[entryNum].displayname, entry->d_name, MAXDISPLAY); // crop name for display
 
             if (entry->d_type == DT_DIR)

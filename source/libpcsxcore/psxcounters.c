@@ -22,15 +22,10 @@
  */
 
 #include "psxcounters.h"
+#include "gpu.h"
+#include "debug.h"
 
 /******************************************************************************/
-
-typedef struct Rcnt
-{
-    u16 mode, target;
-    u32 rate, irq, counterState, irqState;
-    u32 cycle, cycleStart;
-} Rcnt;
 
 enum
 {
@@ -65,19 +60,22 @@ static const u32 CountToOverflow  = 0;
 static const u32 CountToTarget    = 1;
 
 static const u32 FrameRate[]      = { 60, 50 };
-//static const u32 VBlankStart[]    = { 240, 256 };
-static const u32 VBlankStart[]    = { 243, 256 };
 static const u32 HSyncTotal[]     = { 263, 313 };
-static const u32 SpuUpdInterval[] = { 23, 22 };
+static const u32 SpuUpdInterval[] = { 32, 32 };
+#define VBlankStart 240
 
-static const s32 VerboseLevel     = 0;
+#define VERBOSE_LEVEL 0
+static const s32 VerboseLevel     = VERBOSE_LEVEL;
 
 /******************************************************************************/
 
-static Rcnt rcnts[ CounterQuantity ];
+Rcnt rcnts[ CounterQuantity ];
 
-static u32 hSyncCount = 0;
+u32 hSyncCount = 0;
+u32 frame_counter = 0;
 static u32 spuSyncCount = 0;
+static u32 hsync_steps = 0;
+static u32 base_cycle = 0;
 
 u32 psxNextCounter = 0, psxNextsCounter = 0;
 
@@ -89,26 +87,24 @@ void setIrq( u32 irq )
     psxHu32ref(0x1070) |= SWAPu32(irq);
 }
 
-/*
 static
-void verboseLog( s32 level, const char *str, ... )
+void verboseLog( u32 level, const char *str, ... )
 {
+#if VERBOSE_LEVEL > 0
     if( level <= VerboseLevel )
     {
         va_list va;
         char buf[ 4096 ];
 
         va_start( va, str );
-        vsnprintf( buf, sizeof(buf), str, va );
+        vsprintf( buf, str, va );
         va_end( va );
 
-        printf( buf );
+        printf( "%s", buf );
         fflush( stdout );
     }
+#endif
 }
-*/
-
-#define verboseLog(...)
 
 /******************************************************************************/
 
@@ -144,7 +140,8 @@ u32 _psxRcntRcount( u32 index )
 
     count  = psxRegs.cycle;
     count -= rcnts[index].cycleStart;
-    count /= rcnts[index].rate;
+    if (rcnts[index].rate > 1)
+        count /= rcnts[index].rate;
 
     if( count > 0xffff )
     {
@@ -181,6 +178,9 @@ void psxRcntSet()
             psxNextCounter = countToUpdate;
         }
     }
+
+    psxRegs.interrupt |= (1 << PSXINT_RCNT);
+    //new_dyna_set_event(PSXINT_RCNT, psxNextCounter);
 }
 
 /******************************************************************************/
@@ -190,19 +190,16 @@ void psxRcntReset( u32 index )
 {
     u32 count;
 
+    rcnts[index].mode |= RcUnknown10;
+
     if( rcnts[index].counterState == CountToTarget )
     {
-        if( rcnts[index].mode & RcCountToTarget )
-        {
-            count  = psxRegs.cycle;
-            count -= rcnts[index].cycleStart;
+        count  = psxRegs.cycle;
+        count -= rcnts[index].cycleStart;
+        if( rcnts[index].rate > 1 )
             count /= rcnts[index].rate;
+        if( rcnts[index].mode & RcCountToTarget )
             count -= rcnts[index].target;
-        }
-        else
-        {
-            count = _psxRcntRcount( index );
-        }
 
         _psxRcntWcount( index, count );
 
@@ -217,12 +214,17 @@ void psxRcntReset( u32 index )
         }
 
         rcnts[index].mode |= RcCountEqTarget;
+
+        if( count < 0xffff ) // special case, overflow too?
+            return;
     }
-    else if( rcnts[index].counterState == CountToOverflow )
+
+    if( rcnts[index].counterState == CountToOverflow )
     {
         count  = psxRegs.cycle;
         count -= rcnts[index].cycleStart;
-        count /= rcnts[index].rate;
+        if (rcnts[index].rate > 1)
+            count /= rcnts[index].rate;
         count -= 0xffff;
 
         _psxRcntWcount( index, count );
@@ -239,10 +241,6 @@ void psxRcntReset( u32 index )
 
         rcnts[index].mode |= RcOverflow;
     }
-
-    rcnts[index].mode |= RcUnknown10;
-
-    psxRcntSet();
 }
 
 void psxRcntUpdate()
@@ -272,10 +270,11 @@ void psxRcntUpdate()
     // rcnt base.
     if( cycle - rcnts[3].cycleStart >= rcnts[3].cycle )
     {
-        psxRcntReset( 3 );
+        u32 leftover_cycles = cycle - rcnts[3].cycleStart - rcnts[3].cycle;
+        u32 next_vsync, next_lace;
 
-        spuSyncCount++;
-        hSyncCount++;
+        spuSyncCount += hsync_steps;
+        hSyncCount += hsync_steps;
 
         // Update spu.
         if( spuSyncCount >= SpuUpdInterval[Config.PsxType] )
@@ -289,28 +288,53 @@ void psxRcntUpdate()
         }
 
         // VSync irq.
-        if( hSyncCount == VBlankStart[Config.PsxType] )
+        if( hSyncCount == VBlankStart )
         {
-            GPU_vBlank( 1 );
+            HW_GPU_STATUS &= ~PSXGPU_LCF;
+            //GPU_vBlank( 1, 0 );
+            GPU_vBlank(1);
+            setIrq( 0x01 );
 
-            // For the best times. :D
-            //setIrq( 0x01 );
+            EmuUpdate();
+            GPU_updateLace();
         }
 
         // Update lace. (with InuYasha fix)
         if( hSyncCount >= (Config.VSyncWA ? HSyncTotal[Config.PsxType] / BIAS : HSyncTotal[Config.PsxType]) )
         {
             hSyncCount = 0;
+            frame_counter++;
 
-            GPU_vBlank( 0 );
-            setIrq( 0x01 );
-
-            GPU_updateLace();
-            EmuUpdate();
+            gpuSyncPluginSR();
+            if( (HW_GPU_STATUS & PSXGPU_ILACE_BITS) == PSXGPU_ILACE_BITS )
+                HW_GPU_STATUS |= frame_counter << 31;
+            //GPU_vBlank( 0, HW_GPU_STATUS >> 31 );
+            GPU_vBlank(0);
         }
+
+        // Schedule next call, in hsyncs
+        hsync_steps = SpuUpdInterval[Config.PsxType] - spuSyncCount;
+        next_vsync = VBlankStart - hSyncCount; // ok to overflow
+        next_lace = HSyncTotal[Config.PsxType] - hSyncCount;
+        if( next_vsync && next_vsync < hsync_steps )
+            hsync_steps = next_vsync;
+        if( next_lace && next_lace < hsync_steps )
+            hsync_steps = next_lace;
+
+        rcnts[3].cycleStart = cycle - leftover_cycles;
+        if (Config.PsxType)
+                // 20.12 precision, clk / 50 / 313 ~= 2164.14
+                base_cycle += hsync_steps * 8864320;
+        else
+                // clk / 60 / 263 ~= 2146.31
+                base_cycle += hsync_steps * 8791293;
+        rcnts[3].cycle = base_cycle >> 12;
+        base_cycle &= 0xfff;
     }
 
-#ifndef LIBXENON
+    psxRcntSet();
+
+#ifndef NDEBUG
     DebugVSync();
 #endif
 }
@@ -321,8 +345,6 @@ void psxRcntWcount( u32 index, u32 value )
 {
     verboseLog( 2, "[RCNT %i] wcount: %x\n", index, value );
 
-    psxRcntUpdate();
-
     _psxRcntWcount( index, value );
     psxRcntSet();
 }
@@ -330,8 +352,6 @@ void psxRcntWcount( u32 index, u32 value )
 void psxRcntWmode( u32 index, u32 value )
 {
     verboseLog( 1, "[RCNT %i] wmode: %x\n", index, value );
-
-    psxRcntUpdate();
 
     rcnts[index].mode = value;
     rcnts[index].irqState = 0;
@@ -384,8 +404,6 @@ void psxRcntWtarget( u32 index, u32 value )
 {
     verboseLog( 1, "[RCNT %i] wtarget: %x\n", index, value );
 
-    psxRcntUpdate();
-
     rcnts[index].target = value;
 
     _psxRcntWcount( index, _psxRcntRcount( index ) );
@@ -397,8 +415,6 @@ void psxRcntWtarget( u32 index, u32 value )
 u32 psxRcntRcount( u32 index )
 {
     u32 count;
-
-    psxRcntUpdate();
 
     count = _psxRcntRcount( index );
 
@@ -422,8 +438,6 @@ u32 psxRcntRcount( u32 index )
 u32 psxRcntRmode( u32 index )
 {
     u16 mode;
-
-    psxRcntUpdate();
 
     mode = rcnts[index].mode;
     rcnts[index].mode &= 0xe7ff;
@@ -470,6 +484,7 @@ void psxRcntInit()
 
     hSyncCount = 0;
     spuSyncCount = 0;
+    hsync_steps = 1;
 
     psxRcntSet();
 }
@@ -483,6 +498,11 @@ s32 psxRcntFreeze( gzFile f, s32 Mode )
     gzfreeze( &spuSyncCount, sizeof(spuSyncCount) );
     gzfreeze( &psxNextCounter, sizeof(psxNextCounter) );
     gzfreeze( &psxNextsCounter, sizeof(psxNextsCounter) );
+
+    if (Mode == 0)
+        hsync_steps = (psxRegs.cycle - rcnts[3].cycleStart) / rcnts[3].target;
+
+    base_cycle = 0;
 
     return 0;
 }

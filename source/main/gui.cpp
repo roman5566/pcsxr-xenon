@@ -1,3 +1,5 @@
+//#ifdef USE_GUI
+#if 1
 //#include <ogcsys.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -40,8 +42,9 @@
 
 
 // pcsxr stuff
-#define PCSXR_VERSION   "0.6"
+#define PCSXR_VERSION   "0.62"
 #define PCSXR_NAME      "PCSXR Xenon"
+#define PCSXR_APP_NAME  PCSXR_NAME " v" PCSXR_VERSION
 #include "psxcommon.h"
 #include "config.h"
 #include "r3000a.h"
@@ -517,9 +520,9 @@ static int MenuBrowseDevice() {
 
     int menu = MENU_NONE;
 
-    sprintf(title, "%s %s  - Load Game", PCSXR_NAME, PCSXR_VERSION);
+    sprintf(title, "%s - Load Game", PCSXR_APP_NAME);
 
-    GuiText titleTxt(title, 28, ColorGrey);
+    GuiText titleTxt(PCSXR_APP_NAME" - Load Game", 28, ColorGrey);
     titleTxt.SetAlignment(ALIGN_LEFT, ALIGN_TOP);
     titleTxt.SetPosition(50, 50);
 
@@ -534,7 +537,7 @@ static int MenuBrowseDevice() {
     GuiImageData btnOutline(xenon_button_png);
     GuiImageData btnOutlineOver(xenon_button_over_png);
 
-    GuiText backBtnTxt("Go Back", 18, ColorGrey2);
+    GuiText backBtnTxt("Go Back", 22, ColorGrey2);
     GuiImage backBtnImg(&btnOutline);
     GuiImage backBtnImgOver(&btnOutlineOver);
     GuiButton backBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
@@ -578,9 +581,8 @@ static int MenuBrowseDevice() {
                     fileBrowser.ResetState();
                     //mainWindow->SetState(STATE_DISABLED);
 
-                    pcsxr_run();
-
-                    menu = MENU_EMULATION;
+                    if(pcsxr_run()==1)
+                        menu = MENU_EMULATION;
                     //mainWindow->SetState(STATE_DEFAULT);
                 }
             }
@@ -634,7 +636,7 @@ static int MenuMain() {
 
     int menu = MENU_NONE;
 
-    GuiText titleTxt(PCSXR_NAME, 28, ColorGrey);
+    GuiText titleTxt(PCSXR_APP_NAME, 28, ColorGrey);
     titleTxt.SetAlignment(ALIGN_LEFT, ALIGN_TOP);
     titleTxt.SetPosition(50, 50);
 
@@ -882,7 +884,7 @@ static int MenuConfig() {
     for (i = 0; i < options.length; i++)
         options.value[i][0] = 0;
 
-    GuiText titleTxt("PCSXR - Options", 28, ColorGrey);
+    GuiText titleTxt(PCSXR_APP_NAME" - Options", 28, ColorGrey);
     titleTxt.SetAlignment(ALIGN_LEFT, ALIGN_TOP);
     titleTxt.SetPosition(50, 50);
 
@@ -1086,7 +1088,7 @@ static int MenuConfigSPU() {
     for (i = 0; i < options.length; i++)
         options.value[i][0] = 0;
 
-    GuiText titleTxt("PCSXR - SPU Options", 28, ColorGrey);
+    GuiText titleTxt(PCSXR_APP_NAME" - SPU Options", 28, ColorGrey);
     titleTxt.SetAlignment(ALIGN_LEFT, ALIGN_TOP);
     titleTxt.SetPosition(50, 50);
 
@@ -1205,7 +1207,7 @@ static int MenuConfigGPU() {
     for (i = 0; i < options.length; i++)
         options.value[i][0] = 0;
 
-    GuiText titleTxt("PCSXR - GPU Options", 28, ColorGrey);
+    GuiText titleTxt(PCSXR_APP_NAME" - GPU Options", 28, ColorGrey);
     titleTxt.SetAlignment(ALIGN_LEFT, ALIGN_TOP);
     titleTxt.SetPosition(50, 50);
 
@@ -1359,9 +1361,9 @@ static int MenuSaveStates(int action) {
     titleTxt.SetPosition(50, 50);
 
     if (action == 0)
-        titleTxt.SetText("Load Game");
+        titleTxt.SetText(PCSXR_APP_NAME" - Load Game");
     else
-        titleTxt.SetText("Save Game");
+        titleTxt.SetText(PCSXR_APP_NAME" - Save Game");
 
     GuiSound btnSoundOver(button_over_pcm, button_over_pcm_size, SOUND_PCM);
     GuiSound btnSoundClick(button_click_pcm, button_click_pcm_size, SOUND_PCM);
@@ -1376,14 +1378,12 @@ static int MenuSaveStates(int action) {
     GuiTrigger trigA;
     trigA.SetSimpleTrigger(-1, 0, PAD_BUTTON_A);
 
-    GuiText backBtnTxt("Go Back", 22, (GXColor) {
-        0, 0, 0, 255
-    });
+    GuiText backBtnTxt("Go Back", 22, ColorGrey2);
     GuiImage backBtnImg(&btnOutline);
     GuiImage backBtnImgOver(&btnOutlineOver);
     GuiButton backBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
     backBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
-    backBtn.SetPosition(50, -35);
+    backBtn.SetPosition(100, -35);
     backBtn.SetLabel(&backBtnTxt);
     backBtn.SetImage(&backBtnImg);
     backBtn.SetImageOver(&backBtnImgOver);
@@ -1579,7 +1579,7 @@ static int MenuCheats() {
 static int MenuInGame() {
     int menu = MENU_NONE;
 
-    GuiText titleTxt(PCSXR_NAME" IN GAME", 28, ColorGrey);
+    GuiText titleTxt(PCSXR_APP_NAME" In game menu", 28, ColorGrey);
     titleTxt.SetAlignment(ALIGN_LEFT, ALIGN_TOP);
     titleTxt.SetPosition(50, 50);
 
@@ -1771,9 +1771,7 @@ static int MenuEmulation() {
     pcsxr_running = 1;
     // fix input repitition
     usb_do_poll();
-    TR;
     psxCpu->Execute();
-    TR;
     return MENU_IN_GAME;
 }
 
@@ -1860,12 +1858,13 @@ void MainMenu(int menu) {
 }
 
 int main() {
-    xenos_init(VIDEO_MODE_AUTO);
+    xenos_init(VIDEO_MODE_HDMI_720P);
+    //xenos_init(VIDEO_MODE_AUTO);
     xenon_sound_init();
     console_init();
 
-    ntfs_vfs_init();
-    ext2fs_init();
+//    ntfs_vfs_init();
+//    ext2fs_init();
 
     xenon_make_it_faster(XENON_SPEED_FULL);
 
@@ -1898,3 +1897,4 @@ int main() {
     return 0;
 }
 
+#endif

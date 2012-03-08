@@ -66,6 +66,14 @@
         <in>draw_t_p_psu.h</in>
         <in>draw_v_vsu.h</in>
       </df>
+      <df name="pcsxr_0.6">
+        <df name="pcsxr">
+          <df name="bios">
+          </df>
+          <df name="memcards">
+          </df>
+        </df>
+      </df>
       <df name="shaders">
         <in>fxaa.ps.h</in>
         <in>fxaa.vs.h</in>

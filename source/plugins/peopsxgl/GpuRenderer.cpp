@@ -71,7 +71,7 @@ extern "C" {
 
 struct XenosSurface * pPsx = NULL;
 
-static int postprocessenabled = 1;
+static int postprocessenabled = 0;
 static int debug_draw = 0;
 
 extern "C" void enablePostProcess(int enable) {
@@ -124,14 +124,14 @@ void GpuRenderer::RenderPostProcess() {
         // set shaders
         Xe_SetShader(xe, SHADER_TYPE_PIXEL, g_pPixelShaderPost, 0);
         Xe_SetShader(xe, SHADER_TYPE_VERTEX, g_pVertexShaderPost, 0);
-        // 
+        //
         Xe_SetTexture(xe, 0, pPostRenderSurface);
         //Xe_SetTexture(xe, 0, GetFmvSurf());
         //Xe_SetTexture(xe,0,pRenderSurface);
         //
         Xe_SetStreamSource(xe, 0, pVbPost, 0, sizeof (fxaa_vb));
         Xe_SetIndices(xe, NULL);
-        // draw 
+        // draw
         Xe_DrawPrimitive(xe, XE_PRIMTYPE_TRIANGLELIST, 0, 1);
         // resolve
         //Xe_Resolve(xe);
@@ -161,12 +161,12 @@ void GpuRenderer::RenderPostProcess() {
 
         //draw psx output
         {
-            // 
+            //
             Xe_SetTexture(xe, 0, pPostRenderSurface);
             //
             Xe_SetStreamSource(xe, 0, pVbPost, 0, sizeof (fxaa_vb));
             Xe_SetIndices(xe, NULL);
-            // draw 
+            // draw
             Xe_DrawPrimitive(xe, XE_PRIMTYPE_TRIANGLESTRIP, 0, 2);
         }
         // draw fmv buff
@@ -175,7 +175,7 @@ void GpuRenderer::RenderPostProcess() {
             //
             Xe_SetStreamSource(xe, 0, pVbPost, 0, sizeof (fxaa_vb));
             Xe_SetIndices(xe, NULL);
-            // draw 
+            // draw
             Xe_DrawPrimitive(xe, XE_PRIMTYPE_TRIANGLESTRIP, 4 * sizeof (fxaa_vb), 2);
         }
         // draw vram
@@ -184,7 +184,7 @@ void GpuRenderer::RenderPostProcess() {
         //            //
         //            Xe_SetStreamSource(xe, 0, pVbPost, 0, sizeof (fxaa_vb));
         //            Xe_SetIndices(xe, NULL);
-        //            // draw 
+        //            // draw
         //            Xe_DrawPrimitive(xe, XE_PRIMTYPE_TRIANGLELIST, 8*sizeof(fxaa_vb), 1);
         //        }
 
@@ -298,7 +298,7 @@ void GpuRenderer::StatesChanged() {
 }
 
 void GpuRenderer::UpdatesStates() {
-    //if (b_StatesChanged) 
+    //if (b_StatesChanged)
     {
         if (m_RenderStates.surface) {
 
@@ -351,9 +351,9 @@ void GpuRenderer::UpdatesStates() {
 
 void GpuRenderer::SubmitVertices() {
     // do we have some unsubmited vertices ?
-    //if (b_StatesChanged) 
+    //if (b_StatesChanged)
     {
-        //if (prevIndicesCount != indicesCount()) 
+        //if (prevIndicesCount != indicesCount())
         {
             // update render states
             UpdatesStates();
@@ -483,7 +483,7 @@ void GpuRenderer::Unlock() {
 }
 
 /**
- * 
+ *
  * @param s
  */
 void GpuRenderer::SetTexture(struct XenosSurface * s) {
@@ -526,12 +526,12 @@ void GpuRenderer::ClearColor(float r, float g, float b, float a) {
         uint8_t c[4];
         uint32_t u;
     } ucolor;
-    
+
     ucolor.c[0] = a * 0xFF;
     ucolor.c[1] = r * 0xFF;
     ucolor.c[2] = g * 0xFF;
     ucolor.c[3] = b * 0xFF;
-    
+
     //Xe_SetClearColor(xe, ucolor.u);
     m_RenderStates.clearcolor = ucolor.u;
     StatesChanged();
@@ -778,7 +778,7 @@ void GpuRenderer::SetOrtho(float l, float r, float b, float t, float zn, float z
 }
 
 void GpuRenderer::SetViewPort(int left, int top, int right, int bottom) {
-    /*    
+    /*
         TR
 
         // identity

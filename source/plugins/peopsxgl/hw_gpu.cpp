@@ -211,11 +211,11 @@ EXTERN void CALLBACK GPUmakeSnapshot(void) {
 
 EXTERN long CALLBACK GPUinit() {
     memset(ulStatusControl, 0, 256 * sizeof (uint32_t));
-
     // different ways of accessing PSX VRAM
 
     psxVSecure = (unsigned char *) malloc((iGPUHeight * 2)*1024 + (1024 * 1024)); // always alloc one extra MB for soft drawing funcs security
     //psxVSecure = (unsigned char *)gpuRenderer.TextureLock(GetPsxVramSurf());
+
     if (!psxVSecure) return -1;
 
     psxVub = psxVSecure + 512 * 1024; // security offset into double sized psx vram!
@@ -300,7 +300,7 @@ EXTERN long GPUopen(unsigned long * disp, char * CapText, char * CfgFile) {
     bIsFirstFrame = TRUE; // we have to init later (well, no really... in Linux we do all in GPUopen)
 
     gpuRenderer.Init();
-	
+
     iResX = gpuRenderer.GetFramebufferWidth();
     iResY = gpuRenderer.GetFramebufferHeight();
 
@@ -939,7 +939,7 @@ static void ShowFPS() {
         frames = 0;
         lastTick = nowTick;
     }
-#endif    
+#endif
     systemPoll();
 }
 
@@ -1405,7 +1405,7 @@ void CheckVRamReadEx(int x, int y, int dx, int dy) {
 
     if (y < 0) y = 0;
     if ((y + dy) > iResY) dy = iResY - y;
-    
+
     TR;
 #if 0
     if (!pGfxCardScreen) {
@@ -1569,12 +1569,12 @@ void CheckVRamRead(int x, int y, int dx, int dy, BOOL bFront) {
 
     if (y < 0) y = 0;
     if ((y + dy) > iResY) dy = iResY - y;
-    
-    
-    
+
+
+
 #if 0
     TR;
-    
+
     if (!pGfxCardScreen) {
         glPixelStorei(GL_PACK_ALIGNMENT, 1);
         pGfxCardScreen = (unsigned char *) malloc(iResX * iResY * 4);

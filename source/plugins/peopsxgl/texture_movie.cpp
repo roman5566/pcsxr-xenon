@@ -72,8 +72,8 @@ void XeLoadDirectMovieFast(void) {
         for (column = xrMovieArea.y0; column < xrMovieArea.y1; column++, ta += (movie_surf->width)) {
             startxy = ((1024) * column) + xrMovieArea.x0;
             for (row = xrMovieArea.x0; row < xrMovieArea.x1; row++) {
-                //ta[row] = LTCOL(bswap_32(psxVuw[startxy++] | 0x8000));
-                ta[row] = LTCOL((psxVuw[startxy++] | 0x8000));
+                ta[row] = LTCOL(bswap_32(psxVuw[startxy++] | 0x8000));
+                //ta[row] = LTCOL((psxVuw[startxy++] | 0x8000));
             }
         }
     }
@@ -95,6 +95,11 @@ GpuTex * LoadTextureMovieFast(void) {
 GpuTex * __LoadTextureMovie(void) {
     return LoadTextureMovieFast();
 }
+
+#define R(x)    ((x << 19) & 0xf80000)
+#define B(x)    ((x << 6) & 0xf800)
+#define G(x)    ((x >> 7) & 0xf8)
+#define RGB(x)  (R(x)|B(x)|G(x))
 
 GpuTex * LoadTextureMovie(void) {
     short row, column, dx;
@@ -145,6 +150,7 @@ GpuTex * LoadTextureMovie(void) {
                         uint32_t lu = *((uint32_t *) pD);
                         *ta++ = 0xff000000 | (RED(lu) << 16) | (BLUE(lu) << 8) | (GREEN(lu));
                         pD += 3;
+
                     }
                 }
                 if (b_Y) {
@@ -158,7 +164,8 @@ GpuTex * LoadTextureMovie(void) {
             uint32_t(*LTCOL)(uint32_t);
             uint32_t *ta;
 
-            LTCOL = TCF[0];
+            //LTCOL = XP8RGBA_0;
+            LTCOL = XP8BGRA_0;
 
             ubOpaqueDraw = 0;
             ta = ptr;
@@ -168,14 +175,10 @@ GpuTex * LoadTextureMovie(void) {
                     ta = (uint32_t*) (ptr + (column * movie_surf->width) + xrMovieArea.x0);
                     startxy = ((1024) * column) + xrMovieArea.x0;
                     for (row = xrMovieArea.x0; row < xrMovieArea.x1; row++) {
-                        //      *ta++ = LTCOL(bswap_32(psxVuw[startxy++] | 0x8000));
-                        //*ta++ = LTCOL((psxVuw[startxy++] | 0x8000));
-                        
-                        uint16_t s=psxVuw[startxy++];
-                       *ta++ =((((s<<19)&0xf80000)|((s<<6)&0xf800)|((s>>7)&0xf8))&0xffffff)|0xff000000;
-                        
+                        *ta++ = (LTCOL(( GETLE16(&psxVuw[startxy++]) | 0x8000)));
                     }
                     *ta++ = *(ta - 1);
+
                 }
 
                 if (b_Y) {
@@ -190,11 +193,7 @@ GpuTex * LoadTextureMovie(void) {
                     ta = (uint32_t*) (ptr + (column * movie_surf->width) + xrMovieArea.x0);
                     startxy = ((1024) * column) + xrMovieArea.x0;
                     for (row = xrMovieArea.x0; row < xrMovieArea.x1; row++) {
-                        //      *ta++ = LTCOL(bswap_32(psxVuw[startxy++] | 0x8000));
-                        //*ta++ = LTCOL((psxVuw[startxy++] | 0x8000));
-                        
-                        uint16_t s=psxVuw[startxy++];
-                        *ta++ =((((s<<19)&0xf80000)|((s<<6)&0xf800)|((s>>7)&0xf8))&0xffffff)|0xff000000;
+                        *ta++ = (LTCOL(( GETLE16(&psxVuw[startxy++]) | 0x8000)));
                     }
                 }
 
@@ -257,7 +256,7 @@ void DefineTextureMovie(void) {
     }
 
     XeTexSubImage(gTexName, 4, 4, 0, 0, (xrMovieArea.x1 - xrMovieArea.x0), (xrMovieArea.y1 - xrMovieArea.y0), texturepart);
-    
+
 //    printf("DefineTextureMovie\r\n");
 //    printf("xrMovieArea.x1 =%d\r\n",xrMovieArea.x1);
 //    printf("xrMovieArea.x0 =%d\r\n",xrMovieArea.x0);

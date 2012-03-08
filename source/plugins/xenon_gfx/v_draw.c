@@ -183,8 +183,8 @@ void CreateTexture(int width, int height) {
 void CreateDisplay(void) {
 
 #ifndef USE_GUI
-    xe = &_xe;
-    Xe_Init(xe);
+    g_pVideoDevice = &_xe;
+    Xe_Init(g_pVideoDevice);
 #else
     // g_video.cpp
     g_pVideoDevice=getVideoDevice();
