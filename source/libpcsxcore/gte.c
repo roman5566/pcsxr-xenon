@@ -278,31 +278,9 @@ static inline void MTC2(u32 value, int reg) {
 
         case 30:
         {
-#if 1
-            int a;
+			int a;
             gteLZCS = value;
-            
-            // non-MAME code
-            a = gteLZCS;
-#ifndef LIBXENON
-            if (a > 0) {
-                int i;
-                for (i = 31; (a & (1 << i)) == 0 && i >= 0; i--);
-                gteLZCR = 31 - i;
-            } else if (a < 0) {
-                int i;
-                a ^= 0xffffffff;
-                for (i = 31; (a & (1 << i)) == 0 && i >= 0; i--);
-                gteLZCR = 31 - i;
-            } else {
-                gteLZCR = 32;
-            }
-#else
-            __asm__ ("cntlzw %0, %1" : "=r" (a) : "r"(a));
-            gteLZCR = a;
-#endif
-#else
-            // MAME
+			// MAME
             u32 lzcs = value;
             u32 lzcr = 0;
 
@@ -316,19 +294,12 @@ static inline void MTC2(u32 value, int reg) {
                 lzcs <<= 1;
             }
             gteLZCR = lzcr;
-#endif
         }
             break;
 
-#if 1
-        case 31:
-            return;
-#else
         case 31:
             value = psxRegs.CP2D.r[reg];
             break;
-#endif
-
         default:
             psxRegs.CP2D.r[reg] = value;
     }
@@ -348,7 +319,10 @@ static inline void CTC2(u32 value, int reg) {
 
         case 31:
             value = value & 0x7ffff000;
-            if (value & 0x7f87e000) value |= 0x80000000;
+            if( ( value & 0x7f87e000 ) != 0 )
+            {
+                value |= 0x80000000;
+            }
             break;
     }
 
@@ -452,9 +426,10 @@ void gteRTPT() {
                 limG1_ia((s64) gteOFX + (s64) (gteIR1 * fquotient)), // TODO: MAC1 calc instead of IR1.
                 limG2_ia((s64) gteOFY + (s64) (gteIR2 * fquotient)), // TODO: MAC2 calc instead of IR2.
                 ((s64) fSZ(v))); // TODO: MAC3 calc instead of fSZ(v).
+
+        gteMAC0 = F((s64) (gteDQB + ((s64) gteDQA * quotient)) >> 12);
+        gteIR0 = limH(gteMAC0);
     }
-    gteMAC0 = F((s64) (gteDQB + ((s64) gteDQA * quotient)) >> 12);
-    gteIR0 = limH(gteMAC0);
 }
 
 void gteMVMVA() {
@@ -487,9 +462,7 @@ void gteNCLIP() {
 #endif
     gteFLAG = 0;
 
-    gteMAC0 = F((s64) gteSX0 * (gteSY1 - gteSY2) +
-            gteSX1 * (gteSY2 - gteSY0) +
-            gteSX2 * (gteSY0 - gteSY1));
+    gteMAC0 = F( (s64)( gteSX0 * gteSY1 ) + ( gteSX1 * gteSY2 ) + ( gteSX2 * gteSY0 ) - ( gteSX0 * gteSY2 ) - ( gteSX1 * gteSY0 ) - ( gteSX2 * gteSY1 ) );
 }
 
 void gteAVSZ3() {
