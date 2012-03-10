@@ -183,14 +183,11 @@ static char * memfgets(char * dst, int maxlen, char * src) {
     return ++newline;
 }
 
-bool LoadLanguage() {
+bool LoadLanguage(char *file, int size) {
     char line[200];
     char *lastID = NULL;
-
-    char *file, *eof;
-
-    file = (char *) en_lang;
-    eof = file + en_lang_size;
+    char *eof;
+    eof = file + size;
 
     gettextCleanUp();
 
@@ -241,5 +238,7 @@ const char *gettext(const char *msgid) {
     if (msg && msg->msgstr) {
         return msg->msgstr;
     }
+    printf("gettext : msgid \"%s\"\r\n",msgid);
+    printf("gettext : msgstr \"%s\"\r\n\r\n",msgid);
     return msgid;
 }
