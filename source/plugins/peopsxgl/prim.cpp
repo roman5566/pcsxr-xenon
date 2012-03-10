@@ -168,9 +168,26 @@ __inline unsigned short BGR24to16(uint32_t BGR) {
 // OpenGL primitive drawing commands
 //////////////////////////////////////////////////////////////////////
 
+static __inline void PRIMdrawFmvQuad(OGLVertex* vertex1, OGLVertex* vertex2,
+        OGLVertex* vertex3, OGLVertex* vertex4){
+    gpuRenderer.primBegin(PRIM_RECTLIST);
+    gpuRenderer.primTexCoord(&vertex1->sow);
+    gpuRenderer.primVertex(&vertex1->x);
+
+    gpuRenderer.primTexCoord(&vertex2->sow);
+    gpuRenderer.primVertex(&vertex2->x);
+
+    gpuRenderer.primTexCoord(&vertex4->sow);
+    gpuRenderer.primVertex(&vertex4->x);
+
+    gpuRenderer.primTexCoord(&vertex3->sow);
+    gpuRenderer.primVertex(&vertex3->x);
+    gpuRenderer.primEnd();
+}
+
 static __inline void PRIMdrawTexturedQuad(OGLVertex* vertex1, OGLVertex* vertex2,
         OGLVertex* vertex3, OGLVertex* vertex4) {
-    gpuRenderer.primBegin(PRIM_RECTLIST);
+    gpuRenderer.primBegin(PRIM_TRIANGLE_STRIP);
     gpuRenderer.primTexCoord(&vertex1->sow);
     gpuRenderer.primVertex(&vertex1->x);
 
@@ -1271,7 +1288,7 @@ void UploadScreen(int Position) {
         vertex[3].sow = 0;
         vertex[3].tow = ((float)YStep/1024.f);
 
-        PRIMdrawTexturedQuad(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
+        PRIMdrawFmvQuad(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
     }
 
     bUsingMovie = FALSE; // done...

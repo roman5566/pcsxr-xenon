@@ -360,11 +360,10 @@ void GpuRenderer::SubmitVertices() {
 
 
             // Draw
-            if(m_PrimType!=PRIM_RECTLIST){
+            if (m_PrimType != PRIM_RECTLIST) {
                 Xe_DrawIndexedPrimitive(xe, XE_PRIMTYPE_TRIANGLELIST, 0, 0, verticesCount(), prevIndicesCount, (indicesCount() - prevIndicesCount) / 3);
-            }
-            else{
-                Xe_DrawPrimitive(xe,XE_PRIMTYPE_RECTLIST,vbBaseVertexIndex,1);
+            } else {
+                Xe_DrawPrimitive(xe, XE_PRIMTYPE_RECTLIST, vbBaseVertexIndex, 1);
             }
 
             prevIndicesCount = indicesCount();
@@ -876,6 +875,7 @@ void GpuRenderer::NextIndice() {
 
 void GpuRenderer::primBegin(int primType) {
     m_PrimType = primType;
+
     prevVerticesCount = verticesCount();
 };
 

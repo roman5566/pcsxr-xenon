@@ -38,7 +38,7 @@
 #include "w_input.h"
 #include "gui_debug.h"
 #include "gui_romlist.h"
-
+#include "gettext.h"
 
 
 // pcsxr stuff
@@ -1877,6 +1877,8 @@ int main() {
     InitVideo();
 
     console_close();
+
+    LoadLanguage((char*)en_lang,en_lang_size);
 
     // run gui
     InitGUIThreads();

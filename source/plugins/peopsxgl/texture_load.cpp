@@ -10,7 +10,7 @@ using namespace xegpu;
 #include "texture_load.h"
 
 namespace xegpu{
-    
+
     BOOL bFakeFrontBuffer = FALSE;
     BOOL bIgnoreNextTile = FALSE;
 
@@ -216,7 +216,7 @@ void LoadSubTexturePageSort(int pageid, int mode, short cx, short cy) {
             for (column = y1; column <= y2; column++) {
                 cSRCPtr = psxVub + start + (column << 11) + sxh;
 
-                if (sxm) 
+                if (sxm)
                     *ta++ = *(pa + ((*cSRCPtr++ >> 4) & 0xF));
 
                 for (row = j; row < x2a; row += 2) {
@@ -229,7 +229,7 @@ void LoadSubTexturePageSort(int pageid, int mode, short cx, short cy) {
                 if (row <= x2) {
                     *ta++ = *(pa + (*cSRCPtr & 0xF));
                     row++;
-                    if (row <= x2) 
+                    if (row <= x2)
                         *ta++ = *(pa + ((*cSRCPtr >> 4) & 0xF));
                 }
 
@@ -407,7 +407,7 @@ void LoadSubTexturePageSort(int pageid, int mode, short cx, short cy) {
     ta = (uint32_t *) texturepart;
     x1 = dx - 1;
     y1 = dy - 1;
-#if 0
+#if 1
     if (bOpaquePass) {
         if (bSmallAlpha) {
             for (column = 0; column < dy; column++) {
@@ -482,7 +482,7 @@ void LoadSubTexturePageSort(int pageid, int mode, short cx, short cy) {
             }
         }
     } else
-#endif        
+#endif
         for (column = 0; column < dy; column++) {
             for (row = 0; row < dx; row++) {
                 if (*ta == 0x00000000) {
@@ -600,7 +600,7 @@ GpuTex * SelectSubTextureS(int TextureMode, uint32_t GivenClutId) {
     }
 
     //printf("OPtr %p\r\n",OPtr);
-    
+
     // found? fine
     usLRUTexPage = iCache;
     if (!OPtr) return uiStexturePage[iCache];
@@ -621,7 +621,7 @@ GpuTex * BlackFake15BitTexture(void) {
     int pmult;
     short x1, x2, y1, y2;
 
-    if (PSXDisplay.InterlacedTest) 
+    if (PSXDisplay.InterlacedTest)
         return 0;
 
     pmult = GlobalTexturePage / 16;
@@ -645,7 +645,7 @@ GpuTex * BlackFake15BitTexture(void) {
             gTexFrameName = gpuRenderer.CreateTexture(4, 4, FMT_A8R8G8B8);
             gTexFrameName->u_addressing = iClampType;
             gTexFrameName->v_addressing = iClampType;
-            
+
 
             uint32_t *ta = (uint32_t *) texturepart;
             for (y1 = 0; y1 <= 4; y1++)
@@ -653,7 +653,7 @@ GpuTex * BlackFake15BitTexture(void) {
                     *ta++ = 0xff000000;
 
             xeGfx_setTextureData(gTexFrameName, texturepart);
-        } 
+        }
         else {
             gTexName=gTexFrameName;
         }
@@ -723,12 +723,12 @@ GpuTex * Fake15BitTexture(void) {
         gTexFrameName = gpuRenderer.CreateTexture(iFTex, iFTex, FMT_A8R8G8B8);
         gTexFrameName->u_addressing = iClampType;
         gTexFrameName->v_addressing = iClampType;
-        
+
         p = gpuRenderer.TextureLock(gTexFrameName);
         memset(p, 0, iFTex * iFTex * 4);
         gpuRenderer.TextureUnlock(gTexFrameName);
-    } 
-    else 
+    }
+    else
     {
         gTexName = gTexFrameName;
     }
@@ -805,8 +805,8 @@ GpuTex * Fake15BitTexture(void) {
     y1 = rSrc.bottom - rSrc.top;
     if (y1 <= 0) y1 = 1;
     if (y1 + iYAdjust > iFTex) y1 = iFTex - iYAdjust;
-    
-    
+
+
     /*
      if(bFakeFrontBuffer) glReadBuffer(GL_FRONT);
 
@@ -829,22 +829,22 @@ GpuTex * Fake15BitTexture(void) {
      if(bFakeFrontBuffer)
       {glReadBuffer(GL_BACK);bIgnoreNextTile=TRUE;}
      */
-    
+
     // allocate tmp buffer
     char * p=(char *)malloc(iFTex*iFTex*4);
     memset(p,0,iFTex*iFTex*4);
 
     // copie old fb into buffer
     XeTexCopyImage(gpuRenderer.GetFB(),4,4,0,0,x1,y1,p);
-    
+
     // copie buffer to texture
     XeTexSubImage(gTexFrameName,4,4,0,0,x1,y1,p);
 
     // release tmp fb buffer
     free(p);
-       
+
     bIgnoreNextTile=TRUE;
-    
+
     ubOpaqueDraw = 0;
 
     if (iSpriteTex) {
