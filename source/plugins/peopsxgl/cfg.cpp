@@ -32,11 +32,11 @@
 
 #include "../../main/gui.h"
 
-BOOL bGteAccuracy; 
+BOOL bGteAccuracy;
 
 namespace xegpu {
 
-    
+
 
     void ReadConfig(void) // read config (linux file)
     {
@@ -44,19 +44,19 @@ namespace xegpu {
         iResY = 720;
         bGteAccuracy = FALSE; //bGteAccuracy = TRUE;
         bFullVRam = FALSE;
-        
+
 //         0: None
 //         1: Standard - Glitches will happen
 //         2: Extended - Removes black borders
 //         3: Standard w/o Sprites - unfiltered 2D
 //         4: Extended w/o Sprites - unfiltered 2D
 //         5: Standard + smoothed Sprites
-//         6: Extended + smoothed Sprites      
+//         6: Extended + smoothed Sprites
         iFilterType = 6;
-        
+
         bDrawDither = FALSE;
         bUseLines = FALSE;
-        bUseFrameLimit = TRUE;//bUseFrameLimit = TRUE;
+        bUseFrameLimit = FALSE;//bUseFrameLimit = TRUE;
         bUseFrameSkip = FALSE;
         iFrameLimit = 2;
         fFrameRate = 200.0f;
@@ -69,20 +69,20 @@ namespace xegpu {
         bUseFastMdec = TRUE;
         dwCfgFixes = 0;
         bUseFixes = FALSE;
-        
+
 //         0: Emulated vram - effects need FVP
 //         1: Black - Fast but no special effects
 //         2: Gfx card buffer - Can be slow
-//         3: Gfx card buffer & software - slow        
+//         3: Gfx card buffer & software - slow
         iFrameTexType = 2;
-        
+
 //        0: Emulated vram - OK for most games
 //        1: Gfx card buffer reads
 //        2: Gfx card buffer moves
 //        3: Gfx card buffer reads & moves
 //        4: Full software drawing (FVP)
         iFrameReadType = 3;
-        
+
         bUse15bitMdec = FALSE;
         iShowFPS = 0;
         bKeepRatio = FALSE;
@@ -94,18 +94,18 @@ namespace xegpu {
 
         if (iUseMask) iZBufferDepth = 16; // set zbuffer depth
         else iZBufferDepth = 0;
-        
-        
+
+
         /**
          * ff7
          */
         bUseFixes = TRUE;
         dwCfgFixes = 0x1;//f7 fixe
         if (bUseFixes) dwActFixes = dwCfgFixes; // init game fix global
-        
-        
+
+
         // apply gui settings
-        bUseFrameLimit=HwGpuConfig.fps_limit;
+//        bUseFrameLimit=HwGpuConfig.fps_limit;
         iHiResTextures=HwGpuConfig.hires_texture;
         bGteAccuracy=HwGpuConfig.gte_accuracy;
     }

@@ -80,7 +80,7 @@ void ReadConfig(void) {
 
     reset = 1;
 
-
+#if 0
     fp = fopen("uda:/plugins/spuPeopsSound.ini", "r");
     if (!fp) fp = fopen("uda:/spuPeopsSound.ini", "r");
 
@@ -124,6 +124,7 @@ void ReadConfig(void) {
 
 
     if (reset) {
+#endif
         // Defaults
         iUseXA = 1;
         iVolume = 10;
@@ -150,7 +151,7 @@ void ReadConfig(void) {
         iVolXA = 10;
         iVolVoices = 10;
 
-
+#if 0
         fp = fopen("uda:/plugins/spuPeopsSound.ini", "w");
         if (!fp) fp = fopen("uda:/spuPeopsSound.ini", "w");
 
@@ -186,7 +187,7 @@ void ReadConfig(void) {
             fclose(fp);
         }
     }
-
+#endif
 
     latency_target = (iLatency + 1) * 10;
 
@@ -220,7 +221,7 @@ void ReadConfig(void) {
 
     reset = 1;
 
-
+#if 0
     fp = fopen("uda:/plugins/spuPeopsSound_expert.ini", "r");
     if (!fp) fp = fopen("uda:/spuPeopsSound_expert.ini", "r");
 
@@ -292,7 +293,7 @@ void ReadConfig(void) {
             fclose(fp);
         }
     }
-
+#endif
 
     // clip limit
     if (APU_run > 50) APU_run = 50;

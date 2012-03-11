@@ -57,6 +57,18 @@ extern "C" {
     unsigned char PAD__startPoll(int pad);
     void PAD__setMode(const int pad, const int mode);
 
+    extern long pokomonPADinit(long);
+    extern long pokomonPADshutdown(void);
+    extern long pokomonPADopen(void);
+    extern long pokomonPADclose(void);
+    extern long pokomonPADreadPort1(PadDataS*);
+    extern long pokomonPADreadPort2(PadDataS*);
+    long pokomonPADquery(void);
+    void pokomonPADregisterVibration(void (*callback)(unsigned long, unsigned long));
+    unsigned char pokomonPADpoll(unsigned char value);
+    unsigned char pokomonPADstartPoll(int pad);
+    void pokomonPADsetMode(const int pad, const int mode);
+
     /* SPU NULL */
     //typedef long (* SPUopen)(void);
     void NULL_SPUwriteRegister(unsigned long reg, unsigned short val);
@@ -173,7 +185,7 @@ extern "C" {
     void HW_GPUcursor(int iPlayer, int x, int y);
     void HW_GPUaddVertex(short sx, short sy, s64 fx, s64 fy, s64 fz);
 
-    //dfinput 
+    //dfinput
     char *INPUT_PSEgetLibName(void);
     uint32_t INPUT_PSEgetLibType(void);
     uint32_t INPUT_PSEgetLibVersion(void);
@@ -217,7 +229,7 @@ extern "C" {
 	    { "PADreadPort1", \
 	      INPUT_PADreadPort1} \
            } \
-        } 
+        }
 
 #define DF_PAD2_PLUGIN \
 	{ "/PAD2",      \
@@ -243,7 +255,7 @@ extern "C" {
 	    { "PADreadPort2", \
 	      INPUT_PADreadPort2} \
            } \
-        } 
+        }
 
 #define EMPTY_PLUGIN \
 	{ NULL,      \
@@ -340,7 +352,7 @@ extern "C" {
 	    { "PADreadPort1", \
 	      PAD__readPort1} \
            } \
-        } 
+        }
 
 #define PAD2_PLUGIN \
 	{ "/PAD2",      \
@@ -669,13 +681,58 @@ extern "C" {
     } \
 }
 
+#define POKOMON_PAD1_PLUGIN \
+    { "/PAD1",      \
+     8,         \
+      { { "PADinit",  \
+          pokomonPADinit }, \
+        { "PADshutdown",	\
+          pokomonPADshutdown}, \
+        { "PADopen", \
+          pokomonPADopen}, \
+        { "PADclose", \
+          pokomonPADclose}, \
+        { "PADreadPort1", \
+          pokomonPADreadPort1}, \
+        { "PADstartPoll", \
+          pokomonPADstartPoll}, \
+        { "PADpoll", \
+          pokomonPADpoll}, \
+        { "PADquery", \
+          pokomonPADquery}, \
+       } \
+    }
+
+#define POKOMON_PAD2_PLUGIN \
+    { "/PAD2",      \
+     8,         \
+      { { "PADinit",  \
+          pokomonPADinit }, \
+        { "PADshutdown",	\
+          pokomonPADshutdown}, \
+        { "PADopen", \
+          pokomonPADopen}, \
+        { "PADclose", \
+          pokomonPADclose}, \
+        { "PADreadPort2", \
+          pokomonPADreadPort2}, \
+        { "PADstartPoll", \
+          pokomonPADstartPoll}, \
+        { "PADpoll", \
+          pokomonPADpoll}, \
+        { "PADquery", \
+          pokomonPADquery}, \
+       } \
+    }
+
+
     //#include "spu_import.h"
 
 #define PLUGIN_SLOT_0 EMPTY_PLUGIN
     //#define PLUGIN_SLOT_1 DF_PAD1_PLUGIN
-    //#define PLUGIN_SLOT_2 DF_PAD2_PLUGIN
-#define PLUGIN_SLOT_1 PAD1_PLUGIN
-#define PLUGIN_SLOT_2 PAD2_PLUGIN
+    #define PLUGIN_SLOT_2 DF_PAD2_PLUGIN
+#define PLUGIN_SLOT_1 POKOMON_PAD1_PLUGIN
+//#define PLUGIN_SLOT_2 POKOMON_PAD2_PLUGIN
 #define PLUGIN_SLOT_3 EMPTY_PLUGIN
     //#define PLUGIN_SLOT_3 EMPTY_PLUGIN
     //#define PLUGIN_SLOT_4 SPU_NULL_PLUGIN

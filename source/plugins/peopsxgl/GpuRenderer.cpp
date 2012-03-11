@@ -978,7 +978,7 @@ XenosSurface * GpuRenderer::CreateTexture(unsigned int width, unsigned int heigh
     allocated_texture_size += surf->hpitch * surf->wpitch;
     n_texture++;
 
-    //    printf("Create new texture : %d, %d %p\r\n",width,height,surf);
+    printf("Create new texture : %d, %d %p\r\n",width,height,surf);
     //    printf("Allocated texture size : %s\r\nNumber of texture : %d\r\n", readable_fs(allocated_texture_size, buf),n_texture);
 
     return surf;

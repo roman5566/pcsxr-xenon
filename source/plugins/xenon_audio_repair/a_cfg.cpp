@@ -106,7 +106,7 @@ void ReadConfig(void) {
     iCDDAStrength = 4;
     iOutput2Strength = 0xA;
 
-    framelimiter = 0;
+    framelimiter = 1;
 }
 
 

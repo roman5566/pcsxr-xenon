@@ -16,6 +16,7 @@
 unsigned long LastWrite = 0xffffffff;
 unsigned long LastPlay = 0;
 unsigned int LastPlayTotal;
+unsigned long LastPad;
 
 int output_channels = 2;
 int output_samplesize = 4;
@@ -36,14 +37,14 @@ static s16 prevLastSample[2] = {0, 0};
 
 static void inline play_buffer(void) {
     int i;
-    for (i = 0; i < buffer_size / 4; ++i) 
+    for (i = 0; i < buffer_size / 4; ++i)
         ((int*) buffer)[i] = bswap_32(((int*) buffer)[i]);
-    
+
     xenon_sound_submit(buffer, buffer_size);
 }
 
 /*
- * resamples pStereoSamples 
+ * resamples pStereoSamples
  * (taken from http://pcsx2.googlecode.com/svn/trunk/plugins/zerospu2/zerospu2.cpp)
  */
 void ResampleLinear(s16* pStereoSamples, s32 oldsamples, s16* pNewSamples, s32 newsamples) {
@@ -73,13 +74,13 @@ void ResampleLinear(s16* pStereoSamples, s32 oldsamples, s16* pNewSamples, s32 n
 static void inline add_to_buffer(void* stream, unsigned int length) {
     unsigned int lengthLeft;
     unsigned int rlengthLeft;
-    
+
     lengthLeft = length >> 2;
     rlengthLeft = ceil(lengthLeft * freq_ratio);
 
-//    copy_to_buffer((int *)buffer, stream , rlengthLeft, lengthLeft);
+    //    copy_to_buffer((int *)buffer, stream , rlengthLeft, lengthLeft);
     ResampleLinear((s16 *) stream, lengthLeft, (s16 *) buffer, rlengthLeft);
-    
+
     buffer_size = rlengthLeft << 2;
     play_buffer();
 
@@ -92,7 +93,7 @@ void SetupSound(void) {
     LastPlayTotal = 0;
     LastPlay = 0;
     LastWrite = 0xffffffff;
-    
+
     freq_ratio = 48000.0f / 44100.0f;
 }
 
@@ -109,15 +110,15 @@ void RemoveSound(void) {
 unsigned long SoundGetBytesBuffered(void) {
     int size = xenon_sound_get_unplayed();
     // edge boundaries
-    if( LastWrite == 0xffffffff ) return 0;
-    
-    if( LastPlay < LastWrite ) size = LastWrite - LastPlay;
-    else size = ( SOUNDSIZE - LastPlay ) + LastWrite;
-    
-    if( size > FULLMAX ) {
+    if (LastWrite == 0xffffffff) return 0;
+
+    if (LastPlay < LastWrite) size = LastWrite - LastPlay;
+    else size = (SOUNDSIZE - LastPlay) + LastWrite;
+
+    if (size > FULLMAX) {
         size = 0;
     }
-    
+
     return size;
     //return  xenon_sound_get_unplayed();
 }
@@ -126,53 +127,51 @@ unsigned long SoundGetBytesBuffered(void) {
  * FEED SOUND DATA
  */
 void SoundFeedStreamData(unsigned char* pSound, long lBytes) {
-    if (lBytes < 0)
-        return;
+//    LastWrite += lBytes;
+//    if( LastWrite >= SOUNDSIZE ) {
+//            LastWrite -= SOUNDSIZE;
+//    }
+//
+//    memcpy( mixer_playbuf, pSound+LastWrite, lBytes );
+
     add_to_buffer(pSound, lBytes);
 }
 
 #if 0
+
 unsigned long timeGetTime() {
     /*
     struct timeval tv;
     gettimeofday(&tv, 0); // well, maybe there are better ways
     return tv.tv_sec * 100000 + tv.tv_usec / 10; // to do that, but at least it works
      */
-    return mftb()/(PPC_TIMEBASE_FREQ/100000);
+    return mftb() / (PPC_TIMEBASE_FREQ / 100000);
 }
 #endif
 
-
-int SoundBufferReady()
-{
+int SoundBufferReady() {
     return 1;
 }
 
-int SoundGetSamplesBuffered()
-{
-	return SoundGetBytesBuffered() / output_samplesize;
+int SoundGetSamplesBuffered() {
+    return SoundGetBytesBuffered() / output_samplesize;
 }
 
-
-void SoundPhantomPad()
-{
+void SoundPhantomPad() {
 
 }
 
-void SoundRecordStreamData(unsigned char* pSound,long lBytes)
-{
+void SoundRecordStreamData(unsigned char* pSound, long lBytes) {
 
 }
 
-
-void ResetSound()
-{
+void ResetSound() {
     // fast-forward lag?
-    CDDAPlay  = CDDAStart;
-    CDDAFeed  = CDDAStart;
+    CDDAPlay = CDDAStart;
+    CDDAFeed = CDDAStart;
 
-    XAPlay  = XAStart;
-    XAFeed  = XAStart;
+    XAPlay = XAStart;
+    XAFeed = XAStart;
 
 
     LastWrite = 0xffffffff;
