@@ -1276,17 +1276,29 @@ void UploadScreen(int Position) {
         SetRenderMode((uint32_t) 0x01000000, FALSE); // upload texture data
         offsetScreenUpload(Position);
 
-        vertex[0].sow = 0;
-        vertex[0].tow = 0;
+//        vertex[0].sow = 0;
+//        vertex[0].tow = 0;
+//
+//        vertex[1].sow = ((float)XStep/1024.f);
+//        vertex[1].tow = 0.f;
+//
+//        vertex[2].sow = ((float)XStep/1024.f);
+//        vertex[2].tow = ((float)YStep/1024.f);
+//
+//        vertex[3].sow = 0;
+//        vertex[3].tow = ((float)YStep/1024.f);
 
-        vertex[1].sow = ((float)XStep/1024.f);
-        vertex[1].tow = 0.f;
+        vertex[0].sow = ((float)xrMovieArea.x0/1024.f);
+        vertex[0].tow = ((float)xrMovieArea.y0/1024.f);
 
-        vertex[2].sow = ((float)XStep/1024.f);
-        vertex[2].tow = ((float)YStep/1024.f);
+        vertex[1].sow = ((float)xrMovieArea.x1/1024.f);
+        vertex[1].tow = ((float)xrMovieArea.y0/1024.f);
 
-        vertex[3].sow = 0;
-        vertex[3].tow = ((float)YStep/1024.f);
+        vertex[2].sow = ((float)xrMovieArea.x1/1024.f);
+        vertex[2].tow = ((float)xrMovieArea.y1/1024.f);
+
+        vertex[3].sow = ((float)xrMovieArea.x0/1024.f);
+        vertex[3].tow = ((float)xrMovieArea.y1/1024.f);
 
         PRIMdrawFmvQuad(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
     }
