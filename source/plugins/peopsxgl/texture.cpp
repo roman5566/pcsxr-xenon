@@ -169,7 +169,6 @@ unsigned short CLUTMASK = 0x7fff;
 unsigned short CLUTYMASK = 0x1ff;
 unsigned short MAXSORTTEX = 196;
 }
-#define printf(...)
 
 ////////////////////////////////////////////////////////////////////////
 // Texture color conversions... all my ASM funcs are removed for easier
@@ -395,31 +394,6 @@ unsigned short P4RGBA(unsigned short BGR) {
     return (((((BGR & 0x1e) << 11)) | ((BGR & 0x7800) >> 7) | ((BGR & 0x3c0) << 2))) | 0xf;
 }
 
-
-void _DumpExL(EXLongTag * l, const char * val_str){
-    if(l!=NULL){
-        printf("%s\r\n",val_str);
-        printf("l = %08x\r\n",l->l);
-        /*
-        printf("0 = %x\r\n",l->c[0]);
-        printf("1 = %x\r\n",l->c[1]);
-        printf("2 = %x\r\n",l->c[2]);
-        printf("3 = %x\r\n",l->c[3]);
-        */
-        printf("0 = %02x\r\n",l->_0);
-        printf("1 = %02x\r\n",l->_1);
-        printf("2 = %02x\r\n",l->_2);
-        printf("3 = %02x\r\n",l->_3);
-        printf("\r\n");
-    }
-}
-
-#define DumpExL(x) {TR;_DumpExL(x, #x);}
-//#define DumpExL(x) {}
-
-//#define te_swap(x) bswap_32(x);
-#define te_swap(x) x
-
 ////////////////////////////////////////////////////////////////////////
 // CHECK TEXTURE MEM (on plugin startup)
 ////////////////////////////////////////////////////////////////////////
@@ -506,17 +480,17 @@ void CheckTextureMemory(void) {
     else iSortTexCnt = iCnt - 3 + min(1, iHiResTextures); // place for menu&texwnd
 
     if (iSortTexCnt < 8) iSortTexCnt = 8;
-    
+
 #else
     int i = 0;
     for (i = 0; i < MAXSORTTEX; i++) {
         uiStexturePage[i] = 0;
     }
-    
+
     iSortTexCnt = 8;
 #endif
-    
-    
+
+
     //iSortTexCnt = 8;
 }
 
@@ -707,9 +681,9 @@ void InvalidateWndTextureArea(int X, int Y, int W, int H) {
         px2 += py1; // change to 0-31
         for (i = 0; i < iMaxTexWnds; i++, tsw++) {
             if (tsw->used) {
-                
+
                 //DumpExL(&tsw->pos);
-                
+
                 if (tsw->pageid >= px1 && tsw->pageid <= px2) {
                     tsw->used = 0;
                 }
@@ -720,9 +694,9 @@ void InvalidateWndTextureArea(int X, int Y, int W, int H) {
         py2 = px2 + 16;
         for (i = 0; i < iMaxTexWnds; i++, tsw++) {
             if (tsw->used) {
-                
+
                 //DumpExL(&tsw->pos);
-                
+
                 if ((tsw->pageid >= px1 && tsw->pageid <= px2) ||
                         (tsw->pageid >= py1 && tsw->pageid <= py2)) {
                     tsw->used = 0;
@@ -754,18 +728,14 @@ void MarkFree(textureSubCacheEntryS * tsx) {
     ul = uls + 1;
 
     if (!iMax) return;
-    DumpExL(&tsx->pos);
-    printf("iMax = %08x\r\n",iMax);
 
     for (j = 0; j < iMax; j++, ul++)
         if (ul->l == 0xffffffff) break;
 
     if (j < CSUBSIZE - 2) {
-        if (j == iMax) 
+        if (j == iMax)
             uls->l = uls->l + 1;
 
-        DumpExL(uls);
-        
         x1 = tsx->posTX;
         dx = tsx->pos._2 - tsx->pos._3;
         if (tsx->posTX) {
@@ -785,15 +755,6 @@ void MarkFree(textureSubCacheEntryS * tsx) {
         ul->_0 = dy;
     }
 }
-
-//#define DUMP_ISTA(){ \
-///*printf("InvalidateSubSTextureArea %d %d %d %d\r\n",ISTA_X,ISTA_Y,ISTA_W,ISTA_H);*/ \
-//printf("iMax:%08x\r\n",iMax); \
-//printf("tsb->ClutID : %08x\r\n",tsb->ClutID);\
-//DumpExL(&tsb->pos);\
-//DumpExL(&npos);\
-//}
-
 #define DUMP_ISTA(){ }
 
 // clutid 0xa6706abe
@@ -874,7 +835,6 @@ void InvalidateSubSTextureArea(int X, int Y, int W, int H) {
                     tsb = pscSubtexStore[k][j] + SOFFA;
 
                     iMax = tsb->pos.l;
-                    //DumpExL(&tsb->pos);
                     tsb++;
                     for (i = 0; i < iMax; i++, tsb++)
 
@@ -891,7 +851,6 @@ void InvalidateSubSTextureArea(int X, int Y, int W, int H) {
                         tsb = pscSubtexStore[k][j] + SOFFB;
 
                         iMax = tsb->pos.l;
-                        //DumpExL(&tsb->pos);
                         tsb++;
                         for (i = 0; i < iMax; i++, tsb++)
 
@@ -907,7 +866,6 @@ void InvalidateSubSTextureArea(int X, int Y, int W, int H) {
                         tsb = pscSubtexStore[k][j] + SOFFC;
 
                         iMax = tsb->pos.l;
-                        //DumpExL(&tsb->pos);
                         tsb++;
                         for (i = 0; i < iMax; i++, tsb++)
 
@@ -923,7 +881,6 @@ void InvalidateSubSTextureArea(int X, int Y, int W, int H) {
                         tsb = pscSubtexStore[k][j] + SOFFD;
 
                         iMax = tsb->pos.l;
-                        //DumpExL(&tsb->pos);
                         tsb++;
                         for (i = 0; i < iMax; i++, tsb++)
 
@@ -1015,7 +972,7 @@ unsigned char * CheckTextureInSubSCache(int TextureMode, uint32_t GivenClutId, u
     unsigned char cXAdj, cYAdj;
 
     npos.l = GETLE32((uint32_t *) & gl_ux[4]);
-        
+
     //--------------------------------------------------------------//
     // find matching texturepart first... speed up...
     //--------------------------------------------------------------//
@@ -1023,7 +980,7 @@ unsigned char * CheckTextureInSubSCache(int TextureMode, uint32_t GivenClutId, u
     tsg += ((GivenClutId & CLUTCHK) >> CLUTSHIFT) * SOFFB;
 
     iMax = tsg->pos.l;
-    
+
     if (iMax) {
         i = iMax;
         tsb = tsg + 1;
@@ -1051,7 +1008,6 @@ unsigned char * CheckTextureInSubSCache(int TextureMode, uint32_t GivenClutId, u
             tsb++;
         } while (--i);
     }
-
     //----------------------------------------------------//
 
     cXAdj = 1;
@@ -1062,14 +1018,14 @@ unsigned char * CheckTextureInSubSCache(int TextureMode, uint32_t GivenClutId, u
 
     tsx = NULL;
     tsb = tsg + 1;
-    
+
     for (i = 0; i < iMax; i++, tsb++) {
         if (!tsb->ClutID) {
             tsx = tsb;
             break;
         }
     }
-    
+
     if (!tsx) {
         iMax++;
         if (iMax >= SOFFB - 2) {
@@ -1123,7 +1079,6 @@ unsigned char * CheckTextureInSubSCache(int TextureMode, uint32_t GivenClutId, u
     //----------------------------------------------------//
 
     if (iTexGarbageCollection){
-        TR;
         usLRUTexPage = 0;
     }
 
@@ -1446,7 +1401,7 @@ TENDLOOP:
     YTexS = rfree._1;
 
     //    printf("tsx->cTexID = %d\r\n",tsx->cTexID);
-    //    
+    //
     //    printf("XTexS = %d\r\n",XTexS);
     //    printf("YTexS = %d\r\n",YTexS);
 
@@ -1524,7 +1479,6 @@ void CompressTextureSpace(void) {
                             }
 
                             tsx->pos.l = r.l;
-                            DumpExL(&tsx->pos);
                             if (!GetCompressTexturePlace(tsx)) // no place?
                             {
                                 for (i = 0; i < 3; i++) // -> clean up everything
@@ -1539,8 +1493,6 @@ void CompressTextureSpace(void) {
                                     ul = pxSsubtexLeft[i];
                                     ul->l = 0;
                                 }
-                                //                                DumpExL(ul);
-
                                 usLRUTexPage = 0;
                                 DrawSemiTrans = sOldDST;
                                 GlobalTexturePage = lOGTP;
@@ -1572,7 +1524,6 @@ void CompressTextureSpace(void) {
                         iMax--;
                     }
                     tsg->pos.l = iMax;
-                    DumpExL(&tsg->pos);
                 }
 
             }

@@ -142,6 +142,8 @@ void LoadSubTexturePageSort(int pageid, int mode, short cx, short cy) {
     unsigned int a, r, g, b, cnt, h;
     uint32_t scol[8];
 
+    //printf("LoadSubTexturePageSort:%08x %08x %04x %04x  \r\n",pageid,mode,cx,cy);
+
     LTCOL = TCF[DrawSemiTrans];
 
     pa = px = (uint32_t *) ubPaletteBuffer;
@@ -330,7 +332,8 @@ void LoadSubTexturePageSort(int pageid, int mode, short cx, short cy) {
             do {
                 row = dx;
                 do {
-                    *ta++ = (LTCOL(ptr32(wSRCPtr)));
+                    *ta++ = (LTCOL(ptr32(wSRCPtr++)));
+                    //*ta++=0xFF4488FF;
 
                     row--;
                 } while (row);
@@ -407,6 +410,7 @@ void LoadSubTexturePageSort(int pageid, int mode, short cx, short cy) {
     ta = (uint32_t *) texturepart;
     x1 = dx - 1;
     y1 = dy - 1;
+
 #if 1
     if (bOpaquePass) {
         if (bSmallAlpha) {
@@ -667,7 +671,7 @@ GpuTex * BlackFake15BitTexture(void) {
 
 /////////////////////////////////////////////////////////////////////////////
 GpuTex * Fake15BitTexture(void) {
-    //TR;
+    TR;
     int pmult;
     short x1, x2, y1, y2;
     int iYAdjust;
@@ -806,6 +810,9 @@ GpuTex * Fake15BitTexture(void) {
     if (y1 <= 0) y1 = 1;
     if (y1 + iYAdjust > iFTex) y1 = iFTex - iYAdjust;
 
+    gTexName = gpuRenderer.GetFB();
+
+    return gpuRenderer.GetFB();
 
     /*
      if(bFakeFrontBuffer) glReadBuffer(GL_FRONT);
