@@ -261,11 +261,8 @@ void InitVideo() {
 
     XenosSurface * fb = Xe_GetFramebufferSurface(g_pVideoDevice);
 
-    screenheight = fb->height;
-    screenwidth = fb->width;
-
-    //    screenheight = 480;
-    //    screenwidth = 640;
+    screenheight = ((float)fb->height)*(720.f/(float)fb->height);
+    screenwidth = ((float)fb->width)*(1280.f/(float)fb->width);
 
     Xe_Init(g_pVideoDevice);
 

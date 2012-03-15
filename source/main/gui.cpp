@@ -1858,8 +1858,8 @@ void MainMenu(int menu) {
 }
 
 int main() {
-    xenos_init(VIDEO_MODE_HDMI_720P);
-    //xenos_init(VIDEO_MODE_AUTO);
+    //xenos_init(VIDEO_MODE_HDMI_720P);
+    xenos_init(VIDEO_MODE_AUTO);
     xenon_sound_init();
     console_init();
 
