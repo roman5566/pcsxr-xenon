@@ -12,12 +12,12 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-
+#include <network/network.h>
 //#include "libwiigui/gui.h"
 
 #include "gamecube_plugins.h"
 
-extern void httpd_start(void);
+extern "C" void httpd_start(void);
 
 extern PluginTable plugins[];
 
@@ -103,6 +103,8 @@ extern PluginTable plugins[];
 //#define cdfile "uda:/CTR - Crash Team Racing (USA).bin.Z"
 
 #define cdfile "uda:/Resident Evil (USA).iso.Z"
+#define cdfile "uda:/0cimg/medievil-scus-94227-/Medievil.bin.Z"
+
 
 void printConfigInfo() {
 
@@ -161,8 +163,8 @@ int main() {
      */
     memset(&Config, 0, sizeof (PcsxConfig));
 
-    //network_init();
-    //network_print_config();
+    network_init();
+    network_print_config();
 
     //console_close();
 
@@ -171,7 +173,7 @@ int main() {
     // telnet_console_init();
     // mdelay(5000);
 
-    //httpd_start();
+    httpd_start();
 
     // uart speed patch 115200 - jtag/freeboot
     // *(volatile uint32_t*)(0xea001000+0x1c) = 0xe6010000;
@@ -245,7 +247,7 @@ SPU_Config SpuConfig;
 HW_GPU_Config HwGpuConfig;
 
 extern "C" void systemPoll() {
-    // network_poll();
+     network_poll();
 }
 
 #endif

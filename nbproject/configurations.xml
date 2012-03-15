@@ -12,6 +12,7 @@
         <in>font_ttf.h</in>
         <in>fr_lang.h</in>
         <in>keyboard_textbox_png.h</in>
+        <in>pasm.d</in>
         <in>xenon_bg_file_selection_entry_png.h</in>
         <in>xenon_bg_png.h</in>
         <in>xenon_button_gamesave_blank_png.h</in>
@@ -270,7 +271,6 @@
             <in>texture_movie.h</in>
           </df>
           <df name="Pokopom">
-            <in>Background.bmp</in>
             <in>Codes_IDs.h</in>
             <in>ConfigDialog.cpp</in>
             <in>ConfigDialog.h</in>
@@ -278,16 +278,11 @@
             <in>Controller.h</in>
             <in>Controller2.cpp</in>
             <in>ControllerGuitar.cpp</in>
-            <in>Exports.def</in>
             <in>FileIO.cpp</in>
             <in>FileIO.h</in>
             <in>General.h</in>
             <in>Main.h</in>
             <in>PSemuPro_Interface.h</in>
-            <in>Pokopom.rc</in>
-            <in>Pokopom.vcxproj</in>
-            <in>Pokopom.vcxproj.filters</in>
-            <in>Readme.txt</in>
             <in>Settings.cpp</in>
             <in>Settings.h</in>
             <in>Xinput.cpp</in>

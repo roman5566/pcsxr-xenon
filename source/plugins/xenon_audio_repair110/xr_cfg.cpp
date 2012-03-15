@@ -151,6 +151,30 @@ void ReadConfig(void) {
         iVolXA = 10;
         iVolVoices = 10;
 
+        // HACK
+        //iSoundDriver = 1;
+        iUseTimer = 3;
+        iVolume = 15;
+        iUseInterpolation = 2;
+        iUseReverb = 2;
+        iDisStereo = 0;
+        iUseXA = 1;
+        iXAPitch = 1;
+        iSPUIRQWait = 1;
+        iEmuType = 0;
+        iReverbBoost = 1;
+        iLatency = 8;
+        iXAInterp = 2;
+        iCDDAInterp = 1;
+        iOutputInterp1 = 0;
+        iOutputInterp2 = 0;
+        iVolXA = 10;
+        iVolCDDA = 10;
+        iVolVoices = 10;
+        iXAStrength = 0;
+        iCDDAStrength = 0;
+        iOutput2Strength = 0;
+
 #if 0
         fp = fopen("uda:/plugins/spuPeopsSound.ini", "w");
         if (!fp) fp = fopen("uda:/spuPeopsSound.ini", "w");

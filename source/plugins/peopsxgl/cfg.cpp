@@ -36,8 +36,6 @@ BOOL bGteAccuracy;
 
 namespace xegpu {
 
-
-
     void ReadConfig(void) // read config (linux file)
     {
         iResX = 1280;
@@ -45,43 +43,46 @@ namespace xegpu {
         bGteAccuracy = FALSE; //bGteAccuracy = TRUE;
         bFullVRam = FALSE;
 
-//         0: None
-//         1: Standard - Glitches will happen
-//         2: Extended - Removes black borders
-//         3: Standard w/o Sprites - unfiltered 2D
-//         4: Extended w/o Sprites - unfiltered 2D
-//         5: Standard + smoothed Sprites
-//         6: Extended + smoothed Sprites
+        //         0: None
+        //         1: Standard - Glitches will happen
+        //         2: Extended - Removes black borders
+        //         3: Standard w/o Sprites - unfiltered 2D
+        //         4: Extended w/o Sprites - unfiltered 2D
+        //         5: Standard + smoothed Sprites
+        //         6: Extended + smoothed Sprites
         iFilterType = 6;
 
         bDrawDither = FALSE;
         bUseLines = FALSE;
-        bUseFrameLimit = FALSE;//bUseFrameLimit = TRUE;
+        bUseFrameLimit = TRUE; //bUseFrameLimit = TRUE;
         bUseFrameSkip = FALSE;
         iFrameLimit = 2;
         fFrameRate = 200.0f;
         iOffscreenDrawing = 2; //2: Standard - OK for most games
-       // bOpaquePass = FALSE;//TRUE
-        bOpaquePass = TRUE;//TRUE
+        // bOpaquePass = FALSE;//TRUE
+        bOpaquePass = TRUE; //TRUE
         iTexQuality = 4; // 4 - B8 G8 R8 A8 - Slightly faster with some cards | 3 - R8 G8 B8 A8 - Best colors, more ram needed
-        iUseMask =  TRUE;
+        iUseMask = TRUE;
         iZBufferDepth = 16;
         bUseFastMdec = TRUE;
         dwCfgFixes = 0;
         bUseFixes = FALSE;
 
-//         0: Emulated vram - effects need FVP
-//         1: Black - Fast but no special effects
-//         2: Gfx card buffer - Can be slow
-//         3: Gfx card buffer & software - slow
-        iFrameTexType = 2;
+        //         0: Emulated vram - effects need FVP
+        //         1: Black - Fast but no special effects
+        //         2: Gfx card buffer - Can be slow
+        //         3: Gfx card buffer & software - slow
+        iFrameTexType = 0;
 
-//        0: Emulated vram - OK for most games
-//        1: Gfx card buffer reads
-//        2: Gfx card buffer moves
-//        3: Gfx card buffer reads & moves
-//        4: Full software drawing (FVP)
-        iFrameReadType = 3;
+        //        0: Emulated vram - OK for most games
+        //        1: Gfx card buffer reads
+        //        2: Gfx card buffer moves
+        //        3: Gfx card buffer reads & moves
+        //        4: Full software drawing (FVP)
+        iFrameReadType = 4;
+
+        if (iFrameReadType == 4) bFullVRam = TRUE;
+        else bFullVRam = FALSE;
 
         bUse15bitMdec = FALSE;
         iShowFPS = 0;
@@ -100,14 +101,14 @@ namespace xegpu {
          * ff7
          */
         bUseFixes = TRUE;
-        dwCfgFixes = 0x1;//f7 fixe
+        dwCfgFixes = 0x1; //f7 fixe
         if (bUseFixes) dwActFixes = dwCfgFixes; // init game fix global
 
 
         // apply gui settings
-//        bUseFrameLimit=HwGpuConfig.fps_limit;
-        iHiResTextures=HwGpuConfig.hires_texture;
-        bGteAccuracy=HwGpuConfig.gte_accuracy;
+        //        bUseFrameLimit=HwGpuConfig.fps_limit;
+        iHiResTextures = HwGpuConfig.hires_texture;
+        bGteAccuracy = HwGpuConfig.gte_accuracy;
     }
 
 }

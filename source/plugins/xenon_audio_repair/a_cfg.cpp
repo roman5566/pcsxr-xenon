@@ -79,9 +79,9 @@ void ReadConfig(void) {
     iOutputDriver = 0;
     iUseXA = 1;
     iVolume = 8;
-    iXAPitch = 0;
+    iXAPitch = 1;
     iUseTimer = 0;
-    iSPUIRQWait = 0;
+    iSPUIRQWait = 1;
     iDebugMode = 0;
     iRecordMode = 0;
     iUseReverb = 2;

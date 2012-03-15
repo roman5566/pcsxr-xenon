@@ -120,7 +120,7 @@ extern FILE *fp_spu_log;
 const unsigned char version = 1;
 const unsigned char revision = 1;
 const unsigned char build = 10;
-#ifdef _WINDOWS 				 
+#ifdef _WINDOWS
 static char * libraryName = "P.E.Op.S. Sound Audio Driver";
 #else
 #ifndef USEALSA
@@ -128,7 +128,7 @@ static char * libraryName = "P.E.Op.S. OSS Audio Driver";
 #else
 static char * libraryName = "P.E.Op.S. ALSA Audio Driver";
 #endif
-#endif															
+#endif
 static char * libraryInfo = "P.E.Op.S. OSS Driver V1.9\nCoded by Pete Bernert and the P.E.Op.S. team\n";
 
 ////////////////////////////////////////////////////////////////////////
@@ -149,7 +149,7 @@ unsigned char * pSpuBuffer;
 unsigned char * pMixIrq = 0;
 
 
-// user settings					
+// user settings
 
 int iOutputDriver = 0;
 int iUseXA = 1;
@@ -249,7 +249,7 @@ static int iSecureStart = 0; // secure start counter
 
 // dirty inline func includes
 
-#include "a_reverb.cpp" 			 
+#include "a_reverb.cpp"
 #include "a_adsr.cpp"
 
 
@@ -295,12 +295,12 @@ static int iSecureStart = 0; // secure start counter
 //
 //	- and next delta significant (at least twice) bigger:
 //						/
-//				 __- 
-//				 
+//				 __-
+//
 //	- and next delta is nearly same:
 //					 /
 //					/
-//		 
+//
 
 INLINE void InterpolateUp(SPUCHAN * pChannel) {
     if (pChannel->SB[32] == 1) // flag == 1? calc step and set flag... and don't change the value in this pass
@@ -687,9 +687,9 @@ INLINE void OutGetInterpolationVal(int spos, int sinc, int *out_lc, int *out_rc)
         {
             /*
             ADPCM interpolation (4-tap FIR)
-		 
+
                     y[n] = (x[n-3] * 4807 + x[n-2] * 22963 + x[n-1] * 4871 - x[n]) >> 15;
-			 
+
                             - Dr. Hell (Xebra PS1 emu)
              */
 
@@ -863,21 +863,21 @@ Noise Algorithm
 - Dr.Hell (Xebra PS1 emu)
 - http://drhell.web.fc2.com
 
-	
+
 Level change cycle
 - Freq = 0x8000 >> (NoiseClock >> 2);
-		
-			
+
+
 Frequency of half cycle
 - Half = ((NoiseClock & 3) * 2) / (4 + (NoiseClock & 3));
-				
+
 0 = (0*2)/(4+0) = 0/4
 1 = (1*2)/(4+1) = 2/5
 2 = (2*2)/(4+2) = 4/6
 3 = (3*2)/(4+3) = 6/7
-					
+
 -------------------------------
-						
+
 5*6*7 = 210
 4 -  0*0 = 0
 5 - 42*2 = 84
@@ -952,7 +952,7 @@ INLINE void StoreInterpolationVal(SPUCHAN * pChannel, int fa) {
         {
             // clip at mixer output, not now
             //if(fa>32767L)  fa=32767L;
-            //if(fa<-32768L) fa=-32768L;							
+            //if(fa<-32768L) fa=-32768L;
         }
 
         if (iUseInterpolation >= 2) // gauss/cubic interpolation
@@ -1123,9 +1123,9 @@ INLINE int iGetInterpolationVal(SPUCHAN * pChannel) {
         {
             /*
             ADPCM interpolation (4-tap FIR)
-		 
+
                     y[n] = (x[n-3] * 4807 + x[n-2] * 22963 + x[n-1] * 4871 - x[n]) >> 15;
-			 
+
                             - Dr. Hell (Xebra PS1 emu)
              */
 
@@ -1255,7 +1255,7 @@ static void *MAINThread(void *arg)
                 if (dwNewChannel) iSecureStart = 1; // if a new channel kicks in (or, of course, sound buffer runs low), we will leave the loop
             }
         }
-        //--------------------------------------------------// continue from irq handling in timer mode? 
+        //--------------------------------------------------// continue from irq handling in timer mode?
 
         if (lastch >= 0) // will be -1 if no continue is pending
         {
@@ -1267,7 +1267,7 @@ static void *MAINThread(void *arg)
         }
 
         //--------------------------------------------------//
-        //- main channel loop 														 -// 
+        //- main channel loop 														 -//
         //--------------------------------------------------//
         {
             ns = 0;
@@ -1444,7 +1444,7 @@ static void *MAINThread(void *arg)
                             // Silhouette Mirage - Serah fight
                             if (predict_nr > 4) predict_nr = 0;
 
-                            // -------------------------------------- // 
+                            // -------------------------------------- //
 
                             for (nSample = 0; nSample < 28; start++) {
                                 int t1, t2;
@@ -1527,7 +1527,7 @@ static void *MAINThread(void *arg)
                             $4 = set loop to current block
                             $2 = keep envelope on (no mute)
                             $1 = jump to loop address
-							
+
                             silence means no volume (ADSR keeps playing!!)
                              */
 
@@ -1608,7 +1608,7 @@ static void *MAINThread(void *arg)
 
                                     while (iSpuAsyncWait && !bEndThread &&
                                             timeGetTime() < dwWatchTime)
-                                        TR;
+
 #ifdef _WINDOWS
                                         Sleep(1);
 #else
@@ -1700,7 +1700,7 @@ GOON:
                         }
 
                         //////////////////////////////////////////////
-                        // now let us store sound data for reverb 	 
+                        // now let us store sound data for reverb
 
                         // check reverb write flags
                         if (pChannel->bRVBActive)
@@ -1948,7 +1948,7 @@ GOON:
             /*
             slower emu parts drain faster
             - best way to average different speeds
-				
+
             - MML2 = (50-75 avg at peaks)
             - Xenogears = ~50-75 at peaks
             - Tekken 3 = even slower?
@@ -2237,19 +2237,19 @@ GOON:
         } // end async wait checker
 
 
-        //////////////////////////////////////////////////////									 
+        //////////////////////////////////////////////////////
         // special irq handling in the decode buffers (0x0000-0x1000)
-        // we know: 
+        // we know:
         // the decode buffers are located in spu memory in the following way:
         // 0x0000-0x03ff	CD audio left
         // 0x0400-0x07ff	CD audio right
         // 0x0800-0x0bff	Voice 1
         // 0x0c00-0x0fff	Voice 3
         // and decoded data is 16 bit for one sample
-        // we assume: 
+        // we assume:
         // even if voices 1/3 are off or no cd audio is playing, the internal
         // play positions will move on and wrap after 0x400 bytes.
-        // Therefore: we just need a pointer from spumem+0 to spumem+3ff, and 
+        // Therefore: we just need a pointer from spumem+0 to spumem+3ff, and
         // increase this pointer on each sample by 2 bytes. If this pointer
         // (or 0x400 offsets of this pointer) hits the spuirq address, we generate
         // an IRQ. Only problem: the "wait for cpu" option is kinda hard to do here
@@ -2260,7 +2260,7 @@ GOON:
 
         InitREVERB();
 
-        ////////////////////////////////////////////////////// 									
+        //////////////////////////////////////////////////////
         // feed the sound
         // latency = ms
 
@@ -2390,7 +2390,6 @@ extern "C" void CALLBACK SPUasync(unsigned long cycle) {
         if (!bSpuInit) return; // -> no init, no call
 
         while (cpu_cycles >= cpu_clock * APU_run / 44100) {
-            TR;
 #ifdef _WINDOWS
             MAINProc(0, 0, 0, 0, 0); // -> experimental win mode... not really tested... don't like the drawbacks
 #else
@@ -2409,7 +2408,7 @@ extern "C" void CALLBACK SPUasync(unsigned long cycle) {
                 total_cpu_cycles = 0;
                 total_apu_cycles = 0;
             }
-#endif	
+#endif
 
 
 #ifdef SPU_LOG
@@ -2502,7 +2501,7 @@ void SetupTimer(void) {
         atexit(RemoveTimer);
         xenon_run_thread_task(2, &thread_stack[sizeof (thread_stack) - 0x100], (void*)MAINThread);
     }
-#else	
+#else
 #ifdef _WINDOWS
 
     timeBeginPeriod(1);
@@ -2528,7 +2527,7 @@ void SetupTimer(void) {
         pthread_create(&thread, NULL, MAINThread, NULL);
     }
 #endif
-#endif		
+#endif
 #endif
 }
 
@@ -2634,7 +2633,7 @@ void RemoveStreams(void) {
     {
     WaitForSingleObject(s_chan[i].hMutex,2000);
     ReleaseMutex(s_chan[i].hMutex);
-    if(s_chan[i].hMutex)		
+    if(s_chan[i].hMutex)
     {CloseHandle(s_chan[i].hMutex);s_chan[i].hMutex=0;}
     }
      */
@@ -2675,7 +2674,7 @@ extern "C" long CALLBACK SPUinit(void) {
 
     for (i = 0; i < MAXCHAN; i++) // loop sound channels
     {
-        // we don't use mutex sync... not needed, would only 
+        // we don't use mutex sync... not needed, would only
         // slow us down:
         //	 s_chan[i].hMutex=CreateMutex(NULL,FALSE,NULL);
         s_chan[i].ADSRX.SustainLevel = 0xf << 27; // -> init sustain
@@ -2813,7 +2812,7 @@ extern "C" void CALLBACK SPUabout(void) {
 
 ////////////////////////////////////////////////////////////////////////
 // SETUP CALLBACKS
-// this functions will be called once, 
+// this functions will be called once,
 // passes a callback that should be called on SPU-IRQ/cdda volume change
 ////////////////////////////////////////////////////////////////////////
 

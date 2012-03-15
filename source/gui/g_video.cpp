@@ -347,7 +347,7 @@ void SetRS() {
     Xe_SetCullMode(g_pVideoDevice, XE_CULL_NONE);
     Xe_SetStreamSource(g_pVideoDevice, 0, vb, nb_vertices, sizeof (DrawVerticeFormats));
     /* disable scissor */
-    Xe_SetScissor(g_pVideoDevice,0,0,0,0,0);
+//    Xe_SetScissor(g_pVideoDevice,0,0,0,0,0);
 }
 
 void Draw() {

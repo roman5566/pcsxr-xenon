@@ -3,7 +3,7 @@
                              -------------------
     begin                : Sun Mar 08 2009
     copyright            : (C) 1999-2009 by Pete Bernert
-    web                  : www.pbernert.com   
+    web                  : www.pbernert.com
  ***************************************************************************/
 
 /***************************************************************************
@@ -21,7 +21,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <unistd.h>
-
+#include <xenon_uart/xenon_uart.h>
 #ifdef LIBXENON
 #include <sys/stat.h>
 #include <sys/time.h>
@@ -43,7 +43,7 @@
 
 #include "swap.h"
 
-#include <math.h> 
+#include <math.h>
 
 #define CALLBACK /* */
 
@@ -112,3 +112,4 @@ typedef void GLvoid;
 
 
 #define TR {printf("[Trace] in function %s, line %d, file %s\n",__FUNCTION__,__LINE__,__FILE__);}
+#define BP {printf("[Breakpoint] in function %s, line %d, file %s\n",__FUNCTION__,__LINE__,__FILE__);getch();}

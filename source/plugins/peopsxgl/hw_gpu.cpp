@@ -1572,21 +1572,25 @@ void CheckVRamRead(int x, int y, int dx, int dy, BOOL bFront) {
 
 
 
-#if 0
+
     TR;
 
     if (!pGfxCardScreen) {
-        glPixelStorei(GL_PACK_ALIGNMENT, 1);
+//        glPixelStorei(GL_PACK_ALIGNMENT, 1);
         pGfxCardScreen = (unsigned char *) malloc(iResX * iResY * 4);
     }
 
     ps = pGfxCardScreen;
 
-    if (bFront) glReadBuffer(GL_FRONT);
+    if (bFront){
+//        glReadBuffer(GL_FRONT);
+    }
+    else{
 
-    glReadPixels(x, y, dx, dy, GL_RGB, GL_UNSIGNED_BYTE, ps);
+    }
 
-    if (bFront) glReadBuffer(GL_BACK);
+//    glReadPixels(x, y, dx, dy, GL_RGB, GL_UNSIGNED_BYTE, ps);
+    
 
     XS = (float) dx / (float) (udx);
     YS = (float) dy / (float) (udy + 1);
@@ -1611,7 +1615,7 @@ void CheckVRamRead(int x, int y, int dx, int dy, BOOL bFront) {
         }
         p += 1024 - udx;
     }
-#endif
+
 }
 
 ////////////////////////////////////////////////////////////////////////

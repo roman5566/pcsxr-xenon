@@ -23,7 +23,7 @@
 //#pragma comment(lib, "Xinput.lib")
 
 #include <math.h>
-
+extern "C" void exit(int e);
 const double root2 = 1.4142135623730950488016887242097;
 
 unsigned short ConvertAnalog(int X, int Y, double deadzone) {
@@ -60,6 +60,10 @@ unsigned short ConvertAnalog(int X, int Y, double deadzone) {
     return result;
 }
 
+extern "C" void enableCapture();
+
+struct controller_data_s old[2];
+
 void Controller::poll() {
     struct controller_data_s state;
     int result = get_controller_data(&state, settings.xinputPort);
@@ -75,6 +79,28 @@ void Controller::poll() {
             analogSwitch = true;
         }
     }
+
+#if 1
+
+    static int reset_time = 0;
+    if (state.logo) {
+        if(old[settings.xinputPort].logo){
+            reset_time++;
+            if(reset_time>50){
+                if (state.select){
+                    exit(0);//return to xell
+                }else{
+                    reset_time = 0;
+                    enableCapture();
+                }
+            }
+        }
+        else{
+            reset_time = 0;
+        }
+    }
+    old[settings.xinputPort] = state;
+#endif
 
     //if(result == ERROR_SUCCESS)
     if (1) {

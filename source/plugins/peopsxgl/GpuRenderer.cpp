@@ -978,7 +978,7 @@ XenosSurface * GpuRenderer::CreateTexture(unsigned int width, unsigned int heigh
     allocated_texture_size += surf->hpitch * surf->wpitch;
     n_texture++;
 
-    printf("Create new texture : %d, %d %p\r\n",width,height,surf);
+    //printf("Create new texture : %d, %d %p\r\n",width,height,surf);
     //    printf("Allocated texture size : %s\r\nNumber of texture : %d\r\n", readable_fs(allocated_texture_size, buf),n_texture);
 
     return surf;
@@ -988,10 +988,17 @@ XenosSurface * GpuRenderer::CreateTexture(unsigned int width, unsigned int heigh
  * Textures
  */
 void XeTexSubImage(struct XenosSurface * surf, int srcbpp, int dstbpp, int xoffset, int yoffset, int width, int height, const void * buffer) {
+
+//    printf("xoffset : %d\r\n",xoffset);
+//    printf("yoffset : %d\r\n",yoffset);
+//    printf("width : %d\r\n",width);
+//    printf("height : %d\r\n",height);
+//    printf("buffer : %p\r\n",buffer);
+
     if (surf) {
         //copy data
         //printf("xeGfx_setTextureData\n");
-        uint8_t * surfbuf = (uint8_t*) Xe_Surface_LockRect(xe, surf, 0, 0, 0, 0, XE_LOCK_WRITE);
+        uint8_t * surfbuf = (uint8_t*) Xe_Surface_LockRect(xe, surf, 0, 0, 0, 0, XE_LOCK_WRITE|XE_LOCK_READ);
         uint8_t * srcdata = (uint8_t*) buffer;
         uint8_t * dstdata = surfbuf;
         int srcbytes = srcbpp;
@@ -1073,7 +1080,7 @@ void GpuRenderer::TextureUnlock(GpuTex *surf) {
 // return last post processess texture
 
 GpuTex * GpuRenderer::GetFB() {
-    return pPostRenderSurface;
+    return Xe_GetFramebufferSurface(xe);
 }
 
 void XeTexCopyImage(struct XenosSurface * surf, int srcbpp, int dstbpp, int xoffset, int yoffset, int width, int height, void * dest) {
@@ -1115,3 +1122,30 @@ void XeTexCopyImage(struct XenosSurface * surf, int srcbpp, int dstbpp, int xoff
     gpuRenderer.StatesChanged();
 }
 
+void xeReadPixels (struct XenosSurface * surf, int x, int y, int width, int height, void *pixels)
+{
+	int row;
+	int col;
+	unsigned char *srcdata;
+	unsigned char *dstdata = (unsigned char *) pixels;
+
+        srcdata = (unsigned char *) Xe_Surface_LockRect(xe, surf, 0, 0, 0, 0, XE_LOCK_WRITE);
+
+	// invert the copied image
+	for (row = (y + height - 1); row >= y; row--)
+	{
+		for (col = x; col < (x + width); col++)
+		{
+			int srcpos = row * width + col;
+
+			// swap to BGR because Quake is going to swap it back
+			dstdata[2] = srcdata[srcpos * 3 + 0];
+			dstdata[1] = srcdata[srcpos * 3 + 1];
+			dstdata[0] = srcdata[srcpos * 3 + 2];
+
+			dstdata += 3;
+		}
+	}
+
+	Xe_Surface_Unlock(xe, surf);
+}

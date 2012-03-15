@@ -32,7 +32,7 @@ void XXsetTextureData(XenosSurface * surf,void * buffer){
     for(j=0;j<surf->hpitch;++j)
         for(i=0;i<surf->wpitch;i+=surf->width*4)
             memcpy(&surfbuf[surf->wpitch*j+i],&buf[surf->width*(j%surf->height)*4],surf->width*4);
-        
+
     gpuRenderer.TextureUnlock(surf);
 }
 
@@ -85,6 +85,7 @@ void DefineTextureWnd(void) {
 // tex window
 ////////////////////////////////////////////////////////////////////////
 void XeLoadStretchWndTexturePage(GpuTex *wnd, int pageid, int mode, short cx, short cy) {
+    TR;
     uint32_t start, row, column, j, sxh, sxm, ldx, ldy, ldxo, s;
     unsigned int palstart;
     uint32_t *px, *pa, *ta;

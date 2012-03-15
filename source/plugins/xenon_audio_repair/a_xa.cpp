@@ -388,9 +388,9 @@ INLINE int XAGetInterpolationVal(int spos, int sinc) {
         {
             /*
             ADPCM interpolation (4-tap FIR)
-			
+
             y[n] = (x[n-3] * 4807 + x[n-2] * 22963 + x[n-1] * 4871 - x[n]) >> 15;
-				
+
             - Dr. Hell (Xebra PS1 emu)
              */
 
@@ -485,7 +485,7 @@ INLINE void XAStoreInterpolationVal(int val_l, int val_r) {
 }
 
 ////////////////////////////////////////////////////////////////////////
-// MIX XA 
+// MIX XA
 ////////////////////////////////////////////////////////////////////////
 
 INLINE void MixXA(void) {
@@ -751,7 +751,7 @@ INLINE void MixCDDA(void) {
 
 
 ////////////////////////////////////////////////////////////////////////
-// FEED XA 
+// FEED XA
 ////////////////////////////////////////////////////////////////////////
 
 /*
@@ -760,7 +760,7 @@ INLINE void MixCDDA(void) {
 441(00)
 - 378(00) = 1.1666666666
 - 189(00) = 2.3333333333
-	
+
 - 37800 @ 1 - 1/6
 - 18900 @ 2 - 2/6
  */
@@ -784,7 +784,7 @@ INLINE void FeedXA(xa_decode_t *xap) {
     PCSX-reloaded
     - add latency to simulate streaming buffering
     - cut down on drain
-			
+
     ePSXe
     - seems to handle streaming buffers already
      */
@@ -817,7 +817,7 @@ INLINE void FeedXA(xa_decode_t *xap) {
         static int iLastSize = 0;
         static DWORD dwL1 = 0;
         DWORD dw = timeGetTime(), dw1, dw2;
-        TR;
+//        TR;
         iPlace = iSize;
 
         dwFPS += dw - dwLT;
