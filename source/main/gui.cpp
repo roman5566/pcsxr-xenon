@@ -414,6 +414,8 @@ static void ProgressUpdateCallback(void * e) {
 }
 
 void SetIso(const char * fname) {
+    SetIsoFile(NULL);
+
     FILE *fd = fopen(fname, "rb");
     if (fd == NULL) {
         printf("Error loading %s\r\n", fname);
@@ -422,13 +424,17 @@ void SetIso(const char * fname) {
     uint8_t header[0x10];
     int n = fread(header, 0x10, 1, fd);
 
-    if (header[0] == 0x78 && header[1] == 0xDA) {
-        printf("Use CDRCIMG for  %s\r\n", fname);
-        strcpy(Config.Cdr, "CDRCIMG");
-        cdrcimg_set_fname(fname);
-    } else {
-        SetIsoFile(fname);
+    if(n==0x10){
+        if (header[0] == 0x78 && header[1] == 0xDA) {
+            printf("Use CDRCIMG for  %s\r\n", fname);
+            strcpy(Config.Cdr, "CDRCIMG");
+            cdrcimg_set_fname(fname);
+            fclose(fd);
+            return;
+        }
     }
+    SetIsoFile(fname);
+
     fclose(fd);
 }
 

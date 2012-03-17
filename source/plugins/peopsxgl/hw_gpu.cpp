@@ -1461,6 +1461,9 @@ void CheckVRamReadEx(int x, int y, int dx, int dy) {
 
 void CheckVRamRead(int x, int y, int dx, int dy, BOOL bFront) {
 
+    // speed hack
+    return;
+
     unsigned short sArea;
     unsigned short * p;
     int ux, uy, udx, udy, wx, wy;
@@ -1590,7 +1593,7 @@ void CheckVRamRead(int x, int y, int dx, int dy, BOOL bFront) {
     }
 
 //    glReadPixels(x, y, dx, dy, GL_RGB, GL_UNSIGNED_BYTE, ps);
-    
+
 
     XS = (float) dx / (float) (udx);
     YS = (float) dy / (float) (udy + 1);

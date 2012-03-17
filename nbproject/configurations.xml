@@ -12,7 +12,6 @@
         <in>font_ttf.h</in>
         <in>fr_lang.h</in>
         <in>keyboard_textbox_png.h</in>
-        <in>pasm.d</in>
         <in>xenon_bg_file_selection_entry_png.h</in>
         <in>xenon_bg_png.h</in>
         <in>xenon_button_gamesave_blank_png.h</in>
@@ -248,7 +247,6 @@
             <in>gte_accuracy.cpp</in>
             <in>gte_accuracy.h</in>
             <in>hw_gpu.cpp</in>
-            <in>interface.cpp</in>
             <in>interface.h</in>
             <in>interp.h</in>
             <in>key.cpp</in>

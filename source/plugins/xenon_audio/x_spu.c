@@ -183,7 +183,7 @@ static int iSecureStart = 0; // secure start counter
 //
 //  - and next delta significant (at least twice) bigger:
 //            /
-//         __- 
+//         __-
 //
 //  - and next delta is nearly same:
 //           /
@@ -399,7 +399,7 @@ INLINE int iGetNoiseVal(int ch) {
 
     // no clip need
     //if(fa>32767L)  fa=32767L;
-    //if(fa<-32767L) fa=-32767L;              
+    //if(fa<-32767L) fa=-32767L;
 
     // don't upset VAG decoder
     //if(iUseInterpolation<2)                               // no gauss/cubic interpolation?
@@ -582,7 +582,7 @@ static void *MAINThread(void *arg)
             if (dwNewChannel) iSecureStart = 1; // if a new channel kicks in (or, of course, sound buffer runs low), we will leave the loop
         }
 
-        //--------------------------------------------------// continue from irq handling in timer mode? 
+        //--------------------------------------------------// continue from irq handling in timer mode?
 
         if (lastch >= 0) // will be -1 if no continue is pending
         {
@@ -593,7 +593,7 @@ static void *MAINThread(void *arg)
         }
 
         //--------------------------------------------------//
-        //- main channel loop                              -// 
+        //- main channel loop                              -//
         //--------------------------------------------------//
         {
             ns = 0;
@@ -676,7 +676,7 @@ static void *MAINThread(void *arg)
                             // Silhouette Mirage - Serah fight
                             if (predict_nr > 4) predict_nr = 0;
 
-                            // -------------------------------------- // 
+                            // -------------------------------------- //
 
                             for (nSample = 0; nSample < 28; start++) {
                                 d = (int) *start;
@@ -720,7 +720,7 @@ static void *MAINThread(void *arg)
                             {
                                 if ((pSpuIrq > start - 16 && // irq address reached?
                                         pSpuIrq <= start) ||
-                                        ((flags & 1) && // special: irq on looping addr, when stop/loop flag is set 
+                                        ((flags & 1) && // special: irq on looping addr, when stop/loop flag is set
                                         (pSpuIrq > s_chan[ch].pLoop - 16 &&
                                         pSpuIrq <= s_chan[ch].pLoop)))
 #endif
@@ -868,7 +868,7 @@ GOON:
                         }
 
                         //////////////////////////////////////////////
-                        // now let us store sound data for reverb    
+                        // now let us store sound data for reverb
 
                         if (s_chan[ch].bRVBActive) StoreREVERB(ch, ns);
                     }
@@ -1024,19 +1024,19 @@ GOON:
                 }
             }
 
-        //////////////////////////////////////////////////////                   
+        //////////////////////////////////////////////////////
         // special irq handling in the decode buffers (0x0000-0x1000)
-        // we know: 
+        // we know:
         // the decode buffers are located in spu memory in the following way:
         // 0x0000-0x03ff  CD audio left
         // 0x0400-0x07ff  CD audio right
         // 0x0800-0x0bff  Voice 1
         // 0x0c00-0x0fff  Voice 3
         // and decoded data is 16 bit for one sample
-        // we assume: 
+        // we assume:
         // even if voices 1/3 are off or no cd audio is playing, the internal
         // play positions will move on and wrap after 0x400 bytes.
-        // Therefore: we just need a pointer from spumem+0 to spumem+3ff, and 
+        // Therefore: we just need a pointer from spumem+0 to spumem+3ff, and
         // increase this pointer on each sample by 2 bytes. If this pointer
         // (or 0x400 offsets of this pointer) hits the spuirq address, we generate
         // an IRQ. Only problem: the "wait for cpu" option is kinda hard to do here
@@ -1061,7 +1061,7 @@ GOON:
 
         InitREVERB();
 
-        //////////////////////////////////////////////////////                   
+        //////////////////////////////////////////////////////
         // feed the sound
         // latency = 25 ms (less pops, crackles, smoother)
 
@@ -1180,7 +1180,7 @@ void CALLBACK SPUplayCDDAchannel(short *pcm, int nbytes) {
 
 // SETUPTIMER: init of certain buffers and threads/timers
 static unsigned char thread_stack[0x10000];
-
+void RemoveTimer(void) ;
 void SetupTimer(void) {
     memset(SSumR, 0, NSSIZE * sizeof (int)); // init some mixing buffers
     memset(SSumL, 0, NSSIZE * sizeof (int));
@@ -1300,7 +1300,7 @@ void SetupStreams(void) {
 
     for (i = 0; i < MAXCHAN; i++) // loop sound channels
     {
-        // we don't use mutex sync... not needed, would only 
+        // we don't use mutex sync... not needed, would only
         // slow us down:
         //   s_chan[i].hMutex=CreateMutex(NULL,FALSE,NULL);
         s_chan[i].ADSRX.SustainLevel = 1024; // -> init sustain
@@ -1450,7 +1450,7 @@ void CALLBACK SPUabout(void) {
 }
 
 // SETUP CALLBACKS
-// this functions will be called once, 
+// this functions will be called once,
 // passes a callback that should be called on SPU-IRQ/cdda volume change
 
 void CALLBACK SPUregisterCallback(void (CALLBACK *callback)(void)) {

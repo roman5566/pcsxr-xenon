@@ -168,6 +168,7 @@ inline int Clamp(double input) {
 }
 
 void Controller::vibration(unsigned char smalldata, unsigned char bigdata) {
+    return;
     //	XINPUT_STATE state;
     //	DWORD result = XInputGetState(settings.xinputPort, &state);
 
@@ -225,7 +226,7 @@ void Controller::vibration(unsigned char smalldata, unsigned char bigdata) {
         //printf("Vibrate! [%X] [%X]\n", vib.wLeftMotorSpeed, vib.wRightMotorSpeed);
 
 
-        set_controller_rumble(settings.xinputPort, vib_l >> 8, vib_r >> 8);
+        //set_controller_rumble(settings.xinputPort, vib_l >> 8, vib_r >> 8);
     } else
         gamepadPlugged = false;
 }

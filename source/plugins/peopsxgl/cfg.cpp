@@ -74,12 +74,12 @@ namespace xegpu {
         //         3: Gfx card buffer & software - slow
         iFrameTexType = 0;
 
-        //        0: Emulated vram - OK for most games
+        //        0: Emulated vram - OK for most games <- speed up !!
         //        1: Gfx card buffer reads
         //        2: Gfx card buffer moves
         //        3: Gfx card buffer reads & moves
-        //        4: Full software drawing (FVP)
-        iFrameReadType = 4;
+        //        4: Full software drawing (FVP) <- slow !!
+        iFrameReadType = 0;
 
         if (iFrameReadType == 4) bFullVRam = TRUE;
         else bFullVRam = FALSE;

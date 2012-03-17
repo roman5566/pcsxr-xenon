@@ -3,7 +3,7 @@
                              -------------------
     begin                : Sun Mar 08 2009
     copyright            : (C) 1999-2009 by Pete Bernert
-    web                  : www.pbernert.com   
+    web                  : www.pbernert.com
  ***************************************************************************/
 
 /***************************************************************************
@@ -56,6 +56,7 @@ GpuTex *         LoadTextureWnd(int pageid, int TextureMode, uint32_t GivenClutI
 GpuTex *         LoadTextureMovie(void);
 void           InvalidateTextureArea(int imageX0, int imageY0, int imageX1, int imageY1);
 void           InvalidateTextureAreaEx(void);
+void           InvalidateWndTextureArea(int X, int Y, int W, int H);
 void           LoadTexturePage(int pageid, int mode, short cx, short cy);
 void           ResetTextureArea(BOOL bDelTex);
 GpuTex *         SelectSubTextureS(int TextureMode, uint32_t GivenClutId);
@@ -105,7 +106,7 @@ static __inline uint32_t ptr32(void * addr){
 
 
 namespace xegpu{
-    
+
     extern uint32_t(*TCF[2]) (uint32_t);
     extern void (*LoadSubTexFn) (int, int, short, short);
 
@@ -143,7 +144,7 @@ namespace xegpu{
     extern unsigned short usLRUTexPage;
 
     extern int iClampType;
-    
+
     extern GpuTex * gTexMovieName;
     extern int iClampType;
     extern unsigned char ubOpaqueDraw;

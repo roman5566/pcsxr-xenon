@@ -238,7 +238,7 @@ const char *gettext(const char *msgid) {
     if (msg && msg->msgstr) {
         return msg->msgstr;
     }
-    printf("gettext : msgid \"%s\"\r\n",msgid);
-    printf("gettext : msgstr \"%s\"\r\n\r\n",msgid);
+//    printf("gettext : msgid \"%s\"\r\n",msgid);
+//    printf("gettext : msgstr \"%s\"\r\n\r\n",msgid);
     return msgid;
 }

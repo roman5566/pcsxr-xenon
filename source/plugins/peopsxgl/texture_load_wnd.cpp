@@ -110,52 +110,6 @@ void XeLoadStretchWndTexturePage(GpuTex *wnd, int pageid, int mode, short cx, sh
             //--------------------------------------------------//
             // 4bit texture load ..
         case 0:
-            //------------------- ZN STUFF
-
-            if (GlobalTextIL) {
-                unsigned int TXV, TXU, n_xi, n_yi;
-
-                wSRCPtr = psxVuw + palstart;
-
-                row = 4;
-                do {
-                    *px = LTCOL(ptr32(wSRCPtr));
-                    *(px + 1) = LTCOL(ptr32(wSRCPtr + 1));
-                    *(px + 2) = LTCOL(ptr32(wSRCPtr + 2));
-                    *(px + 3) = LTCOL(ptr32(wSRCPtr + 3));
-                    row--;
-                    px += 4;
-                    wSRCPtr += 4;
-                } while (row);
-
-                column = g_y2 - ldy;
-                for (TXV = g_y1; TXV <= column; TXV++) {
-                    ldx = ldxo;
-                    for (TXU = g_x1; TXU <= g_x2 - ldxo; TXU++) {
-                        n_xi = ((TXU >> 2) & ~0x3c) + ((TXV << 2) & 0x3c);
-                        n_yi = (TXV & ~0xf) + ((TXU >> 4) & 0xf);
-
-                        s = *(pa + ((ptr32(psxVuw + ((GlobalTextAddrY + n_yi)*1024) + GlobalTextAddrX + n_xi) >> ((TXU & 0x03) << 2)) & 0x0f));
-                        *ta++ = s;
-
-                        if (ldx) {
-                            *ta++ = s;
-                            ldx--;
-                        }
-                    }
-
-                    if (ldy) {
-                        ldy--;
-                        for (TXU = g_x1; TXU <= g_x2; TXU++)
-                            *ta++ = *(ta - (g_x2 - g_x1));
-                    }
-                }
-
-                XXsetTextureData(wnd, texturepart);
-
-                break;
-            }
-
             //-------------------
 
             start = ((pageid - 16 * pmult)*128) + 256 * 2048 * pmult;
@@ -204,52 +158,6 @@ void XeLoadStretchWndTexturePage(GpuTex *wnd, int pageid, int mode, short cx, sh
             //--------------------------------------------------//
             // 8bit texture load ..
         case 1:
-            //------------ ZN STUFF
-            if (GlobalTextIL) {
-                unsigned int TXV, TXU, n_xi, n_yi;
-
-                wSRCPtr = psxVuw + palstart;
-
-                row = 64;
-                do {
-                    *px = (LTCOL(ptr32(wSRCPtr)));
-                    *(px + 1) = (LTCOL(ptr32(wSRCPtr + 1)));
-                    *(px + 2) = (LTCOL(ptr32(wSRCPtr + 2)));
-                    *(px + 3) = (LTCOL(ptr32(wSRCPtr + 3)));
-                    row--;
-                    px += 4;
-                    wSRCPtr += 4;
-                } while (row);
-
-                column = g_y2 - ldy;
-                for (TXV = g_y1; TXV <= column; TXV++) {
-                    ldx = ldxo;
-                    for (TXU = g_x1; TXU <= g_x2 - ldxo; TXU++) {
-                        n_xi = ((TXU >> 1) & ~0x78) + ((TXU << 2) & 0x40) + ((TXV << 3) & 0x38);
-                        n_yi = (TXV & ~0x7) + ((TXU >> 5) & 0x7);
-
-                       s = *(pa + ((ptr32(psxVuw + ((GlobalTextAddrY + n_yi)*1024) + GlobalTextAddrX + n_xi) >> ((TXU & 0x01) << 3)) & 0xff));
-                        *ta++ = s;
-                        if (ldx) {
-                            *ta++ = s;
-                            ldx--;
-                        }
-                    }
-
-                    if (ldy) {
-                        ldy--;
-                        for (TXU = g_x1; TXU <= g_x2; TXU++)
-                            *ta++ = *(ta - (g_x2 - g_x1));
-                    }
-
-                }
-
-                XXsetTextureData(wnd, texturepart);
-
-                break;
-            }
-            //------------
-
             start = ((pageid - 16 * pmult)*128) + 256 * 2048 * pmult;
 
             // not using a lookup table here... speeds up smaller texture areas
@@ -333,36 +241,6 @@ void XeLoadWndTexturePage(GpuTex * wnd,int pageid, int mode, short cx, short cy)
             //--------------------------------------------------//
             // 4bit texture load ..
         case 0:
-            if (GlobalTextIL) {
-                unsigned int TXV, TXU, n_xi, n_yi;
-
-                wSRCPtr = psxVuw + palstart;
-
-                row = 4;
-                do {
-                    *px = LTCOL(ptr32(wSRCPtr));
-                    *(px + 1) = LTCOL(ptr32(wSRCPtr + 1));
-                    *(px + 2) = LTCOL(ptr32(wSRCPtr + 2));
-                    *(px + 3) = LTCOL(ptr32(wSRCPtr + 3));
-                    row--;
-                    px += 4;
-                    wSRCPtr += 4;
-                } while (row);
-
-                for (TXV = g_y1; TXV <= g_y2; TXV++) {
-                    for (TXU = g_x1; TXU <= g_x2; TXU++) {
-                        n_xi = ((TXU >> 2) & ~0x3c) + ((TXV << 2) & 0x3c);
-                        n_yi = (TXV & ~0xf) + ((TXU >> 4) & 0xf);
-
-                        *ta++ = *(pa + ((ptr32(psxVuw + ((GlobalTextAddrY + n_yi)*1024) + GlobalTextAddrX + n_xi) >> ((TXU & 0x03) << 2)) & 0x0f));
-                    }
-                }
-
-                XXsetTextureData(wnd, texturepart);
-
-                break;
-            }
-
             start = ((pageid - 16 * pmult)*128) + 256 * 2048 * pmult;
 
             // convert CLUT to 32bits .. and then use THAT as a lookup table
@@ -394,37 +272,6 @@ void XeLoadWndTexturePage(GpuTex * wnd,int pageid, int mode, short cx, short cy)
             //--------------------------------------------------//
             // 8bit texture load ..
         case 1:
-            if (GlobalTextIL) {
-                unsigned int TXV, TXU, n_xi, n_yi;
-
-                wSRCPtr = psxVuw + palstart;
-
-                row = 64;
-                do {
-                    *px = LTCOL(ptr32(wSRCPtr));
-                    *(px + 1) = LTCOL(ptr32(wSRCPtr + 1));
-                    *(px + 2) = LTCOL(ptr32(wSRCPtr + 2));
-                    *(px + 3) = LTCOL(ptr32(wSRCPtr + 3));
-                    row--;
-                    px += 4;
-                    wSRCPtr += 4;
-                } while (row);
-
-                for (TXV = g_y1; TXV <= g_y2; TXV++) {
-                    for (TXU = g_x1; TXU <= g_x2; TXU++) {
-                        n_xi = ((TXU >> 1) & ~0x78) + ((TXU << 2) & 0x40) + ((TXV << 3) & 0x38);
-                        n_yi = (TXV & ~0x7) + ((TXU >> 5) & 0x7);
-
-                        //*ta++ = *(pa + ((*(psxVuw + ((GlobalTextAddrY + n_yi)*1024) + GlobalTextAddrX + n_xi) >> ((TXU & 0x01) << 3)) & 0xff));
-                        *ta++ = *(pa + ((ptr32(psxVuw + ((GlobalTextAddrY + n_yi)*1024) + GlobalTextAddrX + n_xi) >> ((TXU & 0x01) << 3)) & 0xff));
-                    }
-                }
-
-                XXsetTextureData(wnd, texturepart);
-
-                break;
-            }
-
             start = ((pageid - 16 * pmult)*128) + 256 * 2048 * pmult;
 
             // not using a lookup table here... speeds up smaller texture areas
@@ -547,5 +394,73 @@ GpuTex * LoadTextureWnd(int pageid, int TextureMode, uint32_t GivenClutId) {
     tsx->textureMode = TextureMode;
     tsx->used = 1;
 
-    return gTexName;
+    return tsx->texname;
 }
+
+
+////////////////////////////////////////////////////////////////////////
+// Invalidate tex windows
+////////////////////////////////////////////////////////////////////////
+void InvalidateWndTextureArea(int X, int Y, int W, int H) {
+    int i, px1, px2, py1, py2, iYM = 1;
+    textureWndCacheEntry * tsw = wcWndtexStore;
+
+    W += X - 1;
+    H += Y - 1;
+    if (X < 0) X = 0;
+    if (X > 1023) X = 1023;
+    if (W < 0) W = 0;
+    if (W > 1023) W = 1023;
+    if (Y < 0) Y = 0;
+    if (Y > iGPUHeightMask) Y = iGPUHeightMask;
+    if (H < 0) H = 0;
+    if (H > iGPUHeightMask) H = iGPUHeightMask;
+    W++;
+    H++;
+
+    if (iGPUHeight == 1024) iYM = 3;
+
+    py1 = min(iYM, Y >> 8);
+    py2 = min(iYM, H >> 8); // y: 0 or 1
+
+    px1 = max(0, (X >> 6));
+    px2 = min(15, (W >> 6));
+
+    if (py1 == py2) {
+        py1 = py1 << 4;
+        px1 += py1;
+        px2 += py1; // change to 0-31
+        for (i = 0; i < iMaxTexWnds; i++, tsw++) {
+            if (tsw->used) {
+
+                //DumpExL(&tsw->pos);
+
+                if (tsw->pageid >= px1 && tsw->pageid <= px2) {
+                    tsw->used = 0;
+                }
+            }
+        }
+    } else {
+        py1 = px1 + 16;
+        py2 = px2 + 16;
+        for (i = 0; i < iMaxTexWnds; i++, tsw++) {
+            if (tsw->used) {
+
+                //DumpExL(&tsw->pos);
+
+                if ((tsw->pageid >= px1 && tsw->pageid <= px2) ||
+                        (tsw->pageid >= py1 && tsw->pageid <= py2)) {
+                    tsw->used = 0;
+                }
+            }
+        }
+    }
+
+    // adjust tex window count
+    tsw = wcWndtexStore + iMaxTexWnds - 1;
+    while (iMaxTexWnds && !tsw->used) {
+        iMaxTexWnds--;
+        tsw--;
+    }
+}
+

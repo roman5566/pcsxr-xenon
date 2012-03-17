@@ -165,35 +165,6 @@ void LoadSubTexturePageSort(int pageid, int mode, short cx, short cy) {
             //--------------------------------------------------//
             // 4bit texture load ..
         case 0:
-            if (GlobalTextIL) {
-                unsigned int TXV, TXU, n_xi, n_yi;
-
-                wSRCPtr = psxVuw + palstart;
-
-                row = 4;
-                do {
-                    *px = (LTCOL(ptr32(wSRCPtr)));
-                    *(px + 1) = (LTCOL(ptr32(wSRCPtr + 1)));
-                    *(px + 2) = (LTCOL(ptr32(wSRCPtr + 2)));
-                    *(px + 3) = (LTCOL(ptr32(wSRCPtr + 3)));
-
-                    row--;
-                    px += 4;
-                    wSRCPtr += 4;
-                } while (row);
-
-                for (TXV = y1; TXV <= y2; TXV++) {
-                    for (TXU = x1; TXU <= x2; TXU++) {
-                        n_xi = ((TXU >> 2) & ~0x3c) + ((TXV << 2) & 0x3c);
-                        n_yi = (TXV & ~0xf) + ((TXU >> 4) & 0xf);
-
-                        *ta++ = *(pa + ((ptr32(psxVuw + ((GlobalTextAddrY + n_yi)*1024) + GlobalTextAddrX + n_xi) >> ((TXU & 0x03) << 2)) & 0x0f));
-                    }
-                    ta += xalign;
-                }
-                break;
-            }
-
             start = ((pageid - 16 * pmult) << 7) + 524288 * pmult;
             // convert CLUT to 32bits .. and then use THAT as a lookup table
 
@@ -242,36 +213,6 @@ void LoadSubTexturePageSort(int pageid, int mode, short cx, short cy) {
             //--------------------------------------------------//
             // 8bit texture load ..
         case 1:
-            if (GlobalTextIL) {
-                unsigned int TXV, TXU, n_xi, n_yi;
-
-                wSRCPtr = psxVuw + palstart;
-
-                row = 64;
-                do {
-                    *px = (LTCOL(ptr32(wSRCPtr)));
-                    *(px + 1) = (LTCOL(ptr32(wSRCPtr + 1)));
-                    *(px + 2) = (LTCOL(ptr32(wSRCPtr + 2)));
-                    *(px + 3) = (LTCOL(ptr32(wSRCPtr + 3)));
-                    row--;
-                    px += 4;
-                    wSRCPtr += 4;
-                } while (row);
-
-                for (TXV = y1; TXV <= y2; TXV++) {
-                    for (TXU = x1; TXU <= x2; TXU++) {
-                        n_xi = ((TXU >> 1) & ~0x78) + ((TXU << 2) & 0x40) + ((TXV << 3) & 0x38);
-                        n_yi = (TXV & ~0x7) + ((TXU >> 5) & 0x7);
-
-                         *ta++ = *(pa + ((*(psxVuw + ((GlobalTextAddrY + n_yi)*1024) + GlobalTextAddrX + n_xi) >> ((TXU & 0x01) << 3)) & 0xff));
-                        //*ta++ = *(pa + ((ptr32(psxVuw + ((GlobalTextAddrY + n_yi)*1024) + GlobalTextAddrX + n_xi) >> ((TXU & 0x01) << 3)) & 0xff));
-                    }
-                    ta += xalign;
-                }
-
-                break;
-            }
-
             start = ((pageid - 16 * pmult) << 7) + 524288 * pmult;
 
             cSRCPtr = psxVub + start + (y1 << 11) + x1;
