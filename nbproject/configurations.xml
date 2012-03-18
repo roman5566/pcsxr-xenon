@@ -37,8 +37,6 @@
         <in>draw_t_p_psu.h</in>
         <in>draw_v_vsu.h</in>
       </df>
-      <df name="Nouveau dossier">
-      </df>
       <df name="pcsxr_0.6">
         <df name="pcsxr">
           <df name="bios">
@@ -67,6 +65,12 @@
         <in>scale2x.vs.h</in>
         <in>scaling.inc</in>
         <in>vs.h</in>
+        <in>xbr_2x_ps.h</in>
+        <in>xbr_2x_vs.h</in>
+        <in>xbr_5x_crt_ps.h</in>
+        <in>xbr_5x_crt_vs.h</in>
+        <in>xbr_5x_ps.h</in>
+        <in>xbr_5x_vs.h</in>
       </df>
       <df name="source">
         <df name="gui">

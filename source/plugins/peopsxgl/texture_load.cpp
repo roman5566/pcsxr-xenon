@@ -274,8 +274,6 @@ void LoadSubTexturePageSort(int pageid, int mode, short cx, short cy) {
                 row = dx;
                 do {
                     *ta++ = (LTCOL(ptr32(wSRCPtr++)));
-                    //*ta++=0xFF4488FF;
-
                     row--;
                 } while (row);
                 ta += xalign;

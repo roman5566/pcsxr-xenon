@@ -1,4 +1,5 @@
-#ifdef USE_GUI
+//#ifdef USE_GUI
+#if 1
 
 //#include <ogcsys.h>
 #include <stdio.h>
@@ -424,7 +425,7 @@ void SetIso(const char * fname) {
     uint8_t header[0x10];
     int n = fread(header, 0x10, 1, fd);
 
-    if(n==0x10){
+    if(n){
         if (header[0] == 0x78 && header[1] == 0xDA) {
             printf("Use CDRCIMG for  %s\r\n", fname);
             strcpy(Config.Cdr, "CDRCIMG");
@@ -1583,6 +1584,14 @@ static int MenuCheats() {
 }
 
 static int MenuInGame() {
+    // save the scissor status
+    int scissor_enable = g_pVideoDevice->scissor_enable;
+    int scissor_ltrb[4];
+
+    for(int ik=0;ik<4;ik++)
+        scissor_ltrb[ik]=g_pVideoDevice->scissor_ltrb[ik];
+
+
     int menu = MENU_NONE;
 
     GuiText titleTxt(PCSXR_APP_NAME" In game menu", 28, ColorGrey);
@@ -1753,6 +1762,10 @@ static int MenuInGame() {
                 menu = MENU_BROWSE_DEVICE;
             }
         } else if (backBtn.GetState() == STATE_CLICKED) {
+
+            // restor scissor
+            Xe_SetScissor(g_pVideoDevice, scissor_enable, scissor_ltrb[0], scissor_ltrb[1], scissor_ltrb[2], scissor_ltrb[3]);
+
             menu = MENU_EMULATION;
 
         } /*

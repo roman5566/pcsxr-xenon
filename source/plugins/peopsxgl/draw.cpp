@@ -173,7 +173,7 @@ void SetExtGLFuncs(void) {
     gpuRenderer.SetBlendOp(XE_BLENDOP_ADD);
 
     iUseExts = bAdvancedBlend = 1;
-    
+
    // bAdvancedBlend=1;
 
     //----------------------------------------------------//
@@ -298,83 +298,6 @@ void SetExtGLFuncs(void) {
 
     bBlendEnable = FALSE; // init blending: off
     gpuRenderer.DisableBlend();
-
-
-    printf("TCF 0=> %p\r\nTCF 1=> %p\r\n", TCF[0], TCF[1]);
-    printf("PalTexturedColourFn %p\r\n", PalTexturedColourFn);
-
-    printf("iUseExts = %d;\r\n bAdvancedBlend = %d;\r\nbUseMultiPass=%d\r\nubOpaqueDraw=%d\r\nbSmallAlpha=%d\r\n", iUseExts, bAdvancedBlend, bUseMultiPass, ubOpaqueDraw, bSmallAlpha);
-}
-
-void XeSetExtGLFuncs(void) {
-    //----------------------------------------------------//
-
-    SetFixes(); // update fix infos
-
-    //----------------------------------------------------//
-    // init standard tex quality 0-2, and big alpha mode 3
-
-    if (!(dwActFixes & 0x4000) && iFilterType && iTexQuality >= 3)
-        bSmallAlpha = TRUE;
-    else bSmallAlpha = FALSE;
-
-    if (bOpaquePass) // opaque mode?
-    {
-#if 0
-        TR;
-        if (dwActFixes & 32) {
-            TR;
-            TCF[0] = CP8RGBA_0;
-            PalTexturedColourFn = CP8RGBA; // -> init col func
-        } else {
-            TR;
-            TCF[0] = XP8RGBA_0;
-            PalTexturedColourFn = XP8RGBA; // -> init col func
-        }
-
-        TCF[1] = XP8RGBA_1;
-
-#else
-        if (dwActFixes & 32) {
-            TCF[0] = CP8BGRA_0;
-            PalTexturedColourFn = CP8RGBA; // -> init col func
-        } else {
-            TCF[0] = XP8BGRA_0;
-            PalTexturedColourFn = XP8RGBA; // -> init col func
-        }
-        TCF[1] = XP8BGRA_1;
-#endif
-
-        //gpuRenderer.SetAlphaFunc(XE_CMP_GREATER, 0.49f);
-        gpuRenderer.SetAlphaFunc(XE_CMP_LESS, 0.49f);
-
-        TR;
-    } else // no opaque mode?
-    {
-        TR;
-#if 1
-        TCF[0] = TCF[1] = P8BGRA;
-        PalTexturedColourFn = P8BGRA; // -> init col func
-#else
-        TCF[0] = TCF[1] = P8RGBA;
-        PalTexturedColourFn = P8RGBA; // -> init col func
-#endif
-        gpuRenderer.SetAlphaFunc(XE_CMP_NOTEQUAL, 0); // --> set alpha func
-
-
-        TR;
-    }
-
-    //----------------------------------------------------//
-
-    LoadSubTexFn = LoadSubTexturePageSort; // init load tex ptr
-
-    giWantedFMT = XE_FMT_BGRA; // init ogl tex format
-
-    bBlendEnable = FALSE; // init blending: off
-    gpuRenderer.DisableBlend();
-
-    //SetScanTrans(); // init scan lines (if wanted)
 }
 
 ////////////////////////////////////////////////////////////////////////

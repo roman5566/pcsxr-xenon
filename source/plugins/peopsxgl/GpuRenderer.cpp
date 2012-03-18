@@ -840,6 +840,9 @@ void GpuRenderer::Render() {
     Xe_SetCullMode(xe, XE_CULL_NONE);
     Xe_SetVertexShaderConstantF(xe, 0, (float*) mwp, 4);
     Xe_SetVertexShaderConstantF(xe, 1, (float*) screen, 1);
+
+    // restore shader
+    Xe_SetShader(xe, SHADER_TYPE_VERTEX, g_pVertexShader, 0);
     // Wireframe
     //Xe_SetFillMode(xe,0x25,0x25);
 
@@ -853,8 +856,6 @@ void GpuRenderer::Render() {
 /**
  * Add to Vb
  */
-
-
 int GpuRenderer::verticesCount() {
     return nb_vertices;
 }

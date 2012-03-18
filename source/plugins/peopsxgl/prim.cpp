@@ -89,28 +89,6 @@ namespace xegpu {
     short sxmin, sxmax, symin, symax;
 }
 
-
-/*
- */
-static void __dump() {
-    // textures gl_uv
-    int i;
-    for (i = 0; i < 8; i++) {
-        printf("gl_ux[%d] = %02x\r\n", i, gl_ux[i]);
-    }
-    printf("iSpriteTex = %d\r\n", iSpriteTex);
-    printf("sSprite_ux2 = %02x\r\n", sSprite_ux2);
-    printf("sSprite_vy2 = %02x\r\n", sSprite_vy2);
-
-    // renderstates
-    {
-        printf("bDrawTextured %d\r\n", bDrawTextured);
-        printf("bDrawSmoothShaded %d\r\n", bDrawSmoothShaded);
-        printf("bDrawTextured %d\r\n", bDrawTextured);
-    }
-}
-
-
 ////////////////////////////////////////////////////////////////////////
 // Update global TP infos
 ////////////////////////////////////////////////////////////////////////
@@ -188,6 +166,24 @@ static __inline void PRIMdrawFmvQuad(OGLVertex* vertex1, OGLVertex* vertex2,
 static __inline void PRIMdrawTexturedQuad(OGLVertex* vertex1, OGLVertex* vertex2,
         OGLVertex* vertex3, OGLVertex* vertex4) {
     gpuRenderer.primBegin(PRIM_TRIANGLE_STRIP);
+    gpuRenderer.primTexCoord(&vertex1->sow);
+    gpuRenderer.primVertex(&vertex1->x);
+
+    gpuRenderer.primTexCoord(&vertex2->sow);
+    gpuRenderer.primVertex(&vertex2->x);
+
+    gpuRenderer.primTexCoord(&vertex4->sow);
+    gpuRenderer.primVertex(&vertex4->x);
+
+    gpuRenderer.primTexCoord(&vertex3->sow);
+    gpuRenderer.primVertex(&vertex3->x);
+    gpuRenderer.primEnd();
+}
+
+
+static __inline void PRIMdrawTexturedRect(OGLVertex* vertex1, OGLVertex* vertex2,
+        OGLVertex* vertex3, OGLVertex* vertex4) {
+    gpuRenderer.primBegin(PRIM_RECTLIST);
     gpuRenderer.primTexCoord(&vertex1->sow);
     gpuRenderer.primVertex(&vertex1->x);
 
@@ -361,6 +357,17 @@ static __inline void PRIMdrawQuad(OGLVertex* vertex1, OGLVertex* vertex2,
         OGLVertex* vertex3, OGLVertex* vertex4) {
     //return;
     gpuRenderer.primBegin(PRIM_QUAD);
+    gpuRenderer.primVertex(&vertex1->x);
+    gpuRenderer.primVertex(&vertex2->x);
+    gpuRenderer.primVertex(&vertex3->x);
+    gpuRenderer.primVertex(&vertex4->x);
+    gpuRenderer.primEnd();
+}
+
+static __inline void PRIMdrawRect(OGLVertex* vertex1, OGLVertex* vertex2,
+        OGLVertex* vertex3, OGLVertex* vertex4) {
+    //return;
+    gpuRenderer.primBegin(PRIM_RECTLIST);
     gpuRenderer.primVertex(&vertex1->x);
     gpuRenderer.primVertex(&vertex2->x);
     gpuRenderer.primVertex(&vertex3->x);
@@ -1139,9 +1146,6 @@ unsigned char * LoadDirectMovieFast(void);
 
 ////////////////////////////////////////////////////////////////////////
 void UploadScreen(int Position) {
-
-    short YStep, XStep;
-
     if (xrUploadArea.x0 > 1023) xrUploadArea.x0 = 1023;
     if (xrUploadArea.x1 > 1024) xrUploadArea.x1 = 1024;
     if (xrUploadArea.y0 > iGPUHeightMask) xrUploadArea.y0 = iGPUHeightMask;
@@ -1175,9 +1179,6 @@ void UploadScreen(int Position) {
         ly0 = ly1 = xrMovieArea.y0 = xrUploadArea.y0;
         lx2 = lx1 = xrMovieArea.x1 = xrUploadArea.x1;
         ly3 = ly2 = xrMovieArea.y1 = xrUploadArea.y1;
-
-        XStep = xrMovieArea.x1 - xrMovieArea.x0; // max texture size
-        YStep = xrMovieArea.y1 - xrMovieArea.y0;
 
         SetRenderState((uint32_t) 0x01000000);
         SetRenderMode((uint32_t) 0x01000000, FALSE); // upload texture data
@@ -1769,7 +1770,7 @@ static void primBlkFill(unsigned char * baseAddr) {
                     vertex[2].y = ly0 - pd->DisplayPosition.y;
                     vertex[3].x = 0;
                     vertex[3].y = vertex[2].y;
-                    PRIMdrawQuad(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
+                    PRIMdrawRect(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
                 }
                 if (ly2 < pd->DisplayEnd.y) {
                     vertex[0].x = 0;
@@ -1780,7 +1781,7 @@ static void primBlkFill(unsigned char * baseAddr) {
                     vertex[2].y = pd->DisplayEnd.y;
                     vertex[3].x = 0;
                     vertex[3].y = vertex[2].y;
-                    PRIMdrawQuad(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
+                    PRIMdrawRect(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
                 }
             }
 
@@ -1796,7 +1797,7 @@ static void primBlkFill(unsigned char * baseAddr) {
             SETCOL(vertex[0]);
             //glDisable(GL_SCISSOR_TEST);
             gpuRenderer.DisableScissor();
-            PRIMdrawQuad(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
+            PRIMdrawRect(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
             //glEnable(GL_SCISSOR_TEST);
             gpuRenderer.EnableScissor();
         }
@@ -2092,7 +2093,7 @@ static void primTileS(unsigned char * baseAddr) {
     vertex[0].c.a = ubGloColAlpha;
     SETCOL(vertex[0]);
 
-    PRIMdrawQuad(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
+    PRIMdrawRect(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
 
     iDrawnSomething = 1;
 }
@@ -2137,7 +2138,7 @@ static void primTile1(unsigned char * baseAddr) {
     vertex[0].c.a = ubGloColAlpha;
     SETCOL(vertex[0]);
 
-    PRIMdrawQuad(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
+    PRIMdrawRect(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
 
     iDrawnSomething = 1;
 }
@@ -2181,7 +2182,7 @@ static void primTile8(unsigned char * baseAddr) {
     vertex[0].c.a = ubGloColAlpha;
     SETCOL(vertex[0]);
 
-    PRIMdrawQuad(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
+    PRIMdrawRect(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
 
     iDrawnSomething = 1;
 }
@@ -2225,7 +2226,7 @@ static void primTile16(unsigned char * baseAddr) {
     vertex[0].c.a = ubGloColAlpha;
     SETCOL(vertex[0]);
 
-    PRIMdrawQuad(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
+    PRIMdrawRect(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
 
     iDrawnSomething = 1;
 }
@@ -2356,11 +2357,11 @@ static void primSprt8(unsigned char * baseAddr) {
     if (iFilterType > 4)
         DrawMultiFilterSprite();
     else
-        PRIMdrawTexturedQuad(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
+        PRIMdrawTexturedRect(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
 
     if (bDrawMultiPass) {
         SetSemiTransMulti(1);
-        PRIMdrawTexturedQuad(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
+        PRIMdrawTexturedRect(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
     }
 
     if (ubOpaqueDraw) {
@@ -2372,14 +2373,14 @@ static void primSprt8(unsigned char * baseAddr) {
             gpuRenderer.SetTextureFiltering(XE_TEXF_POINT);
             //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            PRIMdrawTexturedQuad(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
+            PRIMdrawTexturedRect(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
             //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             gpuRenderer.SetTextureFiltering(XE_TEXF_LINEAR);
             SetZMask4O();
         }
 
-        PRIMdrawTexturedQuad(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
+        PRIMdrawTexturedRect(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
         DEFOPAQUEOFF
     }
 
@@ -2474,11 +2475,11 @@ static void primSprt16(unsigned char * baseAddr) {
     if (iFilterType > 4)
         DrawMultiFilterSprite();
     else
-        PRIMdrawTexturedQuad(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
+        PRIMdrawTexturedRect(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
 
     if (bDrawMultiPass) {
         SetSemiTransMulti(1);
-        PRIMdrawTexturedQuad(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
+        PRIMdrawTexturedRect(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
     }
 
     if (ubOpaqueDraw) {
@@ -2490,30 +2491,19 @@ static void primSprt16(unsigned char * baseAddr) {
             gpuRenderer.SetTextureFiltering(XE_TEXF_POINT);
             //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            PRIMdrawTexturedQuad(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
+            PRIMdrawTexturedRect(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
             //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             gpuRenderer.SetTextureFiltering(XE_TEXF_LINEAR);
             SetZMask4O();
         }
 
-        PRIMdrawTexturedQuad(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
+        PRIMdrawTexturedRect(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
         DEFOPAQUEOFF
     }
 
     iSpriteTex = 0;
     iDrawnSomething = 1;
-
-    // {
-    //     printf("primSprt16\r\n");
-    //     for(int i=0;i<8;i++){
-    //         printf("gl_ux[%d] = %d\r\n",i,gl_ux[i]);
-    //     }
-    //     for(int i=0;i<8;i++){
-    //         printf("gl_vy[%d] = %d\r\n",i,gl_vy[i]);
-    //     }
-    // }
-
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -2658,11 +2648,11 @@ static void primSprtSRest(unsigned char * baseAddr, unsigned short type) {
     if (iFilterType > 4)
         DrawMultiFilterSprite();
     else
-        PRIMdrawTexturedQuad(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
+        PRIMdrawTexturedRect(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
 
     if (bDrawMultiPass) {
         SetSemiTransMulti(1);
-        PRIMdrawTexturedQuad(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
+        PRIMdrawTexturedRect(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
     }
 
     if (ubOpaqueDraw) {
@@ -2674,14 +2664,14 @@ static void primSprtSRest(unsigned char * baseAddr, unsigned short type) {
             gpuRenderer.SetTextureFiltering(XE_TEXF_POINT);
             //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            PRIMdrawTexturedQuad(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
+            PRIMdrawTexturedRect(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
             //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             gpuRenderer.SetTextureFiltering(XE_TEXF_LINEAR);
             SetZMask4O();
         }
 
-        PRIMdrawTexturedQuad(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
+        PRIMdrawTexturedRect(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
         DEFOPAQUEOFF
     }
 
@@ -2795,11 +2785,11 @@ static void primSprtS(unsigned char * baseAddr) {
     if (iFilterType > 4)
         DrawMultiFilterSprite();
     else
-        PRIMdrawTexturedQuad(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
+        PRIMdrawTexturedRect(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
 
     if (bDrawMultiPass) {
         SetSemiTransMulti(1);
-        PRIMdrawTexturedQuad(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
+        PRIMdrawTexturedRect(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
     }
 
     if (ubOpaqueDraw) {
@@ -2811,14 +2801,14 @@ static void primSprtS(unsigned char * baseAddr) {
             gpuRenderer.SetTextureFiltering(XE_TEXF_POINT);
             //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            PRIMdrawTexturedQuad(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
+            PRIMdrawTexturedRect(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
             //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             gpuRenderer.SetTextureFiltering(XE_TEXF_LINEAR);
             SetZMask4O();
         }
 
-        PRIMdrawTexturedQuad(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
+        PRIMdrawTexturedRect(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
         DEFOPAQUEOFF
     }
 
