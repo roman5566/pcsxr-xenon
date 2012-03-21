@@ -105,6 +105,8 @@ extern PluginTable plugins[];
 #define cdfile "uda:/Resident Evil (USA).iso.Z"
 #define cdfile "uda:/0cimg/medievil-scus-94227-/Medievil.bin.Z"
 
+#define cdfile "uda:/ff9_patched.bin"
+#define cdfile "uda:/Street Fighter Alpha 2 [SLUS-00258].img.Z"
 
 void printConfigInfo() {
 
@@ -145,7 +147,10 @@ void SetIso(const char * fname) {
 
     fclose(fd);
 }
-
+extern "C" {
+    void useSoftGpu();
+    void useHwGpu();
+}
 int main() {
 
     xenos_init(VIDEO_MODE_HDMI_720P);
@@ -198,12 +203,13 @@ int main() {
     Config.Cdda = 0; // Disable Cd audio
     Config.PsxAuto = 1; // autodetect system
     //Config.PsxType = PSX_TYPE_NTSC;
-    Config.Cpu = CPU_DYNAREC;
+    //Config.Cpu = CPU_DYNAREC;
     //Config.Cpu =  CPU_INTERPRETER;
 
     strcpy(Config.Mcd1, "uda:/pcsxr/memcards/card1.mcd");
     strcpy(Config.Mcd2, "uda:/pcsxr/memcards/card2.mcd");
 
+    //useSoftGpu();
     /*
         strcpy(Config.Mcd1, "sda:/hdd1/xenon/memcards/card1.mcd");
         strcpy(Config.Mcd2, "sda:/hdd1/xenon/memcards/card2.mcd");

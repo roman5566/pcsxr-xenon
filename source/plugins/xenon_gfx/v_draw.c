@@ -42,21 +42,11 @@
 // Simple shader
 #include "ps.h"
 #include "vs.h"
+// xbr shader
+#include "xbr_5x_ps.h"
+#include "xbr_5x_vs.h"
 // Shader
 //typedef unsigned int DWORD;
-/*
-#if 1
-#define MAME_SHADER
-#include "post.ps.h"
-#include "post.vs.h"
-#elif 1
-#include "scale2x.ps.h"
-#include "scale2x.vs.h"
-#else
-#include "s2xsai.ps.h"
-#include "s2xsai.vs.h"
-#endif
- */
 
 #ifdef LZX_GUI
 struct XenosDevice * getLzxVideoDevice();
@@ -145,8 +135,8 @@ void CreateTexture(int width, int height) {
 
     if ((width != old_width) || (old_height != height)) {
 
-        texturesize[1] = width;
-        texturesize[0] = height;
+        texturesize[1] = height;
+        texturesize[0] = width;
 
         //printf("Old w:%d - h:%d\r\n", old_width, old_height);
         //printf("New w:%d - h:%d\r\n", width, height);
@@ -193,15 +183,6 @@ void CreateDisplay(void) {
     fb = Xe_GetFramebufferSurface(g_pVideoDevice);
     Xe_SetRenderTarget(g_pVideoDevice, fb);
 
-    /*
-        mame HLSL
-        struct VS_INPUT
-        {
-            float4 Position : POSITION;
-            float4 Color : COLOR0;
-            float2 TexCoord : TEXCOORD0;
-        };
-     */
     static const struct XenosVBFFormat vbf = {
         3,
         {
@@ -211,26 +192,26 @@ void CreateDisplay(void) {
         }
     };
 
-#ifdef MAME_SHADER
-    g_pPixelTexturedShader = Xe_LoadShaderFromMemory(g_pVideoDevice, (void*) g_xps_ps_main);
-#else
-    g_pPixelTexturedShader = Xe_LoadShaderFromMemory(g_pVideoDevice, (void*) g_xps_PS);
-#endif
-    //g_pPixelTexturedShader = Xe_LoadShaderFromMemory(g_pVideoDevice, (void*) draw_t_p_psu);
+/*
+    // simple shader
+    void * ps_main = (void*) g_xps_PS;
+    void * vs_main = (void*) g_xvs_VS;
+*/
+    // xbr 5x
+    void * ps_main = (void*) g_xps_xbr5x_ps_main;
+    void * vs_main = (void*) g_xvs_xbr5x_vs_main;
+
+    g_pPixelTexturedShader = Xe_LoadShaderFromMemory(g_pVideoDevice, (void*) ps_main);
     Xe_InstantiateShader(g_pVideoDevice, g_pPixelTexturedShader, 0);
 
-#ifdef MAME_SHADER
-    g_pVertexShader = Xe_LoadShaderFromMemory(g_pVideoDevice, (void*) g_xvs_vs_main);
-#else
-    g_pVertexShader = Xe_LoadShaderFromMemory(g_pVideoDevice, (void*) g_xvs_VS);
-#endif
-    //g_pVertexShader = Xe_LoadShaderFromMemory(g_pVideoDevice, (void*) draw_v_vsu);
+    g_pVertexShader = Xe_LoadShaderFromMemory(g_pVideoDevice, (void*) vs_main);
+
     Xe_InstantiateShader(g_pVideoDevice, g_pVertexShader, 0);
     Xe_ShaderApplyVFetchPatches(g_pVideoDevice, g_pVertexShader, 0, &vbf);
+
 #ifndef USE_GUI
     edram_init(g_pVideoDevice);
 #endif
-
     // Create the psxScreen texture
     if (g_pTexture)
         Xe_DestroyTexture(g_pVideoDevice, g_pTexture);
@@ -438,6 +419,8 @@ void DoBufferSwap(void) {
 
     if (finalw == 0 || finalh == 0)
         return;
+    // sync
+    Xe_Sync(g_pVideoDevice);
 
     CreateTexture(finalw, finalh);
 
@@ -447,8 +430,11 @@ void DoBufferSwap(void) {
     Xe_Surface_LockRect(g_pVideoDevice, g_pTexture, 0, 0, 0, 0, XE_LOCK_WRITE);
     Xe_Surface_Unlock(g_pVideoDevice, g_pTexture);
 
+    // disable filter for xbr effect
+    g_pTexture->use_filtering = 0;
+
     Xe_InvalidateState(g_pVideoDevice);
-    Xe_SetClearColor(g_pVideoDevice, 0);
+    Xe_SetClearColor(g_pVideoDevice, 1);
 
     Xe_SetBlendOp(g_pVideoDevice, XE_BLENDOP_ADD);
     Xe_SetSrcBlend(g_pVideoDevice, XE_BLEND_SRCALPHA);
@@ -461,17 +447,15 @@ void DoBufferSwap(void) {
     Xe_SetShader(g_pVideoDevice, SHADER_TYPE_VERTEX, g_pVertexShader, 0);
 
     // set texture size
-    Xe_SetVertexShaderConstantF(g_pVideoDevice, 0, texturesize, 1);
-    Xe_SetPixelShaderConstantF(g_pVideoDevice, 0, texturesize, 1);
+    float settings_texture_size[2] = {g_pTexture->width, g_pTexture->height};
+    Xe_SetVertexShaderConstantF(g_pVideoDevice, 0, settings_texture_size, 1);
+    Xe_SetPixelShaderConstantF(g_pVideoDevice, 0, settings_texture_size, 1);
 
-
-    Xe_DrawPrimitive(g_pVideoDevice, XE_PRIMTYPE_TRIANGLELIST, 0, 2);
+    Xe_DrawPrimitive(g_pVideoDevice, XE_PRIMTYPE_RECTLIST, 0, 1);
 
     Xe_Resolve(g_pVideoDevice);
     // while (!Xe_IsVBlank(g_pVideoDevice));//slowdown ...
-    Xe_Sync(g_pVideoDevice);
-
-
+    Xe_Execute(g_pVideoDevice);
 }
 
 void DoClearScreenBuffer(void) // CLEAR DX BUFFER

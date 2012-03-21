@@ -63,7 +63,7 @@ void SysPrintf(lpctr *fmt, ...) {
     vsprintf(msg, fmt, list);
     va_end(list);
 
-    printf("PCSX: %s\r\n", msg);
+    printf(msg);
 
 }
 

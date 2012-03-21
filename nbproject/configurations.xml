@@ -11,7 +11,10 @@
         <in>folder_png.h</in>
         <in>font_ttf.h</in>
         <in>fr_lang.h</in>
+        <in>gui.d</in>
         <in>keyboard_textbox_png.h</in>
+        <in>main.d</in>
+        <in>pasm.d</in>
         <in>xenon_bg_file_selection_entry_png.h</in>
         <in>xenon_bg_png.h</in>
         <in>xenon_button_gamesave_blank_png.h</in>
@@ -37,13 +40,21 @@
         <in>draw_t_p_psu.h</in>
         <in>draw_v_vsu.h</in>
       </df>
-      <df name="pcsxr_0.6">
+      <df name="pcsxr-xenon_062_dbg">
+      </df>
+      <df name="pcsxr_0.62">
         <df name="pcsxr">
           <df name="bios">
           </df>
           <df name="memcards">
           </df>
+          <df name="patches">
+          </df>
         </df>
+        <df name="states">
+        </df>
+      </df>
+      <df name="screen">
       </df>
       <df name="shaders">
         <in>fxaa.ps.h</in>

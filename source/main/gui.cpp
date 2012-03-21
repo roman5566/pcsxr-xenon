@@ -1,5 +1,5 @@
-//#ifdef USE_GUI
-#if 1
+#ifdef USE_GUI
+//#if 1
 
 //#include <ogcsys.h>
 #include <stdio.h>
@@ -461,6 +461,7 @@ static int pcsxr_run(void) {
     strcpy(Config.Pad2, "PAD2");
 
     strcpy(Config.BiosDir, "uda:/pcsxr/bios");
+    strcpy(Config.PatchesDir, "uda:/pcsxr/patches/");
     strcpy(Config.Bios, "scph7502.bin");
 
     strcpy(Config.Mcd1, "uda:/pcsxr/memcards/card1.mcd");
