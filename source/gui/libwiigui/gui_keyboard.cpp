@@ -7,7 +7,7 @@
  *
  * GUI class definitions
  ***************************************************************************/
-
+#if 0
 #include "gui.h"
 #include "../w_input.h"
 
@@ -356,3 +356,4 @@ startloop:
             this->MoveSelectionVert(-1);
     }
 }
+#endif

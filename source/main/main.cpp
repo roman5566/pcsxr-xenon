@@ -105,8 +105,10 @@ extern PluginTable plugins[];
 #define cdfile "uda:/Resident Evil (USA).iso.Z"
 #define cdfile "uda:/0cimg/medievil-scus-94227-/Medievil.bin.Z"
 
-#define cdfile "uda:/ff9_patched.bin"
+
 #define cdfile "uda:/Street Fighter Alpha 2 [SLUS-00258].img.Z"
+#define cdfile "uda:/ff9_patched.bin"
+#define cdfile "uda:/Final Fantasy IX (France) (Disc 1).bin.Z"
 
 void printConfigInfo() {
 
@@ -194,6 +196,7 @@ int main() {
     //strcpy(Config.Bios, "SCPH1001.BIN"); // Use actual BIOS
     //strcpy(Config.Bios, "HLE"); // Use HLE
     strcpy(Config.BiosDir, "uda:/pcsxr/bios");
+    strcpy(Config.PatchesDir, "uda:/pcsxr/patches/");
 
     strcpy(Config.Bios, "scph7502.bin");
     Config.PsxOut = 0; // Enable Console Output
@@ -204,12 +207,12 @@ int main() {
     Config.PsxAuto = 1; // autodetect system
     //Config.PsxType = PSX_TYPE_NTSC;
     //Config.Cpu = CPU_DYNAREC;
-    //Config.Cpu =  CPU_INTERPRETER;
+    Config.Cpu =  CPU_INTERPRETER;
 
     strcpy(Config.Mcd1, "uda:/pcsxr/memcards/card1.mcd");
     strcpy(Config.Mcd2, "uda:/pcsxr/memcards/card2.mcd");
 
-    //useSoftGpu();
+    useSoftGpu();
     /*
         strcpy(Config.Mcd1, "sda:/hdd1/xenon/memcards/card1.mcd");
         strcpy(Config.Mcd2, "sda:/hdd1/xenon/memcards/card2.mcd");

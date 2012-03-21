@@ -117,7 +117,7 @@ void CALLBACK GPUdisplayFlags(unsigned long dwFlags) // some info func
 ////////////////////////////////////////////////////////////////////////
 
 char * CALLBACK PSEgetLibName(void) {
-    return _(libraryName);
+    return (libraryName);
 }
 
 unsigned long CALLBACK PSEgetLibType(void) {
@@ -129,7 +129,7 @@ unsigned long CALLBACK PSEgetLibVersion(void) {
 }
 
 char * GPUgetLibInfos(void) {
-    return _(libraryInfo);
+    return (libraryInfo);
 }
 
 ////////////////////////////////////////////////////////////////////////
