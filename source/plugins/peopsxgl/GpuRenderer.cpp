@@ -969,12 +969,6 @@ void GpuRenderer::DestroyTexture(XenosSurface *surf) {
 };
 
 XenosSurface * GpuRenderer::CreateTexture(unsigned int width, unsigned int height, int format) {
-    //    if(width<32)
-    //        width=32;
-    //    if(height<32)
-    //        height=32;
-
-
     XenosSurface * surf = Xe_CreateTexture(xe, width, height, 0, format, 0);
 
     allocated_texture_size += surf->hpitch * surf->wpitch;

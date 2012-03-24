@@ -3,7 +3,6 @@
   <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
     <df name="pcsxr-xenon" root="Z:/xenon/share/pcsxr-xenon">
       <df name="build">
-        <in>a_adsr.d</in>
         <in>button_click_pcm.h</in>
         <in>button_over_pcm.h</in>
         <in>debug_xenon_bg_png.h</in>
@@ -12,9 +11,7 @@
         <in>folder_png.h</in>
         <in>font_ttf.h</in>
         <in>fr_lang.h</in>
-        <in>gui.d</in>
         <in>keyboard_textbox_png.h</in>
-        <in>main.d</in>
         <in>pasm.d</in>
         <in>xenon_bg_file_selection_entry_png.h</in>
         <in>xenon_bg_png.h</in>
@@ -212,10 +209,6 @@
           <in>system.h</in>
         </df>
         <df name="main">
-          <df name="usb">
-            <in>usbctrl.c</in>
-            <in>usbd.h</in>
-          </df>
           <in>gamecube_plugins.h</in>
           <in>gui.cpp</in>
           <in>gui.h</in>

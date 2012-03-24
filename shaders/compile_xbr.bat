@@ -13,8 +13,8 @@ echo Compile 2xXBR shaders
 fxc /Fh xbr_2x_vs.h /Tvs_3_0 2xBR-v3.5a.cg /Exbr2x_vs_main
 fxc /Fh xbr_2x_ps.h /Tps_3_0 2xBR-v3.5a.cg /Exbr2x_ps_main
 echo Compile 5xXBR shaders
-fxc /Fh xbr_5x_vs.h /Tvs_3_0 5xBR-v3.5.cg /Exbr5x_vs_main
-fxc /Fh xbr_5x_ps.h /Tps_3_0 5xBR-v3.5.cg /Exbr5x_ps_main
+fxc /Fh xbr_5x_vs.h /Tvs_3_0 5xBR-v3.7a.cg /Exbr5x_vs_main
+fxc /Fh xbr_5x_ps.h /Tps_3_0 5xBR-v3.7a.cg /Exbr5x_ps_main
 echo Compile 5xXBR psx hq shaders
 fxc /Fh xbr_5x_psx_vs.h /Tvs_3_0 5xBR-v3.5-psx.cg /Exbr5x_vs_main
 fxc /Fh xbr_5x_psx_ps.h /Tps_3_0 5xBR-v3.5-psx.cg /Exbr5x_ps_main

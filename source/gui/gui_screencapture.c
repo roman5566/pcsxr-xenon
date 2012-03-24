@@ -36,7 +36,7 @@ void GuiScreenCapture() {
     gettimeofday(&tp, NULL);
 
     char filename[256];
-    sprintf(filename, "uda:/sshot_%d.png", tp.tv_sec);
+    sprintf(filename, "usb:/sshot_%d.png", tp.tv_sec);
 
     FILE *outfp = fopen(filename, "wb");
 

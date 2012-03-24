@@ -41,7 +41,7 @@ PLUGINS		:=  source/plugins/dfinput source/shaders source/plugins/xenon_input so
 CORE		:=  lib/zlib source/libpcsxcore source/ppcr source/httpd	 # source/libpcsxcore/ppc #source/ppcr
 #CORE		:=  lib/zlib source/libpcsxcore_df source/ppc
 #LIB		:=  source/fakegl
-SOURCES		:=  source/main  source/main/usb $(PLUGINS) $(CORE) $(GUI_SRC)
+SOURCES		:=  source/main  source/main $(PLUGINS) $(CORE) $(GUI_SRC)
 DATA		:=
 INCLUDES	:=  shaders include lib/zlib source/libpcsxcore $(GUI_INC)
 
@@ -59,7 +59,7 @@ LDFLAGS	=	-g $(MACHDEP) -Wl,--gc-sections -Wl,-Map,$(notdir $@).map
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
 #LIBS	:=	-lzlx  -lpng -lbz2  -lxenon -lm -lz
-LIBS	:=	-lpng -lbz2  -lxenon -lm -lz $(GUI_LIBS)
+LIBS	:=	-lntfs -lfat -lpng -lbz2  -lxenon -lm -lz $(GUI_LIBS)
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
 # include and lib

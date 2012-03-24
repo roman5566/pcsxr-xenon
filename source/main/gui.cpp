@@ -1,5 +1,5 @@
-#ifdef USE_GUI
-//#if 1
+//#ifdef USE_GUI
+#if 1
 
 //#include <ogcsys.h>
 #include <stdio.h>
@@ -26,10 +26,13 @@
 #include <xenos/xe.h>
 #include <xenon_sound/sound.h>
 #include <xenos/edram.h>
-#include <libntfs/ntfs.h>
-#include <libext2fs/ext2.h>
 
-#include <newlib/malloc_lock.h>
+#include <libntfs/ntfs.h>
+#include <libfat/fat.h>
+
+//#include <newlib/malloc_lock.h>
+
+
 
 //gui stuff
 #include "libwiigui/gui.h"
@@ -104,6 +107,17 @@ GXColor ColorWhite = {255, 255, 255, 255};
 
 // emulator option
 OptionList options;
+
+char * usbRootDir = "usb:/";
+
+char * getRootDir(){
+    return usbRootDir;
+}
+
+char * createFilePath(char * out, char * filename){
+    sprintf(out,"%s%s",getRootDir(),filename);
+    return out;
+}
 
 /****************************************************************************
  * ResumeGui
@@ -443,7 +457,7 @@ void makeRomName(char * fname, char * dest) {
     char * end = strrchr(fname, '.');
     strncpy(dest, fname, end - fname);
 }
-
+void CleanupPath(char * path);
 static int pcsxr_run(void) {
     char cdfile[2048];
 
@@ -460,15 +474,15 @@ static int pcsxr_run(void) {
     strcpy(Config.Pad1, "PAD1");
     strcpy(Config.Pad2, "PAD2");
 
-    strcpy(Config.BiosDir, "uda:/pcsxr/bios");
-    strcpy(Config.PatchesDir, "uda:/pcsxr/patches/");
+    //strcpy(Config.BiosDir, "usb:/pcsxr/bios");
+    createFilePath(Config.BiosDir,"pcsxr/bios/");
+    createFilePath(Config.PatchesDir,"pcsxr/patches/");
     strcpy(Config.Bios, "scph7502.bin");
-
-    strcpy(Config.Mcd1, "uda:/pcsxr/memcards/card1.mcd");
-    strcpy(Config.Mcd2, "uda:/pcsxr/memcards/card2.mcd");
+    createFilePath(Config.Mcd1, "pcsxr/memcards/card1.mcd");
+    createFilePath(Config.Mcd2, "pcsxr/memcards/card2.mcd");
 
     pcsxr_running = 0;
-
+    CleanupPath(cdfile);
     SetIso(cdfile);
     if (LoadPlugins() == 0) {
         if (OpenPlugins() == 0) {
@@ -1434,10 +1448,13 @@ static int MenuSaveStates(int action) {
     sprintf(foldername, "/states/");
 
     printf("foldername : %s\r\n", foldername);
-    BrowseDevice("/states/", "uda:/");
+    BrowseDevice("/states/", getRootDir());
 
     printf("browser.dir : %s\r\n", browser.dir);
     printf("rootdir : %s\r\n", rootdir);
+
+    // create the dir if it doesn't exist
+    mkdir("usb:/states/",0);
 
     for (i = 0; i < browser.numEntries; i++) {
         len2 = strlen(browserList[i].filename);
@@ -1469,7 +1486,7 @@ static int MenuSaveStates(int action) {
                 //                if (LoadFile(scrfile, SILENT))
                 //                    saves.previewImg[j] = new GuiImageData(savebuffer, 64, 48);
             }
-            snprintf(filepath, 1024, "uda:/%s/%s", foldername, saves.filename[j]);
+            snprintf(filepath, 1024, "%s/%s/%s", getRootDir(), foldername, saves.filename[j]);
             printf("filepath : %s\r\n", filepath);
             if (stat(filepath, &filestat) == 0) {
                 timeinfo = localtime(&filestat.st_mtime);
@@ -1889,7 +1906,11 @@ int main() {
     xenon_make_it_faster(XENON_SPEED_FULL);
 
     usb_init();
+
     usb_do_poll();
+    xenon_ata_init();
+
+    fatInitDefault ();
 
     InitFreeType((u8*) font_ttf, font_ttf_size); // Initialize font system
 

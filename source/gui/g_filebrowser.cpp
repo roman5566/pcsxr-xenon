@@ -7,6 +7,7 @@
  * Generic file routines - reading, writing, browsing
  ***************************************************************************/
 
+#include <dirent.h>
 #include <xetypes.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -35,7 +36,7 @@ static char * romdir = "roms";
  * CleanupPath()
  * Cleans up the filepath, removing double // and replacing \ with /
  ***************************************************************************/
-static void CleanupPath(char * path) {
+void CleanupPath(char * path) {
     if (!path || path[0] == 0)
         return;
 
@@ -51,7 +52,7 @@ static void CleanupPath(char * path) {
     path[j] = 0;
 }
 
-
+extern char * getRootDir();
 extern char foldername[1024];
 bool MakeFilePath(char filepath[], int type, char * filename, int filenum) {
     char file[512];
@@ -71,7 +72,7 @@ bool MakeFilePath(char filepath[], int type, char * filename, int filenum) {
     } else {
         sprintf(file, "%s", filename);
     }
-    sprintf(temppath, "uda:/%s/%s", foldername, file);
+    sprintf(temppath, "%s/%s/%s",getRootDir(), foldername, file);
 
     CleanupPath(temppath); // cleanup path
     snprintf(filepath, MAXPATHLEN, "%s", temppath);
@@ -224,6 +225,9 @@ ParseDirectory() {
         if (strcmp(entry->d_name, ".") == 0)
             continue;
 
+
+        printf("entry->d_name = %s\r\n", entry->d_name);
+
         BROWSERENTRY * newBrowserList = (BROWSERENTRY *) realloc(browserList, (entryNum + 1) * sizeof (BROWSERENTRY));
 
         if (!newBrowserList) // failed to allocate required memory
@@ -254,7 +258,6 @@ ParseDirectory() {
             continue;
         }
 
-        printf("entry->d_name = %s\r\n", entry->d_name);
 
         entryNum++;
     }
@@ -289,7 +292,7 @@ int BrowserChangeFolder() {
  ***************************************************************************/
 int BrowseDevice() {
     sprintf(browser.dir, "/");
-    sprintf(rootdir, "uda:/");
+    sprintf(rootdir, "usb:/");
     ParseDirectory(); // Parse root directory
     return browser.numEntries;
 }
