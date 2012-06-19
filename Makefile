@@ -22,7 +22,7 @@ GUI_INC         :=  source/gui
 
 GUI_INCLUDE	:=  -I$(LIBXENON_INC)/freetype2
 GUI_LIBS	:=  -lfreetype
-GUI_FLAGS	:=  -DUSE_GUI
+# GUI_FLAGS	:=  -DUSE_GUI
 
 #---------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------
@@ -195,7 +195,6 @@ endif
 
 
 run: $(BUILD) $(OUTPUT).elf32
-	cp $(OUTPUT).elf32 /var/lib/tftpboot/tftpboot/xenon
-	$(PREFIX)strip /var/lib/tftpboot/tftpboot/xenon
-
+	cp $(OUTPUT).elf32 /srv/tftp/tftpboot/xenon
+	$(PREFIX)strip /srv/tftp/tftpboot/xenon
 

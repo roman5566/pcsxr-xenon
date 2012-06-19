@@ -114,7 +114,6 @@ namespace xegpu{
 
     extern GLubyte * texturepart;
     extern GLubyte * texturebuffer;
-    extern int iHiResTextures;
 
     extern GLubyte ubPaletteBuffer[256][4];
     extern unsigned char ubOpaqueDraw;
@@ -133,9 +132,6 @@ namespace xegpu{
     extern GLint YTexS;
     extern GLint DXTexS;
     extern GLint DYTexS;
-
-    extern int iFrameTexType;
-    extern int iFrameReadType;
 
     extern int GlobalTexturePage;
 

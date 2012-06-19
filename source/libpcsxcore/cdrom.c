@@ -1602,7 +1602,7 @@ void cdrReadInterrupt() {
 
 	if (cdr.RErr == -1) {
 #ifdef CDR_LOG
-		fprintf(emuLog, "cdrReadInterrupt() Log: err\n");
+		CDR_LOG( "cdrReadInterrupt() Log: err");
 #endif
 		memset(cdr.Transfer, 0, DATA_SIZE);
 		cdr.Stat = DiskError;
@@ -1616,7 +1616,7 @@ void cdrReadInterrupt() {
 
 
 #ifdef CDR_LOG
-	fprintf(emuLog, "cdrReadInterrupt() Log: cdr.Transfer %x:%x:%x\n", cdr.Transfer[0], cdr.Transfer[1], cdr.Transfer[2]);
+	CDR_LOG( "cdrReadInterrupt() Log: cdr.Transfer %x:%x:%x\n", cdr.Transfer[0], cdr.Transfer[1], cdr.Transfer[2]);
 #endif
 
 	if ((!cdr.Muted) && (cdr.Mode & MODE_STRSND) && (!Config.Xa) && (cdr.FirstSector != -1)) { // CD-XA

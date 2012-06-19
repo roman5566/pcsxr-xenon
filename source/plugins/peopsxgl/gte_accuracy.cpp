@@ -18,48 +18,50 @@
  ***************************************************************************/
 
 #include "stdafx.h"
+#include <math.h>
 #include "externals.h"
 
-extern BOOL bGteAccuracy;
 //BOOL bGteAccuracy = TRUE;
 //float ***gteCoords = NULL;
 
 typedef float (*gteCoords_t)[0x800 * 2][2];
-gteCoords_t gteCoords = NULL;
+static gteCoords_t gteCoords = NULL;
 // TODO: use malloc and pointer to the array's center.
 // 08000000
 
+using namespace xegpu;
+
 EXTERN void CALLBACK GPUaddVertex(short sx, short sy, long long fx, long long fy, long long fz) {
-    if (bGteAccuracy) {
-        if (sx >= -0x800 && sx <= 0x7ff &&
-                sy >= -0x800 && sy <= 0x7ff) {
-            gteCoords[sy + 0x800][sx + 0x800][0] = fx / 65536.0f;
-            gteCoords[sy + 0x800][sx + 0x800][1] = fy / 65536.0f;
-        }
-    }
+	if (peops_cfg.bGteAccuracy) {
+		if (sx >= -0x800 && sx <= 0x7ff &&
+				sy >= -0x800 && sy <= 0x7ff) {
+			gteCoords[sy + 0x800][sx + 0x800][0] = fx / 65536.0f;
+			gteCoords[sy + 0x800][sx + 0x800][1] = fy / 65536.0f;
+		}
+	}
 }
 
 void resetGteVertices() {
-    if (bGteAccuracy) {
-        if(gteCoords==NULL)
-            gteCoords = (gteCoords_t) malloc(0x8000000);
-        memset(gteCoords, 0x00, 0x8000000);
-    }
+	if (peops_cfg.bGteAccuracy) {
+		if (gteCoords == NULL)
+			gteCoords = (gteCoords_t) malloc(0x8000000);
+		memset(gteCoords, 0x00, 0x8000000);
+	}
 }
 
 int getGteVertex(short sx, short sy, float *fx, float *fy) {
-    if (bGteAccuracy) {
-        if (sx >= -0x800 && sx <= 0x7ff &&
-                sy >= -0x800 && sy <= 0x7ff) {
-            if (((int) gteCoords[sy + 0x800][sx + 0x800][0]) == sx &&
-                    ((int) gteCoords[sy + 0x800][sx + 0x800][1]) == sy) {
-                *fx = gteCoords[sy + 0x800][sx + 0x800][0];
-                *fy = gteCoords[sy + 0x800][sx + 0x800][1];
+	if (peops_cfg.bGteAccuracy) {
+		if (sx >= -0x800 && sx <= 0x7ff &&
+				sy >= -0x800 && sy <= 0x7ff) {
+			if ((fabsf(gteCoords[sy + 0x800][sx + 0x800][0] - sx) < 1.0) &&
+					(fabsf(gteCoords[sy + 0x800][sx + 0x800][1] - sy) < 1.0)) {
+				*fx = gteCoords[sy + 0x800][sx + 0x800][0];
+				*fy = gteCoords[sy + 0x800][sx + 0x800][1];
 
-                return 1;
-            }
-        }
-    }
+				return 1;
+			}
+		}
+	}
 
-    return 0;
+	return 0;
 }

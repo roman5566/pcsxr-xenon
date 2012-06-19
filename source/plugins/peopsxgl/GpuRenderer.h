@@ -15,28 +15,28 @@
 
 typedef struct XeColor {
 
-    union {
-        unsigned int color;
+	union {
+		unsigned int color;
 
-        struct {
-            uint8_t a;
-            uint8_t r;
-            uint8_t g;
-            uint8_t b;
-        };
-        uint8_t s[4];
-    };
+		struct {
+			uint8_t a;
+			uint8_t r;
+			uint8_t g;
+			uint8_t b;
+		};
+		uint8_t s[4];
+	};
 } XeColor;
 
 enum GpuPrimTypes {
-    PRIM_TRIANGLE,
-    PRIM_TRIANGLE_STRIP,
-    PRIM_QUAD,
-    PRIM_RECTLIST /* new => used for video */
+	PRIM_TRIANGLE,
+	PRIM_TRIANGLE_STRIP,
+	PRIM_QUAD,
+	PRIM_RECTLIST /* new => used for video */
 };
 
 enum GlExt {
-    RGB_SCALE_EXT = 0,
+	RGB_SCALE_EXT = 0,
 
 };
 
@@ -45,250 +45,256 @@ extern "C" void systemPoll();
 class GpuRenderer {
 private:
 
-    /**
-     * packed to 32bytes
-     */
-    typedef struct PACKED verticeformats {
-        float x, y, z;
-        float u, v;
-        float u2, v2;
-        uint32_t color;
-    }
-    verticeformats;
+	/**
+	 * packed to 32bytes
+	 */
+	typedef struct PACKED verticeformats {
+		float x, y, z;
+		float u, v;
+		float u2, v2;
+		uint32_t color;
+	}
+	verticeformats;
 
-    verticeformats * pCurrentVertex;
-    verticeformats * pFirstVertex;
+	verticeformats * pCurrentVertex;
+	verticeformats * pFirstVertex;
 
-    uint16_t * pCurrentIndice;
-    uint16_t * pFirstIndice;
+	uint16_t * pCurrentIndice;
+	uint16_t * pFirstIndice;
 
-    GpuVB *pVb;
-    GpuIB *pIb;
+	GpuVB *pVb;
+	GpuIB *pIb;
 
-    GpuTex * pRenderSurface;
+	GpuTex * pRenderSurface;
 
-    GpuVS * g_pVertexShader;
-    GpuPS * g_pPixelShader;
+	GpuVS * g_pVertexShader;
+	GpuPS * g_pPixelShader;
 
-    GpuPS * g_pPixelShaderC;
-    GpuPS * g_pPixelShaderF;
-    GpuPS * g_pPixelShaderG;
+	GpuPS * g_pPixelShaderC;
+	GpuPS * g_pPixelShaderF;
+	GpuPS * g_pPixelShaderG;
 
-    /**
-     * Post process
-     */
-    GpuVB *pVbPost;
-    GpuVS * g_pVertexShaderPost;
-    GpuPS * g_pPixelShaderPost;
-    GpuTex * pPostRenderSurface;
+	/**
+	 * Post process
+	 */
+	GpuVB *pVbPost;
+	GpuVS * g_pVertexShaderPost;
+	GpuPS * g_pPixelShaderPost;
+	GpuTex * pPostRenderSurface;
 
-    /**
-     * Render states
-     */
-    struct RenderStates {
-        // texture
-        struct XenosSurface * surface;
-        // clear color
-        uint32_t clearcolor;
-        uint32_t clear_pending;
-        // z / depth
-        int32_t z_func;
-        uint32_t z_write;
-        uint32_t z_enable;
+	/**
+	 * Render states
+	 */
+	struct RenderStates {
+		// texture
+		GpuTex * surface;
 
-        // fillmode
-        uint32_t fillmode_front;
-        uint32_t fillmode_back;
+		// shader
+		GpuPS * currentPsShader;
 
-        // blend
-        int32_t blend_op;
-        int32_t blend_src;
-        int32_t blend_dst;
-        int32_t blending_enabled;
+		// clear color
+		uint32_t clearcolor;
+		uint32_t clear_pending;
+		// z / depth
+		int32_t z_func;
+		uint32_t z_write;
+		uint32_t z_enable;
 
-        // alpha blend
-        int32_t alpha_blend_op;
-        int32_t alpha_blend_src;
-        int32_t alpha_blend_dst;
-        int32_t alpha_blending_enabled;
+		// fillmode
+		uint32_t fillmode_front;
+		uint32_t fillmode_back;
 
-        // cull mode
-        uint32_t cullmode;
+		// blend
+		int32_t blend_op;
+		int32_t blend_src;
+		int32_t blend_dst;
+		int32_t blending_enabled;
 
-        // alpha test
-        uint32_t alpha_test_enable;
-        int32_t alpha_test_func;
-        float alpha_test_ref;
+		// alpha blend
+		int32_t alpha_blend_op;
+		int32_t alpha_blend_src;
+		int32_t alpha_blend_dst;
+		int32_t alpha_blending_enabled;
 
-        // stencil
-        uint32_t stencil_enable;
-        uint32_t stencil_func;
-        uint32_t stencil_op;
-        uint32_t stencil_ref;
-        uint32_t stencil_mask;
-        uint32_t stencil_writemask;
+		// cull mode
+		uint32_t cullmode;
 
-        uint32_t scissor_enable;
-        uint32_t scissor_left;
-        uint32_t scissor_top;
-        uint32_t scissor_right;
-        uint32_t scissor_bottom;
-    };
+		// alpha test
+		uint32_t alpha_test_enable;
+		int32_t alpha_test_func;
+		float alpha_test_ref;
 
-    RenderStates m_RenderStates;
+		// stencil
+		uint32_t stencil_enable;
+		uint32_t stencil_func;
+		uint32_t stencil_op;
+		uint32_t stencil_ref;
+		uint32_t stencil_mask;
+		uint32_t stencil_writemask;
+
+		// scissor
+		uint32_t scissor_enable;
+		uint32_t scissor_left;
+		uint32_t scissor_top;
+		uint32_t scissor_right;
+		uint32_t scissor_bottom;
+	};
+
+	RenderStates m_RenderStates;
 
 public:
-    int b_StatesChanged;
+	int b_StatesChanged;
 
 
-    /**
-     * states changed
-     */
-    void StatesChanged();
+	/**
+	 * states changed
+	 */
+	void StatesChanged();
+	
+	void SubmitVertices();
 private:
-    void UpdatesStates();
+	void UpdatesStates();
 
-    void SubmitVertices();
+	
 
-    void InitStates();
-    void InitXe();
+	void InitStates();
+	void InitXe();
 
-    /**
-     * Post process
-     */
-    void InitPostProcess();
-    void RenderPostProcess();
-    void BeginPostProcess();
-    void EndPostProcess();
+	/**
+	 * Post process
+	 */
+	void InitPostProcess();
+	void RenderPostProcess();
+	void BeginPostProcess();
+	void EndPostProcess();
 
-    void Lock();
-    void Unlock();
+	void Lock();
+	void Unlock();
 public:
 
 
-    /**
-     * texture
-     */
-    void SetTexture(GpuTex * s);
-    void EnableTexture();
-    void DisableTexture();
+	/**
+	 * texture
+	 */
+	void SetTexture(GpuTex * s);
+	void EnableTexture();
+	void DisableTexture();
 
-    /**
-     *
-     */
+	/**
+	 *
+	 */
 
-    /**
-     * Clear
-     */
-    void Clear(uint32_t flags);
-    // void ClearColor(float a, float r, float g, float b);
-    void ClearColor(uint8_t a, uint8_t r, uint8_t g, uint8_t b);
-    // fillmode
+	/**
+	 * Clear
+	 */
+	void Clear(uint32_t flags);
+	void ClearColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+	// fillmode
 
-    /**
-     * blend
-     */
-    void DisableBlend();
-    void EnableBlend();
-    void SetBlendFunc(int src, int dst);
-    void SetBlendOp(int op);
+	/**
+	 * blend
+	 */
+	void DisableBlend();
+	void EnableBlend();
+	void SetBlendFunc(int src, int dst);
+	void SetBlendOp(int op);
 
-    /**
-     * Alpha blend
-     */
-    void DisableAlphaBlend();
-    void EnableAlphaBlend();
-    void SetAlphaBlendFunc(int src, int dst);
-    void SetAlphaBlendOp(int op);
+	/**
+	 * Alpha blend
+	 */
+	void DisableAlphaBlend();
+	void EnableAlphaBlend();
+	void SetAlphaBlendFunc(int src, int dst);
+	void SetAlphaBlendOp(int op);
 
-    // cull mode
+	// cull mode
 
-    /**
-     * Alpha test
-     */
-    void SetAlphaFunc(int func, float ref);
-    void EnableAlphaTest();
-    void DisableAlphaTest();
+	/**
+	 * Alpha test
+	 */
+	void SetAlphaFunc(int func, float ref);
+	void EnableAlphaTest();
+	void DisableAlphaTest();
 
-    // stencil
+	// stencil
 
-    /**
-     * z / depth
-     */
-    void EnableDepthTest();
-    void DisableDepthTest();
-    void DepthFunc(int func);
+	/**
+	 * z / depth
+	 */
+	void EnableDepthTest();
+	void DisableDepthTest();
+	void DepthFunc(int func);
 
-    // scissor
-    void SetScissor(int x, int y, int width, int height);
-    void DisableScissor();
-    void EnableScissor();
+	// scissor
+	void SetScissor(uint32_t x, uint32_t y, uint32_t width, uint32_t height);
+	void DisableScissor();
+	void EnableScissor();
 
-    /**
-     * Init
-     */
-    void Init();
-    void Close();
+	/**
+	 * Init
+	 */
+	void Init();
+	void Close();
 
-    /**
-     * Render
-     */
-    void Render();
+	/**
+	 * Render
+	 */
+	void Render();
 
-    /**
-     * Gl like func
-     */
-    int m_PrimType;
-    float textcoord_u;
-    float textcoord_v;
-    uint32_t m_primColor;
+	/**
+	 * Gl like func
+	 */
+	int m_PrimType;
+	float textcoord_u;
+	float textcoord_v;
+	uint32_t m_primColor;
 
-    void primBegin(int primType);
-    void primEnd();
-    void primTexCoord(float * st);
-    void primVertex(float * v);
-    void primColor(u8 *v);
+	void primBegin(int primType);
+	void primEnd();
+	void primTexCoord(float * st);
+	void primVertex(float * v);
+	void primColor(u8 *v);
 
-    void TextEnv(int f, int v) {
-        // nothing yet
-    }
+	void TextEnv(int f, int v) {
+		// nothing yet
+	}
 
-    void TextEnv(int f, float v) {
-        switch (f) {
-            case RGB_SCALE_EXT:
-                break;
-        }
-    }
+	void TextEnv(int f, float v) {
+		switch (f) {
+			case RGB_SCALE_EXT:
+				break;
+		}
+	}
 
-    int verticesCount();
-    int indicesCount();
-    int prevIndicesCount;
-    int prevVerticesCount;
+	int verticesCount();
+	int indicesCount();
+	int prevIndicesCount;
+	int prevVerticesCount;
 
-    // viewport
-    void SetViewPort(int left, int top, int right, int bottom);
-    void SetOrtho(float l, float r, float b, float t, float zn, float zf);
+	// viewport
+	void SetViewPort(int left, int top, int right, int bottom);
+	void SetOrtho(float l, float r, float b, float t, float zn, float zf);
 
-    uint32_t GetFramebufferWidth();
-    uint32_t GetFramebufferHeight();
+	uint32_t GetFramebufferWidth();
+	uint32_t GetFramebufferHeight();
 
-    // textures
-    void DestroyTexture(GpuTex *surf);
-    GpuTex * CreateTexture(unsigned int width, unsigned int height, int format);
-    GpuTex * GetFB();
+	// textures
+	void DestroyTexture(GpuTex *surf);
+	GpuTex * CreateTexture(unsigned int width, unsigned int height, int format);
+	GpuTex * GetFB();
 
-    void * TextureLock(GpuTex *surf);
-    void TextureUnlock(GpuTex *surf);
+	void * TextureLock(GpuTex *surf);
+	void TextureUnlock(GpuTex *surf);
 
-    void SetTextureFiltering(int filtering_mode) {
+	void SetTextureFiltering(int filtering_mode) {
 #ifndef WIN32
-        if (m_RenderStates.surface)
-            m_RenderStates.surface->use_filtering = filtering_mode;
+		if (m_RenderStates.surface)
+			m_RenderStates.surface->use_filtering = filtering_mode;
 #endif
-    }
+	}
 
-    void NextVertice();
-    void NextIndice();
+	void NextVertice();
+	void NextIndice();
 };
 
 extern GpuRenderer gpuRenderer;

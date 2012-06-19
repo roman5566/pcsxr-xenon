@@ -1,10 +1,12 @@
 /***************************************************************************
-                            cfg.h  -  description
-                             -------------------
-    begin                : Sun Mar 08 2009
-    copyright            : (C) 1999-2009 by Pete Bernert
-    web                  : www.pbernert.com   
+							cfg.h  -  description
+							 -------------------
+	begin                : Sun Mar 08 2009
+	copyright            : (C) 1999-2009 by Pete Bernert
+	web                  : www.pbernert.com   
  ***************************************************************************/
+
+#pragma once
 
 /***************************************************************************
  *                                                                         *
@@ -15,6 +17,45 @@
  *   additional informations.                                              *
  *                                                                         *
  ***************************************************************************/
-namespace xegpu{
-    void  ReadConfig(void);
+struct XEGPU_CONFIG {
+	int iResX;
+	int iResY;
+	bool bKeepRatio;
+
+	bool bGteAccuracy;
+
+	bool bFullVRam;
+
+	bool bUseFrameLimit;
+	bool bUseFrameSkip;
+
+	bool bOpaquePass;
+
+	bool bUseFastMdec;
+
+	int iFilterType; // type of filter
+	int iFrameLimit;
+	int fFrameRate;
+
+	int iOffscreenDrawing;
+	int iZBufferDepth;
+	int iTexQuality;
+	int iUseMask;
+	int iFrameTexType;
+	int iFrameReadType;
+	
+	int iVRamSize;
+	int iTexGarbageCollection;
+	int iHiResTextures;
+
+	bool bUseFixes;
+	unsigned int dwCfgFixes;
+	unsigned int dwActFixes;
+};
+
+
+namespace xegpu {
+
+	extern XEGPU_CONFIG peops_cfg;
+	void ReadConfig(void);
 }

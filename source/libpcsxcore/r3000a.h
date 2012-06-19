@@ -57,6 +57,8 @@ typedef union {
 	struct { s8 l, h, h2, h3; } sb;
 	struct { s16 l, h; } sw;
 #endif
+	u32 d;
+        s32 sd;
 } PAIR;
 
 typedef union {
@@ -82,6 +84,7 @@ typedef union {
 				TagLo,     TagHi,     ErrorEPC,  Reserved6;
 	} n;
 	u32 r[32];
+	PAIR p[32];
 } psxCP0Regs;
 
 typedef struct {
@@ -314,6 +317,20 @@ static inline u32 *Read_ICache(u32 pc, boolean isolate) {
 #define _rRd_   psxRegs.GPR.r[_Rd_]   // Rd register
 #define _rSa_   psxRegs.GPR.r[_Sa_]   // Sa register
 #define _rFs_   psxRegs.CP0.r[_Rd_]   // Fs register
+
+#define _rRtU_  (psxRegs.GPR.p[_Rt_].d)
+#define _rRsU_  (psxRegs.GPR.p[_Rs_].d)
+#define _rRdU_  (psxRegs.GPR.p[_Rd_].d)
+#define _rFsU_  (psxRegs.CP0.p[_Rd_].d)
+#define _rLoU_  (psxRegs.GPR.p[32].d)
+#define _rHiU_  (psxRegs.GPR.p[33].d)
+
+#define _rRtS_  (psxRegs.GPR.p[_Rt_].sd)
+#define _rRsS_  (psxRegs.GPR.p[_Rs_].sd)
+#define _rRdS_  (psxRegs.GPR.p[_Rd_].sd)
+#define _rFsS_  (psxRegs.CP0.p[_Rd_].sd)
+#define _rLoS_  (psxRegs.GPR.p[32].sd)
+#define _rHiS_  (psxRegs.GPR.p[33].sd)
 
 #define _c2dRs_ psxRegs.CP2D.r[_Rs_]  // Rs cop2 data register
 #define _c2dRt_ psxRegs.CP2D.r[_Rt_]  // Rt cop2 data register

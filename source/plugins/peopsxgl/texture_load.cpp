@@ -34,7 +34,7 @@ void DefineSubTextureSortHiRes(void) {
         gTexName->u_addressing = iClampType;
         gTexName->v_addressing = iClampType;
 
-        if (iFilterType) {
+        if (peops_cfg.iFilterType) {
             gTexName->use_filtering = XE_TEXF_LINEAR;
         } else {
             gTexName->use_filtering = XE_TEXF_POINT;
@@ -42,8 +42,8 @@ void DefineSubTextureSortHiRes(void) {
 #endif
     }
 
-    if (bGLExt && (iTexQuality == 1 || iTexQuality == 2)) {
-        if (DXTexS < 4 || DYTexS < 4 || iHiResTextures == 2) {
+    if (bGLExt && (peops_cfg.iTexQuality == 1 || peops_cfg.iTexQuality == 2)) {
+        if (DXTexS < 4 || DYTexS < 4 || peops_cfg.iHiResTextures == 2) {
             unsigned short * pS, *pD1, *pD2;
             dx2 = (DXTexS << 1);
             pS = (unsigned short *) texturepart;
@@ -61,13 +61,13 @@ void DefineSubTextureSortHiRes(void) {
                 pD2 += dx2;
             }
         } else {
-            if (iTexQuality == 1)
+            if (peops_cfg.iTexQuality == 1)
                 Super2xSaI_ex4(texturepart, DXTexS << 1, texturebuffer, DXTexS, DYTexS);
             else
                 Super2xSaI_ex5(texturepart, DXTexS << 1, texturebuffer, DXTexS, DYTexS);
         }
     } else {
-        if (DXTexS < 4 || DYTexS < 4 || iHiResTextures == 2) {
+        if (DXTexS < 4 || DYTexS < 4 || peops_cfg.iHiResTextures == 2) {
             uint32_t * pS, *pD1, *pD2;
             dx2 = (DXTexS << 1);
             pS = (uint32_t *) texturepart;
@@ -97,7 +97,7 @@ void DefineSubTextureSortHiRes(void) {
 /////////////////////////////////////////////////////////////////////////////
 
 void DefineSubTextureSort(void) {
-    if (iHiResTextures) {
+    if (peops_cfg.iHiResTextures) {
         DefineSubTextureSortHiRes();
         return;
     }
@@ -108,7 +108,7 @@ void DefineSubTextureSort(void) {
         gTexName->u_addressing = iClampType;
         gTexName->v_addressing = iClampType;
 
-        if (iFilterType) {
+        if (peops_cfg.iFilterType) {
             gTexName->use_filtering = XE_TEXF_LINEAR;
         } else {
             gTexName->use_filtering = XE_TEXF_POINT;
@@ -333,15 +333,15 @@ void LoadSubTexturePageSort(int pageid, int mode, short cx, short cy) {
     DXTexS = dx;
     DYTexS = dy;
 
-    if (!iFilterType) {
+    if (!peops_cfg.iFilterType) {
         DefineSubTextureSort();
         return;
     }
-    if (iFilterType != 2 && iFilterType != 4 && iFilterType != 6) {
+    if (peops_cfg.iFilterType != 2 && peops_cfg.iFilterType != 4 && peops_cfg.iFilterType != 6) {
         DefineSubTextureSort();
         return;
     }
-    if ((iFilterType == 4 || iFilterType == 6) && ly0 == ly1 && ly2 == ly3 && lx0 == lx3 && lx1 == lx2) {
+    if ((peops_cfg.iFilterType == 4 || peops_cfg.iFilterType == 6) && ly0 == ly1 && ly2 == ly3 && lx0 == lx3 && lx1 == lx2) {
         DefineSubTextureSort();
         return;
     }
@@ -351,7 +351,7 @@ void LoadSubTexturePageSort(int pageid, int mode, short cx, short cy) {
     y1 = dy - 1;
 
 #if 1
-    if (bOpaquePass) {
+    if (peops_cfg.bOpaquePass) {
         if (bSmallAlpha) {
             for (column = 0; column < dy; column++) {
                 for (row = 0; row < dx; row++) {
@@ -511,7 +511,7 @@ GpuTex * SelectSubTextureS(int TextureMode, uint32_t GivenClutId) {
         GivenClutId = CLUTUSED | (DrawSemiTrans << 30);
         cx = cy = 0;
 
-        if (iFrameTexType && Fake15BitTexture())
+        if (peops_cfg.iFrameTexType && Fake15BitTexture())
             return gTexName;
     }
     else {
@@ -617,7 +617,7 @@ GpuTex * Fake15BitTexture(void) {
     float ScaleX, ScaleY;
     RECT rSrc;
 
-    if (iFrameTexType == 1) return BlackFake15BitTexture();
+    if (peops_cfg.iFrameTexType == 1) return BlackFake15BitTexture();
     if (PSXDisplay.InterlacedTest) return 0;
 
     pmult = GlobalTexturePage / 16;
@@ -629,8 +629,8 @@ GpuTex * Fake15BitTexture(void) {
     y1 += pmult * 256;
     x1 += ((GlobalTexturePage - 16 * pmult) << 6);
 
-    if (iFrameTexType == 3) {
-        if (iFrameReadType == 4) return 0;
+    if (peops_cfg.iFrameTexType == 3) {
+        if (peops_cfg.iFrameReadType == 4) return 0;
 
         if (!FastCheckAgainstFrontScreen(x1, y1, x2, y2) &&
                 !FastCheckAgainstScreen(x1, y1, x2, y2))
@@ -658,9 +658,9 @@ GpuTex * Fake15BitTexture(void) {
     {
         void * p;
 
-        if (iResX > 1280 || iResY > 1024) iFTex = 2048;
+        if (peops_cfg.iResX > 1280 || peops_cfg.iResY > 1024) iFTex = 2048;
         else
-            if (iResX > 640 || iResY > 480) iFTex = 1024;
+            if (peops_cfg.iResX > 640 || peops_cfg.iResY > 480) iFTex = 1024;
         else iFTex = 512;
 
         gTexFrameName = gpuRenderer.CreateTexture(iFTex, iFTex, FMT_A8R8G8B8);
@@ -687,9 +687,9 @@ GpuTex * Fake15BitTexture(void) {
     else ScaleY = 1.0f;
 
     rSrc.left = max(x1*ScaleX, 0);
-    rSrc.right = min((x1 + x2) * ScaleX + 0.99f, iResX - 1);
+    rSrc.right = min((x1 + x2) * ScaleX + 0.99f, peops_cfg.iResX - 1);
     rSrc.top = max(y1*ScaleY, 0);
-    rSrc.bottom = min((y1 + y2) * ScaleY + 0.99f, iResY - 1);
+    rSrc.bottom = min((y1 + y2) * ScaleY + 0.99f, peops_cfg.iResY - 1);
 
     iYAdjust = (y1 + y2) - PSXDisplay.DisplayMode.y;
     if (iYAdjust > 0)

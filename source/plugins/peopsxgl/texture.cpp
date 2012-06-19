@@ -109,14 +109,11 @@ namespace xegpu{
 // texture conversion buffer ..
 ////////////////////////////////////////////////////////////////////////
 
-int iHiResTextures = 0;
 GLubyte ubPaletteBuffer[256][4];
 GpuTex * gTexMovieName = 0;
 GpuTex * gTexBlurName = 0;
 GpuTex * gTexFrameName = 0;
-int iTexGarbageCollection = 1;
 uint32_t dwTexPageComp = 0;
-int iVRamSize = 0;
 int iClampType = XE_TEXADDR_CLAMP;
 
 void (*LoadSubTexFn) (int, int, short, short);
@@ -136,10 +133,6 @@ GLint YTexS;
 GLint DXTexS;
 GLint DYTexS;
 int iSortTexCnt = 32;
-BOOL bUseFastMdec = FALSE;
-BOOL bUse15bitMdec = FALSE;
-int iFrameTexType = 0;
-int iFrameReadType = 0;
 
 uint32_t(*TCF[2]) (uint32_t);
 unsigned short (*PTCF[2]) (unsigned short);
@@ -405,49 +398,27 @@ void CheckTextureMemory(void) {
 #if 1
     GLboolean b;
     GLboolean * bDetail;
-    int i, iCnt, iRam = iVRamSize * 1024 * 1024;
+    int i, iCnt, iRam = peops_cfg.iVRamSize * 1024 * 1024;
     int iTSize;
     char * p;
 
-    if (iBlurBuffer) {
-        char * p;
-
-        if (iResX > 1024) iFTexA = 2048;
-        else
-            if (iResX > 512) iFTexA = 1024;
-        else iFTexA = 512;
-        if (iResY > 1024) iFTexB = 2048;
-        else
-            if (iResY > 512) iFTexB = 1024;
-        else iFTexB = 512;
-
-        p = (char *) malloc(iFTexA * iFTexB * 4);
-        memset(p, 0, iFTexA * iFTexB * 4);
-
-        free(p);
-        glGetError();
-        iRam -= iFTexA * iFTexB * 3;
-        iFTexA = (iResX * 256) / iFTexA;
-        iFTexB = (iResY * 256) / iFTexB;
-    }
-
-    if (iVRamSize) {
+    if (peops_cfg.iVRamSize) {
         int ts;
 
-        iRam -= (iResX * iResY * 8);
-        iRam -= (iResX * iResY * (iZBufferDepth / 8));
+        iRam -= (peops_cfg.iResX * peops_cfg.iResY * 8);
+        iRam -= (peops_cfg.iResX * peops_cfg.iResY * (peops_cfg.iZBufferDepth / 8));
 
-        if (iTexQuality == 0 || iTexQuality == 3) ts = 4;
+        if (peops_cfg.iTexQuality == 0 || peops_cfg.iTexQuality == 3) ts = 4;
         else ts = 2;
 
-        if (iHiResTextures)
+        if (peops_cfg.iHiResTextures)
             iSortTexCnt = iRam / (512 * 512 * ts);
         else iSortTexCnt = iRam / (256 * 256 * ts);
 
         if (iSortTexCnt > MAXSORTTEX) {
-            iSortTexCnt = MAXSORTTEX - min(1, iHiResTextures);
+            iSortTexCnt = MAXSORTTEX - min(1, peops_cfg.iHiResTextures);
         } else {
-            iSortTexCnt -= 3 + min(1, iHiResTextures);
+            iSortTexCnt -= 3 + min(1, peops_cfg.iHiResTextures);
             if (iSortTexCnt < 8) iSortTexCnt = 8;
         }
 
@@ -458,7 +429,7 @@ void CheckTextureMemory(void) {
     }
 
 
-    if (iHiResTextures) iTSize = 512;
+    if (peops_cfg.iHiResTextures) iTSize = 512;
     else iTSize = 256;
     p = (char *) malloc(iTSize * iTSize * 4);
 
@@ -476,8 +447,8 @@ void CheckTextureMemory(void) {
 
     free(bDetail);
 
-    if (b) iSortTexCnt = MAXSORTTEX - min(1, iHiResTextures);
-    else iSortTexCnt = iCnt - 3 + min(1, iHiResTextures); // place for menu&texwnd
+    if (b) iSortTexCnt = MAXSORTTEX - min(1, peops_cfg.iHiResTextures);
+    else iSortTexCnt = iCnt - 3 + min(1, peops_cfg.iHiResTextures); // place for menu&texwnd
 
     if (iSortTexCnt < 8) iSortTexCnt = 8;
 
@@ -506,7 +477,7 @@ void InitializeTextureStore() {
         CLUTMASK = 0xffff;
         CLUTYMASK = 0x3ff;
         MAXSORTTEX = 128;
-        iTexGarbageCollection = 0;
+        peops_cfg.iTexGarbageCollection = 0;
     } else {
         MAXTPAGES = 32;
         CLUTMASK = 0x7fff;
@@ -525,7 +496,7 @@ void InitializeTextureStore() {
             MAXWNDTEXCACHE);
     texturepart = (GLubyte *) malloc(256 * 256 * 4);
     memset(texturepart, 0, 256 * 256 * 4);
-    if (iHiResTextures)
+    if (peops_cfg.iHiResTextures)
         texturebuffer = (GLubyte *) malloc(512 * 512 * 4);
     else texturebuffer = NULL;
 
@@ -962,7 +933,7 @@ unsigned char * CheckTextureInSubSCache(int TextureMode, uint32_t GivenClutId, u
     if (!tsx) {
         iMax++;
         if (iMax >= SOFFB - 2) {
-            if (iTexGarbageCollection) // gc mode?
+            if (peops_cfg.iTexGarbageCollection) // gc mode?
             {
                 TR;
                 if (*pCache == 0) {
@@ -1011,7 +982,7 @@ unsigned char * CheckTextureInSubSCache(int TextureMode, uint32_t GivenClutId, u
     // now get a free texture space
     //----------------------------------------------------//
 
-    if (iTexGarbageCollection){
+    if (peops_cfg.iTexGarbageCollection){
         usLRUTexPage = 0;
     }
 

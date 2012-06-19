@@ -7151,7 +7151,7 @@ static __inline BOOL IsNoRect(void)
 // real rect test
 
 static __inline BOOL IsNoRect(void) {
-    if (!(dwActFixes & 0x200)) return FALSE;
+    if (!(peops_cfg.dwActFixes & 0x200)) return FALSE;
 
     if (ly0 == ly1) {
         if (lx1 == lx3 && ly3 == ly2 && lx2 == lx0) return FALSE;
@@ -7190,7 +7190,7 @@ void drawPoly3FT(unsigned char * baseAddr) {
         return;
     }
 
-    if (!bUsingTWin && !(dwActFixes & 0x100)) {
+    if (!bUsingTWin && !(peops_cfg.dwActFixes & 0x100)) {
         switch (GlobalTextTP) // depending on texture mode
         {
             case 0:

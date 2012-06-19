@@ -55,7 +55,7 @@ GpuTex * XeDefineTextureWnd( GpuTex * gTexName) {
         gTexName->u_addressing = XE_TEXADDR_WRAP;
         gTexName->v_addressing = XE_TEXADDR_WRAP;
 
-        if (iFilterType && iFilterType < 3 && iHiResTextures != 2) {
+        if (peops_cfg.iFilterType && peops_cfg.iFilterType < 3 && peops_cfg.iHiResTextures != 2) {
             gTexName->use_filtering = XE_TEXF_LINEAR;
         } else {
             gTexName->use_filtering = XE_TEXF_POINT;
@@ -71,7 +71,7 @@ void DefineTextureWnd(void) {
     gTexName->u_addressing = XE_TEXADDR_WRAP;
     gTexName->v_addressing = XE_TEXADDR_WRAP;
 
-    if (iFilterType && iFilterType < 3 && iHiResTextures != 2) {
+    if (peops_cfg.iFilterType && peops_cfg.iFilterType < 3 && peops_cfg.iHiResTextures != 2) {
         gTexName->use_filtering = XE_TEXF_LINEAR;
     } else {
         gTexName->use_filtering = XE_TEXF_POINT;

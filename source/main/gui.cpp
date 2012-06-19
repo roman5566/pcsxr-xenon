@@ -1,5 +1,5 @@
-//#ifdef USE_GUI
-#if 1
+#ifdef USE_GUI
+//#if 1
 
 //#include <ogcsys.h>
 #include <stdio.h>

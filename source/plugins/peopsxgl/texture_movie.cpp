@@ -29,7 +29,7 @@ GpuTex * XeDefineTextureMovie(void) {
         movie_surf->u_addressing = iClampType;
         movie_surf->v_addressing = iClampType;
 
-        if (!bUseFastMdec) {
+        if (!peops_cfg.bUseFastMdec) {
             movie_surf->use_filtering = XE_TEXF_LINEAR;
         } else {
             movie_surf->use_filtering = XE_TEXF_POINT;
@@ -245,7 +245,7 @@ void DefineTextureMovie(void) {
         gTexMovieName->u_addressing = iClampType;
         gTexMovieName->v_addressing = iClampType;
 
-        if (!bUseFastMdec) {
+        if (!peops_cfg.bUseFastMdec) {
             gTexMovieName->use_filtering = XE_TEXF_LINEAR;
         } else {
             gTexMovieName->use_filtering = XE_TEXF_POINT;

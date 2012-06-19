@@ -16,7 +16,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "gpu_types.h"
-
+#include "cfg.h"
 
 #define TR {printf("[Trace] in function %s, line %d, file %s\n",__FUNCTION__,__LINE__,__FILE__);}
 
@@ -271,16 +271,10 @@ extern HINSTANCE hInst;
 
 #ifndef _IN_DRAW
 
-extern int            iResX;
-extern int            iResY;
-extern BOOL           bKeepRatio;
 extern RECT           rRatioRect;
 extern BOOL           bSnapShot;
 extern BOOL           bSmallAlpha;
-extern BOOL           bOpaquePass;
 extern BOOL           bAdvancedBlend;
-extern BOOL           bUseLines;
-extern int            iTexQuality;
 extern BOOL           bGLExt;
 extern BOOL           bGLFastMovie;
 extern BOOL           bGLSoft;
@@ -303,15 +297,12 @@ extern HWND           hWWindow;
 #endif
 extern BOOL           bIsFirstFrame;
 extern int            iWinSize;
-extern int            iZBufferDepth;
 extern GLbitfield     uiBufferBits;
-extern int            iUseMask;
 extern int            iSetMask;
 extern int            iDepthFunc;
 extern BOOL           bCheckMask;
 extern unsigned short sSetMask;
 extern uint32_t       lSetMask;
-extern int            iShowFPS;
 extern BOOL           bSetClip;
 extern int            iUseExts;
 extern int            iUsePalTextures;
@@ -337,10 +328,7 @@ extern BOOL          bNeedUploadAfter;
 extern BOOL          bTexEnabled;
 extern BOOL          bBlendEnable;
 extern BOOL          bDrawDither;
-extern int           iFilterType; 
-extern BOOL          bFullVRam;
 extern BOOL          bUseMultiPass;
-extern int           iOffscreenDrawing;
 extern BOOL          bOldSmoothShaded;
 extern BOOL          bUsingTWin;
 extern BOOL          bUsingMovie;
@@ -361,10 +349,7 @@ extern uint32_t      ulClutID;
 extern void (*primTableJ[256])(unsigned char *);
 extern void (*primTableSkip[256])(unsigned char *);
 extern unsigned short  usMirror;
-extern uint32_t      dwCfgFixes;
-extern uint32_t      dwActFixes;
 extern uint32_t      dwEmuFixes;
-extern BOOL          bUseFixes;
 extern int           iSpriteTex;
 extern int           iDrawnSomething;
 
@@ -390,20 +375,13 @@ extern int            GlobalTexturePage;
 extern uint32_t       (*TCF[]) (uint32_t);
 extern unsigned short (*PTCF[]) (unsigned short);
 extern uint32_t       (*PalTexturedColourFn) (uint32_t);
-extern BOOL           bUseFastMdec;
-extern BOOL           bUse15bitMdec;
-extern int            iFrameTexType;
-extern int            iFrameReadType;
 extern int            iClampType;
 extern int            iSortTexCnt;
 extern BOOL           bFakeFrontBuffer; 
 extern GpuTex*         gTexFrameName;
 extern GpuTex *         gTexBlurName;
-extern int            iVRamSize;
-extern int            iTexGarbageCollection;
 extern int            iFTexA;
 extern int            iFTexB;
-extern int            iHiResTextures;
 extern BOOL           bIgnoreNextTile;
 
 #endif
@@ -436,7 +414,6 @@ extern BOOL           bNeedRGB24Update;
 extern BOOL           bChangeWinMode;
 extern float        iScanlineColor[]; /* 4 element array of RGBA float */
 extern int            lSelectedSlot;
-extern int            iScanBlend;
 extern BOOL           bInitCap;
 extern int            iBlurBuffer;
 extern int            iLastRGB24;
@@ -461,11 +438,8 @@ extern unsigned short usCursorActive;
 
 #ifndef _IN_FPS
 
-extern BOOL           bUseFrameLimit;
 extern BOOL           bUseFrameSkip;
-extern float          fFrameRate;
 extern float          fFrameRateHz;
-extern int            iFrameLimit;
 extern float          fps_skip;
 extern float          fps_cur;
 

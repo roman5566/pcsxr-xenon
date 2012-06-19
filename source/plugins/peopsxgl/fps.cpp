@@ -39,10 +39,6 @@ namespace xegpu {
     BOOL bIsPerformanceCounter = FALSE;
     float fFrameRateHz = 0;
     DWORD dwFrameRateTicks = 16;
-    float fFrameRate;
-    int iFrameLimit;
-    BOOL bUseFrameLimit = FALSE;
-    BOOL bUseFrameSkip = 0;
     DWORD dwLaceCnt = 0;
 
     ////////////////////////////////////////////////////////////////////////
@@ -119,7 +115,7 @@ void FrameSkip(void) {
 
         if (bInitCap || bSkipNextFrame) // first time or we skipped before?
         {
-            if (bUseFrameLimit && !bInitCap) // frame limit wanted and not first time called?
+            if (peops_cfg.bUseFrameLimit && !bInitCap) // frame limit wanted and not first time called?
             {
                 DWORD dwT = _ticks_since_last_update; // -> that's the time of the last drawn frame
                 dwLastLace += dwLaceCnt; // -> and that's the number of updatelace since the start of the last drawn frame
@@ -172,7 +168,7 @@ void FrameSkip(void) {
 
         if (_ticks_since_last_update > dwWaitTime) // hey, we needed way too long for that frame...
         {
-            if (bUseFrameLimit) // if limitation, we skip just next frame,
+            if (peops_cfg.bUseFrameLimit) // if limitation, we skip just next frame,
             { // and decide after, if we need to do more
                 iNumSkips = 0;
             } else {
@@ -182,7 +178,7 @@ void FrameSkip(void) {
             }
             bSkipNextFrame = TRUE; // -> signal for skipping the next frame
         } else // we were faster than real psx? fine :)
-            if (bUseFrameLimit) // frame limit used? so we wait til the 'real psx time' has been reached
+            if (peops_cfg.bUseFrameLimit) // frame limit used? so we wait til the 'real psx time' has been reached
         {
             if (dwLaceCnt > MAXLACE) // -> security check
                 _ticks_since_last_update = dwWaitTime;
@@ -211,13 +207,13 @@ void calcfps(void) {
         curticks = timeGetTime();
         _ticks_since_last_update = curticks - lastticks;
 
-        if (bUseFrameSkip && !bUseFrameLimit && _ticks_since_last_update)
+        if (peops_cfg.bUseFrameSkip && !peops_cfg.bUseFrameLimit && _ticks_since_last_update)
             fps_skip = min(fps_skip, ((float) TIMEBASE / (float) _ticks_since_last_update + 1.0f));
 
         lastticks = curticks;
     }
 
-    if (bUseFrameSkip && bUseFrameLimit) {
+    if (peops_cfg.bUseFrameSkip && peops_cfg.bUseFrameLimit) {
         fpsskip_tck += _ticks_since_last_update;
 
         if (++fpsskip_cnt == 2) {
@@ -238,7 +234,7 @@ void calcfps(void) {
         fps_cnt = 0;
         fps_tck = 1;
 
-        if (bUseFrameLimit && fps_cur > fFrameRateHz) // optical adjust ;) avoids flickering fps display 
+        if (peops_cfg.bUseFrameLimit && fps_cur > fFrameRateHz) // optical adjust ;) avoids flickering fps display 
             fps_cur = fFrameRateHz;
     }
 }
@@ -285,13 +281,13 @@ void PCcalcfps(void) {
 }
 
 void SetAutoFrameCap(void) {
-    if (iFrameLimit == 1) {
-        fFrameRateHz = fFrameRate;
+    if (peops_cfg.iFrameLimit == 1) {
+        fFrameRateHz = peops_cfg.fFrameRate;
         dwFrameRateTicks = (TIMEBASE / (unsigned long) fFrameRateHz);
         return;
     }
 
-    if (dwActFixes & 128) {
+    if (peops_cfg.dwActFixes & 128) {
         if (PSXDisplay.Interlaced)
             fFrameRateHz = PSXDisplay.PAL ? 50.0f : 60.0f;
         else fFrameRateHz = PSXDisplay.PAL ? 25.0f : 30.0f;
@@ -314,16 +310,16 @@ void SetAutoFrameCap(void) {
 }
 
 void SetFrameRateConfig(void) {
-    if (!fFrameRate) fFrameRate = 200.0f;
+    if (!peops_cfg.fFrameRate) peops_cfg.fFrameRate = 200.0f;
 
     if (fFrameRateHz == 0) {
-        if (iFrameLimit == 2) fFrameRateHz = 59.94f; // auto framerate? set some init val (no pal/ntsc known yet)
-        else fFrameRateHz = fFrameRate; // else set user framerate
+        if (peops_cfg.iFrameLimit == 2) fFrameRateHz = 59.94f; // auto framerate? set some init val (no pal/ntsc known yet)
+        else fFrameRateHz = peops_cfg.fFrameRate; // else set user framerate
     }
 
     dwFrameRateTicks = (TIMEBASE / (unsigned long) fFrameRateHz);
 
-    if (iFrameLimit == 2) SetAutoFrameCap();
+    if (peops_cfg.iFrameLimit == 2) SetAutoFrameCap();
 }
 
 void InitFrameCap(void) {
@@ -334,20 +330,19 @@ void ReInitFrameCap(void) {
 
 void CheckFrameRate(void) // called in updatelace (on every emulated psx vsync)
 {
-    if (bUseFrameSkip) {
-        if (!(dwActFixes & 0x100)) {
+    if (peops_cfg.bUseFrameSkip) {
+        if (!(peops_cfg.dwActFixes & 0x100)) {
             dwLaceCnt++; // -> and store cnt of vsync between frames
-            if (dwLaceCnt >= MAXLACE && bUseFrameLimit) {
+            if (dwLaceCnt >= MAXLACE && peops_cfg.bUseFrameLimit) {
                 if (dwLaceCnt == MAXLACE) bInitCap = TRUE;
                 FrameCap();
             }
-        } else if (bUseFrameLimit) FrameCap();
+        } else if (peops_cfg.bUseFrameLimit) FrameCap();
         calcfps(); // -> calc fps display in skipping mode
     }
     else // -> non-skipping mode:
     {
-        if (bUseFrameLimit) FrameCap();
-        if (ulKeybits & KEY_SHOWFPS) calcfps();
+        if (peops_cfg.bUseFrameLimit) FrameCap();
     }
 }
 
@@ -357,12 +352,12 @@ void CALLBACK GPUsetframelimit(unsigned long option) // new EPSXE interface func
 
     if (option == 1) // emu says: limit
     {
-        bUseFrameLimit = TRUE;
-        bUseFrameSkip = FALSE;
-        iFrameLimit = 2;
+        peops_cfg.bUseFrameLimit = TRUE;
+        peops_cfg.bUseFrameSkip = FALSE;
+        peops_cfg.iFrameLimit = 2;
         SetAutoFrameCap();
     } else // emu says: no limit
     {
-        bUseFrameLimit = FALSE;
+        peops_cfg.bUseFrameLimit = FALSE;
     }
 }

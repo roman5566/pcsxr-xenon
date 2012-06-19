@@ -50,16 +50,12 @@ namespace xegpu {
     BOOL bOldSmoothShaded;
     BOOL bDrawNonShaded;
     BOOL bDrawMultiPass;
-    int iOffscreenDrawing;
     int iDrawnSomething = 0;
 
     BOOL bRenderFrontBuffer = FALSE; // flag for front buffer rendering
 
     GLubyte ubGloAlpha; // texture alpha
     GLubyte ubGloColAlpha; // color alpha
-    int iFilterType; // type of filter
-    BOOL bFullVRam = FALSE; // sign for tex win
-    BOOL bDrawDither; // sign for dither
     BOOL bUseMultiPass; // sign for multi pass
     GpuTex * gTexName; // binded texture
     BOOL bTexEnabled; // texture enable flag
@@ -80,10 +76,7 @@ namespace xegpu {
     uint32_t ulOLDCOL = 0; // active color
     uint32_t ulClutID; // clut
 
-    uint32_t dwCfgFixes; // game fixes
-    uint32_t dwActFixes = 0;
     uint32_t dwEmuFixes = 0;
-    BOOL bUseFixes;
 
     int drawX, drawY, drawW, drawH; // offscreen drawing checkers
     short sxmin, sxmax, symin, symax;
@@ -540,14 +533,14 @@ void SetSemiTransMulti(int Pass) {
 ////////////////////////////////////////////////////////////////////////
 
 static __inline void SetZMask3O(void) {
-    if (iUseMask && DrawSemiTrans && !iSetMask) {
+    if (peops_cfg.iUseMask && DrawSemiTrans && !iSetMask) {
         vertex[0].z = vertex[1].z = vertex[2].z = gl_z;
         gl_z += 0.00004f;
     }
 }
 
 static __inline void SetZMask3(void) {
-    if (iUseMask) {
+    if (peops_cfg.iUseMask) {
         if (iSetMask || DrawSemiTrans) {
             vertex[0].z = vertex[1].z = vertex[2].z = 0.95f;
         } else {
@@ -558,7 +551,7 @@ static __inline void SetZMask3(void) {
 }
 
 static __inline void SetZMask3NT(void) {
-    if (iUseMask) {
+    if (peops_cfg.iUseMask) {
         if (iSetMask) {
             vertex[0].z = vertex[1].z = vertex[2].z = 0.95f;
         } else {
@@ -571,14 +564,14 @@ static __inline void SetZMask3NT(void) {
 ////////////////////////////////////////////////////////////////////////
 
 static __inline void SetZMask4O(void) {
-    if (iUseMask && DrawSemiTrans && !iSetMask) {
+    if (peops_cfg.iUseMask && DrawSemiTrans && !iSetMask) {
         vertex[0].z = vertex[1].z = vertex[2].z = vertex[3].z = gl_z;
         gl_z += 0.00004f;
     }
 }
 
 static __inline void SetZMask4(void) {
-    if (iUseMask) {
+    if (peops_cfg.iUseMask) {
         if (iSetMask || DrawSemiTrans) {
             vertex[0].z = vertex[1].z = vertex[2].z = vertex[3].z = 0.95f;
         } else {
@@ -589,7 +582,7 @@ static __inline void SetZMask4(void) {
 }
 
 static __inline void SetZMask4NT(void) {
-    if (iUseMask) {
+    if (peops_cfg.iUseMask) {
         if (iSetMask == 1) {
             vertex[0].z = vertex[1].z = vertex[2].z = vertex[3].z = 0.95f;
         } else {
@@ -600,7 +593,7 @@ static __inline void SetZMask4NT(void) {
 }
 
 static __inline void SetZMask4SP(void) {
-    if (iUseMask) {
+    if (peops_cfg.iUseMask) {
         if (iSetMask == 1) {
             vertex[0].z = vertex[1].z = vertex[2].z = vertex[3].z = 0.95f;
         } else {
@@ -637,8 +630,7 @@ static __inline void SetRenderColor(uint32_t DrawAttributes) {
 
 ////////////////////////////////////////////////////////////////////////
 
-static void SetRenderMode(uint32_t DrawAttributes, BOOL bSCol) {
-
+static void SetRenderMode(uint32_t DrawAttributes, BOOL bSCol) {	
     if ((bUseMultiPass) && (bDrawTextured) && !(bDrawNonShaded)) {
         bDrawMultiPass = TRUE;
         SetSemiTransMulti(0);
@@ -682,7 +674,7 @@ static void SetRenderMode(uint32_t DrawAttributes, BOOL bSCol) {
 
     if (bSCol) // also set color ?
     {
-        if ((dwActFixes & 4) && ((DrawAttributes & 0x00ffffff) == 0))
+        if ((peops_cfg.dwActFixes & 4) && ((DrawAttributes & 0x00ffffff) == 0))
             DrawAttributes |= 0x007f7f7f;
 
         if (bDrawNonShaded) // -> non shaded?
@@ -801,9 +793,9 @@ static BOOL bDrawOffscreen4(void) {
 
     if (PSXDisplay.Disabled) return TRUE; // disabled? ever
 
-    if (iOffscreenDrawing == 1) return bFullVRam;
+    if (peops_cfg.iOffscreenDrawing == 1) return peops_cfg.bFullVRam;
 
-    if (dwActFixes & 1 && iOffscreenDrawing == 4) {
+    if (peops_cfg.dwActFixes & 1 && peops_cfg.iOffscreenDrawing == 4) {
         if (PreviousPSXDisplay.DisplayPosition.x == PSXDisplay.DisplayPosition.x &&
                 PreviousPSXDisplay.DisplayPosition.y == PSXDisplay.DisplayPosition.y &&
                 PreviousPSXDisplay.DisplayEnd.x == PSXDisplay.DisplayEnd.x &&
@@ -821,14 +813,14 @@ static BOOL bDrawOffscreen4(void) {
     symin = min(sH, max(symin, drawY));
     symax = max(drawY, min(symax, sH));
 
-    if (bOnePointInBack()) return bFullVRam;
+    if (bOnePointInBack()) return peops_cfg.bFullVRam;
 
-    if (iOffscreenDrawing == 2)
+    if (peops_cfg.iOffscreenDrawing == 2)
         bFront = bDrawOffscreenFront();
     else bFront = bOnePointInFront();
 
     if (bFront) {
-        if (PSXDisplay.InterlacedTest) return bFullVRam; // -> ok, no need for adjust
+        if (PSXDisplay.InterlacedTest) return peops_cfg.bFullVRam; // -> ok, no need for adjust
 
         vertex[0].x = lx0 - PSXDisplay.DisplayPosition.x + PreviousPSXDisplay.Range.x0;
         vertex[1].x = lx1 - PSXDisplay.DisplayPosition.x + PreviousPSXDisplay.Range.x0;
@@ -839,12 +831,12 @@ static BOOL bDrawOffscreen4(void) {
         vertex[2].y = ly2 - PSXDisplay.DisplayPosition.y + PreviousPSXDisplay.Range.y0;
         vertex[3].y = ly3 - PSXDisplay.DisplayPosition.y + PreviousPSXDisplay.Range.y0;
 
-        if (iOffscreenDrawing == 4 && !(dwActFixes & 1)) // -> frontbuffer wanted
+        if (peops_cfg.iOffscreenDrawing == 4 && !(peops_cfg.dwActFixes & 1)) // -> frontbuffer wanted
         {
             bRenderFrontBuffer = TRUE;
             //return TRUE;
         }
-        return bFullVRam; // -> but no od
+        return peops_cfg.bFullVRam; // -> but no od
     }
 
     return TRUE;
@@ -867,7 +859,7 @@ static BOOL bDrawOffscreen3(void) {
 
     if (PSXDisplay.Disabled) return TRUE; // disabled? ever
 
-    if (iOffscreenDrawing == 1) return bFullVRam;
+    if (peops_cfg.iOffscreenDrawing == 1) return peops_cfg.bFullVRam;
 
     sW = drawW - 1;
     sH = drawH - 1;
@@ -876,14 +868,14 @@ static BOOL bDrawOffscreen3(void) {
     symin = min(sH, max(symin, drawY));
     symax = max(drawY, min(symax, sH));
 
-    if (bOnePointInBack()) return bFullVRam;
+    if (bOnePointInBack()) return peops_cfg.bFullVRam;
 
-    if (iOffscreenDrawing == 2)
+    if (peops_cfg.iOffscreenDrawing == 2)
         bFront = bDrawOffscreenFront();
     else bFront = bOnePointInFront();
 
     if (bFront) {
-        if (PSXDisplay.InterlacedTest) return bFullVRam; // -> ok, no need for adjust
+        if (PSXDisplay.InterlacedTest) return peops_cfg.bFullVRam; // -> ok, no need for adjust
 
         vertex[0].x = lx0 - PSXDisplay.DisplayPosition.x + PreviousPSXDisplay.Range.x0;
         vertex[1].x = lx1 - PSXDisplay.DisplayPosition.x + PreviousPSXDisplay.Range.x0;
@@ -892,13 +884,13 @@ static BOOL bDrawOffscreen3(void) {
         vertex[1].y = ly1 - PSXDisplay.DisplayPosition.y + PreviousPSXDisplay.Range.y0;
         vertex[2].y = ly2 - PSXDisplay.DisplayPosition.y + PreviousPSXDisplay.Range.y0;
 
-        if (iOffscreenDrawing == 4) // -> frontbuffer wanted
+        if (peops_cfg.iOffscreenDrawing == 4) // -> frontbuffer wanted
         {
             bRenderFrontBuffer = TRUE;
             //  return TRUE;
         }
 
-        return bFullVRam; // -> but no od
+        return peops_cfg.bFullVRam; // -> but no od
     }
 
     return TRUE;
@@ -1154,7 +1146,7 @@ void UploadScreen(int Position) {
     if (xrUploadArea.x0 == xrUploadArea.x1) return;
     if (xrUploadArea.y0 == xrUploadArea.y1) return;
 
-    if (PSXDisplay.Disabled && iOffscreenDrawing < 4) return;
+    if (PSXDisplay.Disabled && peops_cfg.iOffscreenDrawing < 4) return;
 
     iDrawnSomething = 2;
     iLastRGB24 = PSXDisplay.RGB24 + 1;
@@ -1254,7 +1246,7 @@ static void cmdSTP(unsigned char * baseAddr) {
     STATUSREG &= ~0x1800; // clear the necessary bits
     STATUSREG |= ((gdata & 0x03) << 11); // set the current bits
 
-    if (!iUseMask) return;
+    if (!peops_cfg.iUseMask) return;
 
     if (gdata & 1) {
         sSetMask = 0x8000;
@@ -1612,7 +1604,7 @@ void CheckWriteUpdate() {
 
     InvalidateTextureArea(VRAMWrite.x, VRAMWrite.y, VRAMWrite.Width - iX, VRAMWrite.Height - iY);
 
-    if (PSXDisplay.Interlaced && !iOffscreenDrawing) return;
+    if (PSXDisplay.Interlaced && !peops_cfg.iOffscreenDrawing) return;
 
     if (PSXDisplay.RGB24) {
         PrepareRGB24Upload();
@@ -1621,7 +1613,7 @@ void CheckWriteUpdate() {
 
     if (!PSXDisplay.InterlacedTest &&
             CheckAgainstScreen(VRAMWrite.x, VRAMWrite.y, VRAMWrite.Width, VRAMWrite.Height)) {
-        if (dwActFixes & 0x800) return;
+        if (peops_cfg.dwActFixes & 0x800) return;
 
         if (bRenderFrontBuffer) {
             updateFrontDisplay();
@@ -1631,7 +1623,7 @@ void CheckWriteUpdate() {
 
         bNeedUploadTest = TRUE;
     } else
-        if (iOffscreenDrawing) {
+        if (peops_cfg.iOffscreenDrawing) {
         if (CheckAgainstFrontScreen(VRAMWrite.x, VRAMWrite.y, VRAMWrite.Width, VRAMWrite.Height)) {
             if (PSXDisplay.InterlacedTest) {
                 if (PreviousPSXDisplay.InterlacedNew) {
@@ -1670,7 +1662,7 @@ void CheckWriteUpdate() {
                 xrUploadArea.y1 = max(xrUploadArea.y1, VRAMWrite.y + VRAMWrite.Height);
             }
 
-            if (dwActFixes & 0x8000) {
+            if (peops_cfg.dwActFixes & 0x8000) {
                 if ((xrUploadArea.x1 - xrUploadArea.x0) >= (PSXDisplay.DisplayMode.x - 32) &&
                         (xrUploadArea.y1 - xrUploadArea.y0) >= (PSXDisplay.DisplayMode.y - 32)) {
                     UploadScreen(-1);
@@ -1811,7 +1803,7 @@ static void primBlkFill(unsigned char * baseAddr) {
         lClearOnSwap = 1;
     }
 
-    if (iOffscreenDrawing) {
+    if (peops_cfg.iOffscreenDrawing) {
         ClampToPSXScreenOffset(&sprtX, &sprtY, &sprtW, &sprtH);
         if ((sprtW == 0) || (sprtH == 0)) return;
         InvalidateTextureArea(sprtX, sprtY, sprtW - 1, sprtH - 1);
@@ -1832,7 +1824,7 @@ static void MoveImageWrapped(short imageX0, short imageY0,
         short imageSX, short imageSY) {
     int i, j, imageXE, imageYE;
 
-    if (iFrameReadType & 2) {
+    if (peops_cfg.iFrameReadType & 2) {
         imageXE = imageX0 + imageSX;
         imageYE = imageY0 + imageSY;
 
@@ -1926,7 +1918,7 @@ static void primMoveImage(unsigned char * baseAddr) {
         if ((imageX1 + imageSX) > 1024) imageSX = 1024 - imageX1;
     }
 
-    if (iFrameReadType & 2)
+    if (peops_cfg.iFrameReadType & 2)
         CheckVRamRead(imageX0, imageY0,
             imageX0 + imageSX,
             imageY0 + imageSY,
@@ -1995,7 +1987,7 @@ static void primMoveImage(unsigned char * baseAddr) {
 
             bNeedUploadTest = TRUE;
         } else
-            if (iOffscreenDrawing) {
+            if (peops_cfg.iOffscreenDrawing) {
             if (CheckAgainstFrontScreen(imageX1, imageY1, imageSX, imageSY)) {
                 if (!PSXDisplay.InterlacedTest &&
                         //          !bFullVRam &&
@@ -2053,7 +2045,7 @@ static void primTileS(unsigned char * baseAddr) {
 
     offsetST();
 
-    if ((dwActFixes & 1) && // FF7 special game gix (battle cursor)
+    if ((peops_cfg.dwActFixes & 1) && // FF7 special game gix (battle cursor)
             sprtX == 0 && sprtY == 0 && sprtW == 24 && sprtH == 16)
         return;
 
@@ -2062,7 +2054,7 @@ static void primTileS(unsigned char * baseAddr) {
 
     SetRenderState(GETLE32(&gpuData[0]));
 
-    if (iOffscreenDrawing) {
+    if (peops_cfg.iOffscreenDrawing) {
         if (IsPrimCompleteInsideNextScreen(lx0, ly0, lx2, ly2) ||
                 (ly0 == -6 && ly2 == 10)) // OH MY GOD... I DIDN'T WANT TO DO IT... BUT I'VE FOUND NO OTHER WAY... HACK FOR GRADIUS SHOOTER :(
         {
@@ -2121,7 +2113,7 @@ static void primTile1(unsigned char * baseAddr) {
 
     SetRenderState(GETLE32(&gpuData[0]));
 
-    if (iOffscreenDrawing) {
+    if (peops_cfg.iOffscreenDrawing) {
         offsetPSX4();
 
         if (bDrawOffscreen4()) {
@@ -2165,7 +2157,7 @@ static void primTile8(unsigned char * baseAddr) {
     bDrawSmoothShaded = FALSE;
     SetRenderState(GETLE32(&gpuData[0]));
 
-    if (iOffscreenDrawing) {
+    if (peops_cfg.iOffscreenDrawing) {
         offsetPSX4();
 
         if (bDrawOffscreen4()) {
@@ -2209,7 +2201,7 @@ static void primTile16(unsigned char * baseAddr) {
     bDrawSmoothShaded = FALSE;
     SetRenderState(GETLE32(&gpuData[0]));
 
-    if (iOffscreenDrawing) {
+    if (peops_cfg.iOffscreenDrawing) {
         offsetPSX4();
 
         if (bDrawOffscreen4()) {
@@ -2329,7 +2321,7 @@ static void primSprt8(unsigned char * baseAddr) {
     bDrawSmoothShaded = FALSE;
     SetRenderState(GETLE32(&gpuData[0]));
 
-    if (iOffscreenDrawing) {
+    if (peops_cfg.iOffscreenDrawing) {
         offsetPSX4();
 
         if (bDrawOffscreen4()) {
@@ -2354,7 +2346,7 @@ static void primSprt8(unsigned char * baseAddr) {
 
     assignTextureSprite();
 
-    if (iFilterType > 4)
+    if (peops_cfg.iFilterType > 4)
         DrawMultiFilterSprite();
     else
         PRIMdrawTexturedRect(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
@@ -2369,7 +2361,7 @@ static void primSprt8(unsigned char * baseAddr) {
         if (bUseMultiPass) SetOpaqueColor(GETLE32(&gpuData[0]));
         DEFOPAQUEON
 
-        if (bSmallAlpha && iFilterType <= 2) {
+        if (bSmallAlpha && peops_cfg.iFilterType <= 2) {
             gpuRenderer.SetTextureFiltering(XE_TEXF_POINT);
             //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -2448,7 +2440,7 @@ static void primSprt16(unsigned char * baseAddr) {
     bDrawSmoothShaded = FALSE;
     SetRenderState(GETLE32(&gpuData[0]));
 
-    if (iOffscreenDrawing) {
+    if (peops_cfg.iOffscreenDrawing) {
         offsetPSX4();
 
         if (bDrawOffscreen4()) {
@@ -2472,7 +2464,7 @@ static void primSprt16(unsigned char * baseAddr) {
 
     assignTextureSprite();
 
-    if (iFilterType > 4)
+    if (peops_cfg.iFilterType > 4)
         DrawMultiFilterSprite();
     else
         PRIMdrawTexturedRect(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
@@ -2487,7 +2479,7 @@ static void primSprt16(unsigned char * baseAddr) {
         if (bUseMultiPass) SetOpaqueColor(GETLE32(&gpuData[0]));
         DEFOPAQUEON
 
-        if (bSmallAlpha && iFilterType <= 2) {
+        if (bSmallAlpha && peops_cfg.iFilterType <= 2) {
             gpuRenderer.SetTextureFiltering(XE_TEXF_POINT);
             //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -2621,7 +2613,7 @@ static void primSprtSRest(unsigned char * baseAddr, unsigned short type) {
     bDrawSmoothShaded = FALSE;
     SetRenderState(GETLE32(&gpuData[0]));
 
-    if (iOffscreenDrawing) {
+    if (peops_cfg.iOffscreenDrawing) {
         offsetPSX4();
 
         if (bDrawOffscreen4()) {
@@ -2645,7 +2637,7 @@ static void primSprtSRest(unsigned char * baseAddr, unsigned short type) {
 
     assignTextureSprite();
 
-    if (iFilterType > 4)
+    if (peops_cfg.iFilterType > 4)
         DrawMultiFilterSprite();
     else
         PRIMdrawTexturedRect(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
@@ -2660,7 +2652,7 @@ static void primSprtSRest(unsigned char * baseAddr, unsigned short type) {
         if (bUseMultiPass) SetOpaqueColor(GETLE32(&gpuData[0]));
         DEFOPAQUEON
 
-        if (bSmallAlpha && iFilterType <= 2) {
+        if (bSmallAlpha && peops_cfg.iFilterType <= 2) {
             gpuRenderer.SetTextureFiltering(XE_TEXF_POINT);
             //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -2753,7 +2745,7 @@ static void primSprtS(unsigned char * baseAddr) {
     bDrawSmoothShaded = FALSE;
     SetRenderState(GETLE32(&gpuData[0]));
 
-    if (iOffscreenDrawing) {
+    if (peops_cfg.iOffscreenDrawing) {
         offsetPSX4();
 
         if (bDrawOffscreen4()) {
@@ -2772,7 +2764,7 @@ static void primSprtS(unsigned char * baseAddr) {
     SetRenderMode(GETLE32(&gpuData[0]), TRUE);
     SetZMask4SP();
 
-    if ((dwActFixes & 1) && gTexFrameName && gTexName == gTexFrameName) {
+    if ((peops_cfg.dwActFixes & 1) && gTexFrameName && gTexName == gTexFrameName) {
         iSpriteTex = 0;
         return;
     }
@@ -2782,7 +2774,7 @@ static void primSprtS(unsigned char * baseAddr) {
 
     assignTextureSprite();
 
-    if (iFilterType > 4)
+    if (peops_cfg.iFilterType > 4)
         DrawMultiFilterSprite();
     else
         PRIMdrawTexturedRect(&vertex[0], &vertex[1], &vertex[2], &vertex[3]);
@@ -2797,7 +2789,7 @@ static void primSprtS(unsigned char * baseAddr) {
         if (bUseMultiPass) SetOpaqueColor(GETLE32(&gpuData[0]));
         DEFOPAQUEON
 
-        if (bSmallAlpha && iFilterType <= 2) {
+        if (bSmallAlpha && peops_cfg.iFilterType <= 2) {
             gpuRenderer.SetTextureFiltering(XE_TEXF_POINT);
             //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -2845,7 +2837,7 @@ static void primPolyF4(unsigned char *baseAddr) {
     bDrawSmoothShaded = FALSE;
     SetRenderState(GETLE32(&gpuData[0]));
 
-    if (iOffscreenDrawing) {
+    if (peops_cfg.iOffscreenDrawing) {
         offsetPSX4();
         if (bDrawOffscreen4()) {
             InvalidateTextureAreaEx();
@@ -2944,10 +2936,10 @@ static void primPolyG4(unsigned char * baseAddr) {
     bDrawSmoothShaded = TRUE;
     SetRenderState(GETLE32(&gpuData[0]));
 
-    if (iOffscreenDrawing) {
+    if (peops_cfg.iOffscreenDrawing) {
         offsetPSX4();
 
-        if ((dwActFixes & 512) && bCheckFF9G4(baseAddr)) return;
+        if ((peops_cfg.dwActFixes & 512) && bCheckFF9G4(baseAddr)) return;
 
         if (bDrawOffscreen4()) {
             InvalidateTextureAreaEx();
@@ -3142,7 +3134,7 @@ static void primPolyFT3(unsigned char * baseAddr) {
     bDrawSmoothShaded = FALSE;
     SetRenderState(GETLE32(&gpuData[0]));
 
-    if (iOffscreenDrawing) {
+    if (peops_cfg.iOffscreenDrawing) {
         offsetPSX3();
         if (bDrawOffscreen3()) {
             InvalidateTextureAreaEx();
@@ -3156,7 +3148,7 @@ static void primPolyFT3(unsigned char * baseAddr) {
 
     assignTexture3();
 
-    if (!(dwActFixes & 0x10)) {
+    if (!(peops_cfg.dwActFixes & 0x10)) {
         if (DoLineCheck(gpuData)) return;
     }
 
@@ -3529,7 +3521,7 @@ static void primPolyFT4(unsigned char * baseAddr) {
     bDrawSmoothShaded = FALSE;
     SetRenderState(GETLE32(&gpuData[0]));
 
-    if (iOffscreenDrawing) {
+    if (peops_cfg.iOffscreenDrawing) {
         offsetPSX4();
         if (bDrawOffscreen4()) {
             InvalidateTextureAreaEx();
@@ -3558,7 +3550,7 @@ static void primPolyFT4(unsigned char * baseAddr) {
         if (bUseMultiPass) SetOpaqueColor(GETLE32(&gpuData[0]));
         DEFOPAQUEON
 
-        if (bSmallAlpha && iFilterType <= 2) {
+        if (bSmallAlpha && peops_cfg.iFilterType <= 2) {
             gpuRenderer.SetTextureFiltering(XE_TEXF_POINT);
             //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -3617,7 +3609,7 @@ static void primPolyGT3(unsigned char *baseAddr) {
     bDrawSmoothShaded = TRUE;
     SetRenderState(GETLE32(&gpuData[0]));
 
-    if (iOffscreenDrawing) {
+    if (peops_cfg.iOffscreenDrawing) {
         offsetPSX3();
         if (bDrawOffscreen3()) {
             InvalidateTextureAreaEx();
@@ -3704,7 +3696,7 @@ static void primPolyG3(unsigned char *baseAddr) {
     bDrawSmoothShaded = TRUE;
     SetRenderState(GETLE32(&gpuData[0]));
 
-    if (iOffscreenDrawing) {
+    if (peops_cfg.iOffscreenDrawing) {
         offsetPSX3();
         if (bDrawOffscreen3()) {
             InvalidateTextureAreaEx();
@@ -3765,7 +3757,7 @@ static void primPolyGT4(unsigned char *baseAddr) {
     bDrawSmoothShaded = TRUE;
     SetRenderState(GETLE32(&gpuData[0]));
 
-    if (iOffscreenDrawing) {
+    if (peops_cfg.iOffscreenDrawing) {
         offsetPSX4();
         if (bDrawOffscreen4()) {
             InvalidateTextureAreaEx();
@@ -3859,7 +3851,7 @@ static void primPolyF3(unsigned char *baseAddr) {
     bDrawSmoothShaded = FALSE;
     SetRenderState(GETLE32(&gpuData[0]));
 
-    if (iOffscreenDrawing) {
+    if (peops_cfg.iOffscreenDrawing) {
         offsetPSX3();
         if (bDrawOffscreen3()) {
             InvalidateTextureAreaEx();
@@ -3946,7 +3938,7 @@ static void primLineGEx(unsigned char *baseAddr) {
         else bDraw = TRUE;
 
         if (bDraw && ((lx0 != lx1) || (ly0 != ly1))) {
-            if (iOffscreenDrawing) {
+            if (peops_cfg.iOffscreenDrawing) {
                 cx0 = lx0;
                 cx1 = lx1;
                 cy0 = ly0;
@@ -4000,7 +3992,7 @@ static void primLineG2(unsigned char *baseAddr) {
     SetRenderMode(GETLE32(&gpuData[0]), FALSE);
     SetZMask4NT();
 
-    if (iOffscreenDrawing) {
+    if (peops_cfg.iOffscreenDrawing) {
         offsetPSXLine();
         if (bDrawOffscreen4()) {
             InvalidateTextureAreaEx();
@@ -4070,7 +4062,7 @@ static void primLineFEx(unsigned char *baseAddr) {
         lx1 = (short) (GETLE32(&gpuData[i]) & 0xffff);
 
         if (!offsetline()) {
-            if (iOffscreenDrawing) {
+            if (peops_cfg.iOffscreenDrawing) {
                 cx0 = lx0;
                 cx1 = lx1;
                 cy0 = ly0;
@@ -4119,7 +4111,7 @@ static void primLineF2(unsigned char *baseAddr) {
     vertex[0].c.lcol = GETLE32(&gpuData[0]);
     vertex[0].c.a = ubGloColAlpha;
 
-    if (iOffscreenDrawing) {
+    if (peops_cfg.iOffscreenDrawing) {
         offsetPSXLine();
         if (bDrawOffscreen4()) {
             InvalidateTextureAreaEx();

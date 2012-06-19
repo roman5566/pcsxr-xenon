@@ -28,7 +28,6 @@ using namespace xegpu;
 #include "draw.h"
 #include "prim.h"
 #include "texture.h"
-#include "menu.h"
 #include "GpuRenderer.h"
 #include "gte_accuracy.h"
 ////////////////////////////////////////////////////////////////////////////////////
@@ -81,17 +80,11 @@ using namespace xegpu;
 namespace xegpu {
     BOOL bIsFirstFrame = TRUE;
 
-    // resolution/ratio vars
-
-    int iResX;
-    int iResY;
-    BOOL bKeepRatio = FALSE;
     RECT rRatioRect;
 
     // psx mask related vars
 
     BOOL bCheckMask = FALSE;
-    int iUseMask = 0;
     int iSetMask = 0;
     unsigned short sSetMask = 0;
     uint32_t lSetMask = 0;
@@ -104,14 +97,10 @@ namespace xegpu {
     short sprtY, sprtX, sprtH, sprtW;
 
     // drawing options
-
-    BOOL bOpaquePass;
     BOOL bUseLines;
-    int iTexQuality;
     int iUsePalTextures = 1;
     BOOL bSnapShot = FALSE;
     BOOL bSmallAlpha = FALSE;
-    int iShowFPS = 0;
     BOOL bAdvancedBlend;
 
     // OGL extension support
@@ -129,7 +118,6 @@ namespace xegpu {
     // gfx card buffer infos
 
     int iDepthFunc = 0;
-    int iZBufferDepth = 0;
     GLbitfield uiBufferBits = XE_CLEAR_COLOR | XE_CLEAR_DS;
 
 #ifndef _WINDOWS
@@ -205,15 +193,15 @@ void SetExtGLFuncs(void) {
     //----------------------------------------------------//
     // init standard tex quality 0-2, and big alpha mode 3
 
-    if (!(dwActFixes & 0x4000) && iFilterType && iTexQuality >= 3)
+    if (!(peops_cfg.dwActFixes & 0x4000) && peops_cfg.iFilterType && peops_cfg.iTexQuality >= 3)
         bSmallAlpha = TRUE;
     else bSmallAlpha = FALSE;
 
     //bSmallAlpha = FALSE;
 
-    if (bOpaquePass) // opaque mode?
+    if (peops_cfg.bOpaquePass) // opaque mode?
     {
-        if (dwActFixes & 32) {
+        if (peops_cfg.dwActFixes & 32) {
             TCF[0] = CP8RGBA_0;
             PalTexturedColourFn = CP8RGBA; // -> init col func
         } else {
@@ -237,16 +225,16 @@ void SetExtGLFuncs(void) {
 
     giWantedFMT = XE_FMT_ARGB; // init ogl tex format
 
-    switch (iTexQuality) // -> quality:
+    switch (peops_cfg.iTexQuality) // -> quality:
     {
         case 3: // -> R8G8B8A8
             giWantedRGBA = XE_FMT_ARGB;
             giWantedTYPE = XE_FMT_8888;
 
             if (bSmallAlpha) {
-                if (bOpaquePass) // opaque mode?
+                if (peops_cfg.bOpaquePass) // opaque mode?
                 {
-                    if (dwActFixes & 32) {
+                    if (peops_cfg.dwActFixes & 32) {
                         TCF[0] = CP8RGBAEx_0;
                         PalTexturedColourFn = CP8RGBAEx;
                     } else {
@@ -264,10 +252,10 @@ void SetExtGLFuncs(void) {
             giWantedTYPE = XE_FMT_8888;
             giWantedFMT = XE_FMT_BGRA;
 
-            if (bOpaquePass) // opaque mode?
+            if (peops_cfg.bOpaquePass) // opaque mode?
             {
                 if (bSmallAlpha) {
-                    if (dwActFixes & 32) {
+                    if (peops_cfg.dwActFixes & 32) {
                         TCF[0] = CP8BGRAEx_0;
                         PalTexturedColourFn = CP8RGBAEx;
                     } else {
@@ -276,7 +264,7 @@ void SetExtGLFuncs(void) {
                     }
                     TCF[1] = XP8BGRAEx_1;
                 } else {
-                    if (dwActFixes & 32) {
+                    if (peops_cfg.dwActFixes & 32) {
                         TCF[0] = CP8BGRA_0;
                         PalTexturedColourFn = CP8RGBA;
                     } else {
@@ -306,13 +294,13 @@ void SetExtGLFuncs(void) {
 
 int GLinitialize() {
     gpuRenderer.SetViewPort(rRatioRect.left, // init viewport by ratio rect
-            iResY - (rRatioRect.top + rRatioRect.bottom),
+            peops_cfg.iResY - (rRatioRect.top + rRatioRect.bottom),
             rRatioRect.right,
             rRatioRect.bottom);
 
     //glScissor(0, 0, iResX, iResY); // init clipping (fullscreen)
     //glEnable(GL_SCISSOR_TEST);
-    gpuRenderer.SetScissor(0, 0, iResX, iResY);
+    gpuRenderer.SetScissor(0, 0, peops_cfg.iResX, peops_cfg.iResY);
     gpuRenderer.EnableScissor();
 
 #ifndef OWNSCALE
@@ -328,7 +316,7 @@ int GLinitialize() {
     gpuRenderer.SetOrtho(0, PSXDisplay.DisplayMode.x,
             PSXDisplay.DisplayMode.y, 0, -1, 1);
 
-    if (iZBufferDepth) // zbuffer?
+    if (peops_cfg.iZBufferDepth) // zbuffer?
     {
         uiBufferBits = XE_CLEAR_COLOR | XE_CLEAR_DS;
         //    glEnable(GL_DEPTH_TEST);
@@ -350,17 +338,6 @@ int GLinitialize() {
     gpuRenderer.ClearColor(0, 0, 0, 0); // first buffer clear
     gpuRenderer.Clear(uiBufferBits);
 
-    if (bUseLines) // funny lines
-    {
-        // glPolygonMode(GL_FRONT, GL_LINE);
-        // glPolygonMode(GL_BACK, GL_LINE);
-    } else // or the real filled thing
-    {
-        // glPolygonMode(GL_FRONT, GL_FILL);
-        // glPolygonMode(GL_BACK, GL_FILL);
-    }
-
-    MakeDisplayLists(); // lists for menu/opaque
     GetExtInfos(); // get ext infos
     SetExtGLFuncs(); // init all kind of stuff (tex function pointers)
 
@@ -407,15 +384,8 @@ int GLinitialize() {
 
     CheckTextureMemory(); // check available tex memory
 
-    if (bKeepRatio)
+    if (peops_cfg.bKeepRatio)
         SetAspectRatio(); // set ratio
-
-    if (iShowFPS) // user wants FPS display on startup?
-    {
-        ulKeybits |= KEY_SHOWFPS; // -> ok, turn display on
-        szDispBuf[0] = 0;
-        BuildDispMenu(0);
-    }
 
     bIsFirstFrame = FALSE; // we have survived the first frame :)
 
@@ -427,7 +397,6 @@ int GLinitialize() {
 ////////////////////////////////////////////////////////////////////////
 
 void GLcleanup() {
-    KillDisplayLists(); // bye display lists
     CleanupTextureStore(); // bye textures
 }
 
@@ -556,7 +525,7 @@ void offsetline(void)
  if(bDisplayNotSet)
   SetOGLDisplaySettings(1);
 
- if(!(dwActFixes&16))
+ if(!(peops_cfg.dwActFixes&16))
   {
    if((lx0 & SIGNBIT)) lx0|=S_MASK;
    else                lx0&=~S_MASK;
@@ -618,7 +587,7 @@ BOOL offsetline(void) {
     if (bDisplayNotSet)
         SetOGLDisplaySettings(1);
 
-    if (!(dwActFixes & 16)) {
+    if (!(peops_cfg.dwActFixes & 16)) {
         lx0 = (short) (((int) lx0 << SIGNSHIFT) >> SIGNSHIFT);
         lx1 = (short) (((int) lx1 << SIGNSHIFT) >> SIGNSHIFT);
         ly0 = (short) (((int) ly0 << SIGNSHIFT) >> SIGNSHIFT);
@@ -702,7 +671,7 @@ BOOL offset2(void) {
     if (bDisplayNotSet)
         SetOGLDisplaySettings(1);
 
-    if (!(dwActFixes & 16)) {
+    if (!(peops_cfg.dwActFixes & 16)) {
         lx0 = (short) (((int) lx0 << SIGNSHIFT) >> SIGNSHIFT);
         lx1 = (short) (((int) lx1 << SIGNSHIFT) >> SIGNSHIFT);
         ly0 = (short) (((int) ly0 << SIGNSHIFT) >> SIGNSHIFT);
@@ -734,7 +703,7 @@ BOOL offset3(void) {
     if (bDisplayNotSet)
         SetOGLDisplaySettings(1);
 
-    if (!(dwActFixes & 16)) {
+    if (!(peops_cfg.dwActFixes & 16)) {
         lx0 = (short) (((int) lx0 << SIGNSHIFT) >> SIGNSHIFT);
         lx1 = (short) (((int) lx1 << SIGNSHIFT) >> SIGNSHIFT);
         lx2 = (short) (((int) lx2 << SIGNSHIFT) >> SIGNSHIFT);
@@ -774,7 +743,7 @@ BOOL offset4(void) {
     if (bDisplayNotSet)
         SetOGLDisplaySettings(1);
 
-    if (!(dwActFixes & 16)) {
+    if (!(peops_cfg.dwActFixes & 16)) {
         lx0 = (short) (((int) lx0 << SIGNSHIFT) >> SIGNSHIFT);
         lx1 = (short) (((int) lx1 << SIGNSHIFT) >> SIGNSHIFT);
         lx2 = (short) (((int) lx2 << SIGNSHIFT) >> SIGNSHIFT);
@@ -822,7 +791,7 @@ void offsetST(void) {
     if (bDisplayNotSet)
         SetOGLDisplaySettings(1);
 
-    if (!(dwActFixes & 16)) {
+    if (!(peops_cfg.dwActFixes & 16)) {
         lx0 = (short) (((int) lx0 << SIGNSHIFT) >> SIGNSHIFT);
         ly0 = (short) (((int) ly0 << SIGNSHIFT) >> SIGNSHIFT);
 
@@ -898,7 +867,7 @@ void offsetScreenUpload(int Position) {
     vertex[2].y = ly2 + PreviousPSXDisplay.Range.y0;
     vertex[3].y = ly3 + PreviousPSXDisplay.Range.y0;
 
-    if (iUseMask) {
+    if (peops_cfg.iUseMask) {
         vertex[0].z = vertex[1].z = vertex[2].z = vertex[3].z = gl_z;
         gl_z += 0.00004f;
     }
@@ -919,7 +888,7 @@ void offsetBlk(void) {
     vertex[2].y = ly2 - PSXDisplay.GDrawOffset.y + PreviousPSXDisplay.Range.y0;
     vertex[3].y = ly3 - PSXDisplay.GDrawOffset.y + PreviousPSXDisplay.Range.y0;
 
-    if (iUseMask) {
+    if (peops_cfg.iUseMask) {
         vertex[0].z = vertex[1].z = vertex[2].z = vertex[3].z = gl_z;
         gl_z += 0.00004f;
     }
@@ -978,7 +947,7 @@ void assignTextureSprite(void) {
         vertex[2].tow = vertex[3].tow = (float) sSprite_vy2 / TWin.VScaleFactor;
         gLastTex = gTexName;
 
-        if (iFilterType > 0 && iFilterType < 3 && iHiResTextures != 2) {
+        if (peops_cfg.iFilterType > 0 && peops_cfg.iFilterType < 3 && peops_cfg.iHiResTextures != 2) {
             float fxmin = 65536.0f, fxmax = 0.0f, fymin = 65536.0f, fymax = 0.0f;
             int i;
 
@@ -1021,7 +990,7 @@ void assignTextureSprite(void) {
 
 #endif
 
-        if (iFilterType > 2) {
+        if (peops_cfg.iFilterType > 2) {
             if (gLastTex != gTexName || gLastFMode != 0) {
                 /*
                                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -1079,7 +1048,7 @@ void assignTexture3(void) {
         vertex[2].tow = gl_vy[2];
 #endif
 
-        if (iFilterType > 2) {
+        if (peops_cfg.iFilterType > 2) {
             if (gLastTex != gTexName || gLastFMode != 1) {
                 /*
                                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -1093,7 +1062,7 @@ void assignTexture3(void) {
             }
         }
 
-        if (iFilterType) {
+        if (peops_cfg.iFilterType) {
             float fxmin = 256.0f, fxmax = 0.0f, fymin = 256.0f, fymax = 0.0f;
             int i;
             for (i = 0; i < 3; i++) {
@@ -1148,7 +1117,7 @@ void assignTexture4(void) {
         vertex[3].tow = gl_vy[3];
 #endif
 
-        if (iFilterType > 2) {
+        if (peops_cfg.iFilterType > 2) {
             if (gLastTex != gTexName || gLastFMode != 1) {
                 /*
                                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -1162,7 +1131,7 @@ void assignTexture4(void) {
             }
         }
 
-        if (iFilterType) {
+        if (peops_cfg.iFilterType) {
             float fxmin = 256.0f, fxmax = 0.0f, fymin = 256.0f, fymax = 0.0f;
             int i;
             for (i = 0; i < 4; i++) {
@@ -1217,7 +1186,7 @@ void SetOGLDisplaySettings(BOOL DisplaySet) {
         rprev.left = rprev.left + 1;
 
         rX = rRatioRect;
-        rX.top = iResY - (rRatioRect.top + rRatioRect.bottom);
+        rX.top = peops_cfg.iResY - (rRatioRect.top + rRatioRect.bottom);
 
         if (bSetClip || !EqualRect(&rC, &rX)) {
             rC = rX;
@@ -1291,18 +1260,18 @@ void SetOGLDisplaySettings(BOOL DisplaySet) {
     r.bottom = (int) (((float) (r.bottom + 1)) * YS);
 
     // Limit clip area to the screen size
-    if (r.left > iResX) r.left = iResX;
+    if (r.left > peops_cfg.iResX) r.left =peops_cfg.iResX;
     if (r.left < 0) r.left = 0;
-    if (r.top > iResY) r.top = iResY;
+    if (r.top > peops_cfg.iResY) r.top = peops_cfg.iResY;
     if (r.top < 0) r.top = 0;
-    if (r.right > iResX) r.right = iResX;
+    if (r.right > peops_cfg.iResX) r.right = peops_cfg.iResX;
     if (r.right < 0) r.right = 0;
-    if (r.bottom > iResY) r.bottom = iResY;
+    if (r.bottom > peops_cfg.iResY) r.bottom = peops_cfg.iResY;
     if (r.bottom < 0) r.bottom = 0;
 
     r.right -= r.left;
     r.bottom -= r.top;
-    r.top = iResY - (r.top + r.bottom);
+    r.top = peops_cfg.iResY - (r.top + r.bottom);
 
     r.left += rRatioRect.left;
     r.top -= rRatioRect.top;
