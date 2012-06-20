@@ -162,8 +162,28 @@ enum {
 	PSXINT_SPUASYNC,
 	PSXINT_CDRDBUF,
 	PSXINT_CDRLID,
-	PSXINT_CDRPLAY
+	PSXINT_CDRPLAY,
+	PSXINT_COUNT
 };
+
+extern u32 event_cycles[PSXINT_COUNT];
+extern u32 next_interupt;
+
+void new_dyna_save(void);
+void new_dyna_after_save(void);
+void new_dyna_restore(void);
+
+#define new_dyna_set_event(e, c) { \
+	s32 c_ = c; \
+	u32 abs_ = psxRegs.cycle + c_; \
+	s32 odi_ = next_interupt - psxRegs.cycle; \
+	event_cycles[e] = abs_; \
+	if (c_ < odi_) { \
+		/*printf("%u: next_interupt %d -> %d (%u)\n", psxRegs.cycle, odi_, c_, abs_);*/ \
+		next_interupt = abs_; \
+	} \
+}
+
 
 typedef struct {
 	psxGPRRegs GPR;		/* General Purpose Registers */

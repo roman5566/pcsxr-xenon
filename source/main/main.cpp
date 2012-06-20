@@ -113,7 +113,9 @@ extern PluginTable plugins[];
 #define cdfile "uda:/pcsxr/iso/Final Fantasy IX (France) (Disc 1).bin"
 //#define cdfile "uda:/pcsxr/iso/Crash Bandicoot 3.bin"
 
-//#define cdfile "uda:/pcsxr/iso/Gran Turismo 2 (USA) (v1.0) (Simulation Mode).bin"
+#define cdfile "uda:/pcsxr/iso/medievil2.img.Z"
+
+//#define cdfile "uda:/pcsxr/iso/ff9_patched.bin"
 
 void printConfigInfo() {
 

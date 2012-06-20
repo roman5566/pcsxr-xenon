@@ -185,12 +185,14 @@ void psxBranchTest() {
                 spuInterrupt();
             }
         }
+/*
         if (psxRegs.interrupt & (1 << PSXINT_GPUBUSY)) { // gpu busy
             if ((psxRegs.cycle - psxRegs.intCycle[PSXINT_GPUBUSY].sCycle) >= psxRegs.intCycle[PSXINT_GPUBUSY].cycle) {
                 psxRegs.interrupt &= ~(1 << PSXINT_GPUBUSY);
                 GPU_idle();
             }
         }
+*/
 
         if (psxRegs.interrupt & (1 << PSXINT_MDECINDMA)) { // mdec in
             if ((psxRegs.cycle - psxRegs.intCycle[PSXINT_MDECINDMA].sCycle) >= psxRegs.intCycle[PSXINT_MDECINDMA].cycle) {
@@ -276,3 +278,6 @@ void psxExecuteBios() {
         psxCpu->ExecuteBlock();
 }
 
+u32 next_interupt = 0;
+u32 stop = 0;
+u32 event_cycles[PSXINT_COUNT];

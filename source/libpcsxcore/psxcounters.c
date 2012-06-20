@@ -291,8 +291,8 @@ void psxRcntUpdate()
         if( hSyncCount == VBlankStart )
         {
             HW_GPU_STATUS &= ~PSXGPU_LCF;
-            //GPU_vBlank( 1, 0 );
-            GPU_vBlank(1);
+            GPU_vBlank( 1, 0 );
+//            GPU_vBlank(1);
             setIrq( 0x01 );
 
             EmuUpdate();
@@ -308,8 +308,8 @@ void psxRcntUpdate()
             gpuSyncPluginSR();
             if( (HW_GPU_STATUS & PSXGPU_ILACE_BITS) == PSXGPU_ILACE_BITS )
                 HW_GPU_STATUS |= frame_counter << 31;
-            //GPU_vBlank( 0, HW_GPU_STATUS >> 31 );
-            GPU_vBlank(0);
+            GPU_vBlank( 0, HW_GPU_STATUS >> 31 );
+            //GPU_vBlank(0);
         }
 
         // Schedule next call, in hsyncs
