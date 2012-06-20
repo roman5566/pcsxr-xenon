@@ -150,7 +150,6 @@
           <in>decode_xa.c</in>
           <in>decode_xa.h</in>
           <in>disr3000a.c</in>
-          <in>gpu.c</in>
           <in>gpu.h</in>
           <in>gte.c</in>
           <in>gte.h</in>
@@ -231,6 +230,8 @@
             <in>draw.cpp</in>
             <in>draw.h</in>
             <in>externals.h</in>
+            <in>fps.cpp</in>
+            <in>fps.h</in>
             <in>gl_ext.h</in>
             <in>gpu.h</in>
             <in>gpu_types.h</in>
@@ -415,9 +416,295 @@
           <in>reguse.c</in>
           <in>reguse.h</in>
         </df>
+        <in>config.h</in>
       </df>
       <df name="tt">
         <df name="pcsx_rearmed">
+          <df name="frontend">
+            <df name="320240">
+              <df name="skin">
+              </df>
+              <in>pollux_set.c</in>
+            </df>
+            <df name="common">
+              <in>fonts.c</in>
+              <in>fonts.h</in>
+              <in>input.c</in>
+              <in>input.h</in>
+              <in>lprintf.h</in>
+              <in>menu.c</in>
+              <in>menu.h</in>
+              <in>plat.h</in>
+              <in>posix.h</in>
+              <in>readpng.c</in>
+              <in>readpng.h</in>
+            </df>
+            <df name="gp2x">
+              <in>in_gp2x.c</in>
+              <in>in_gp2x.h</in>
+            </df>
+            <df name="linux">
+              <in>fbdev.c</in>
+              <in>fbdev.h</in>
+              <in>in_evdev.c</in>
+              <in>in_evdev.h</in>
+              <in>plat.c</in>
+              <in>xenv.c</in>
+              <in>xenv.h</in>
+            </df>
+            <df name="pandora">
+              <df name="skin">
+              </df>
+              <in>picorestore.c</in>
+            </df>
+            <df name="warm">
+            </df>
+            <in>Cheat.h</in>
+            <in>blit320.h</in>
+            <in>blit320.s</in>
+            <in>config.h</in>
+            <in>in_tsbutton.c</in>
+            <in>in_tsbutton.h</in>
+            <in>main.c</in>
+            <in>main.h</in>
+            <in>menu.c</in>
+            <in>menu.h</in>
+            <in>nopic.h</in>
+            <in>omap.h</in>
+            <in>pcnt.h</in>
+            <in>pl_gun_ts.c</in>
+            <in>pl_gun_ts.h</in>
+            <in>plat.h</in>
+            <in>plat_dummy.c</in>
+            <in>plat_omap.c</in>
+            <in>plat_pandora.c</in>
+            <in>plat_pollux.c</in>
+            <in>plugin.c</in>
+            <in>plugin.h</in>
+            <in>plugin_lib.c</in>
+            <in>plugin_lib.h</in>
+            <in>psemu_plugin_defs.h</in>
+            <in>xkb.c</in>
+          </df>
+          <df name="libpcsxcore">
+            <df name="ix86">
+              <in>iGte.h</in>
+              <in>iR3000A.c</in>
+              <in>ix86.c</in>
+              <in>ix86.h</in>
+            </df>
+            <df name="ix86_64">
+              <in>iGte.h</in>
+              <in>iR3000A-64.c</in>
+              <in>ix86-64.c</in>
+              <in>ix86-64.h</in>
+              <in>ix86_3dnow.c</in>
+              <in>ix86_cpudetect.c</in>
+              <in>ix86_fpu.c</in>
+              <in>ix86_mmx.c</in>
+              <in>ix86_sse.c</in>
+            </df>
+            <df name="new_dynarec">
+              <in>assem_arm.c</in>
+              <in>assem_arm.h</in>
+              <in>emu_if.c</in>
+              <in>emu_if.h</in>
+              <in>fpu.c</in>
+              <in>fpu.h</in>
+              <in>linkage_arm.s</in>
+              <in>new_dynarec.c</in>
+              <in>new_dynarec.h</in>
+              <in>pcsxmem.c</in>
+              <in>pcsxmem.h</in>
+              <in>pcsxmem_inline.c</in>
+            </df>
+            <df name="ppc">
+              <in>pGte.h</in>
+              <in>pR3000A.c</in>
+              <in>pasm.s</in>
+              <in>ppc.c</in>
+              <in>ppc.h</in>
+              <in>ppc_mnemonics.h</in>
+              <in>reguse.c</in>
+              <in>reguse.h</in>
+            </df>
+            <in>cdriso.c</in>
+            <in>cdriso.h</in>
+            <in>cdrom.c</in>
+            <in>cdrom.h</in>
+            <in>cheat.c</in>
+            <in>cheat.h</in>
+            <in>coff.h</in>
+            <in>debug.c</in>
+            <in>debug.h</in>
+            <in>decode_xa.c</in>
+            <in>decode_xa.h</in>
+            <in>disr3000a.c</in>
+            <in>gpu.h</in>
+            <in>gte.c</in>
+            <in>gte.h</in>
+            <in>gte_arm.h</in>
+            <in>gte_arm.s</in>
+            <in>gte_divider.c</in>
+            <in>gte_divider.h</in>
+            <in>gte_neon.h</in>
+            <in>gte_neon.s</in>
+            <in>mdec.c</in>
+            <in>mdec.h</in>
+            <in>misc.c</in>
+            <in>misc.h</in>
+            <in>plugins.c</in>
+            <in>plugins.h</in>
+            <in>ppf.c</in>
+            <in>ppf.h</in>
+            <in>psemu_plugin_defs.h</in>
+            <in>psxbios.c</in>
+            <in>psxbios.h</in>
+            <in>psxcommon.c</in>
+            <in>psxcommon.h</in>
+            <in>psxcounters.c</in>
+            <in>psxcounters.h</in>
+            <in>psxdma.c</in>
+            <in>psxdma.h</in>
+            <in>psxhle.c</in>
+            <in>psxhle.h</in>
+            <in>psxhw.c</in>
+            <in>psxhw.h</in>
+            <in>psxinterpreter.c</in>
+            <in>psxmem.c</in>
+            <in>psxmem.h</in>
+            <in>r3000a.c</in>
+            <in>r3000a.h</in>
+            <in>sio.c</in>
+            <in>sio.h</in>
+            <in>sjisfont.h</in>
+            <in>socket.c</in>
+            <in>socket.h</in>
+            <in>spu.c</in>
+            <in>spu.h</in>
+            <in>system.h</in>
+          </df>
+          <df name="maemo">
+            <in>hildon.c</in>
+            <in>maemo_common.h</in>
+            <in>main.c</in>
+          </df>
+          <df name="plugins">
+            <df name="cdrcimg">
+              <in>cdrcimg.c</in>
+              <in>cdrcimg.h</in>
+            </df>
+            <df name="dfinput">
+              <in>guncon.c</in>
+              <in>main.c</in>
+              <in>main.h</in>
+              <in>pad.c</in>
+            </df>
+            <df name="dfsound">
+              <in>adsr.c</in>
+              <in>adsr.h</in>
+              <in>alsa.c</in>
+              <in>arm_utils.s</in>
+              <in>cfg.c</in>
+              <in>cfg.h</in>
+              <in>dma.c</in>
+              <in>dma.h</in>
+              <in>dsoundoss.h</in>
+              <in>externals.h</in>
+              <in>freeze.c</in>
+              <in>gauss_i.h</in>
+              <in>nullsnd.c</in>
+              <in>oss.c</in>
+              <in>psemuxa.h</in>
+              <in>pulseaudio.c</in>
+              <in>registers.c</in>
+              <in>registers.h</in>
+              <in>reverb.c</in>
+              <in>sdl.c</in>
+              <in>spu.c</in>
+              <in>spu.h</in>
+              <in>stdafx.h</in>
+              <in>xa.c</in>
+              <in>xa.h</in>
+            </df>
+            <df name="dfxvideo">
+              <in>draw.c</in>
+              <in>draw_fb.c</in>
+              <in>fps.c</in>
+              <in>gpu.c</in>
+              <in>gpu.h</in>
+              <in>gpulib_if.c</in>
+              <in>prim.c</in>
+              <in>soft.c</in>
+            </df>
+            <df name="gpu-gles">
+              <in>gpuDraw.c</in>
+              <in>gpuDraw.h</in>
+              <in>gpuExternals.h</in>
+              <in>gpuFps.c</in>
+              <in>gpuFps.h</in>
+              <in>gpuPlugin.c</in>
+              <in>gpuPlugin.h</in>
+              <in>gpuPrim.c</in>
+              <in>gpuPrim.h</in>
+              <in>gpuStdafx.h</in>
+              <in>gpuTexture.c</in>
+              <in>gpuTexture.h</in>
+              <in>gpulib_if.c</in>
+              <in>hud.c</in>
+            </df>
+            <df name="gpu_neon">
+              <df name="psx_gpu">
+                <in>common.h</in>
+                <in>psx_gpu.c</in>
+                <in>psx_gpu.h</in>
+                <in>psx_gpu_arm_neon.S</in>
+                <in>psx_gpu_main.c</in>
+                <in>psx_gpu_parse.c</in>
+                <in>psx_gpu_standard.c</in>
+                <in>vector_ops.h</in>
+              </df>
+              <in>psx_gpu_if.c</in>
+            </df>
+            <df name="gpu_unai">
+              <in>debug.h</in>
+              <in>gpu.cpp</in>
+              <in>gpu.h</in>
+              <in>gpu_arm.h</in>
+              <in>gpu_arm.s</in>
+              <in>gpu_blit.h</in>
+              <in>gpu_command.h</in>
+              <in>gpu_fixedpoint.h</in>
+              <in>gpu_inner.h</in>
+              <in>gpu_inner_blend.h</in>
+              <in>gpu_inner_light.h</in>
+              <in>gpu_raster_image.h</in>
+              <in>gpu_raster_line.h</in>
+              <in>gpu_raster_polygon.h</in>
+              <in>gpu_raster_sprite.h</in>
+              <in>gpulib_if.cpp</in>
+              <in>port.h</in>
+              <in>profiler.h</in>
+            </df>
+            <df name="gpulib">
+              <in>cspace.c</in>
+              <in>cspace.h</in>
+              <in>cspace_neon.s</in>
+              <in>gpu.c</in>
+              <in>gpu.h</in>
+              <in>test.c</in>
+              <in>vout_fb.c</in>
+              <in>vout_sdl.c</in>
+            </df>
+            <df name="spunull">
+              <in>register.h</in>
+              <in>spunull.c</in>
+              <in>xa.h</in>
+            </df>
+          </df>
+          <df name="tools">
+            <in>psxcimg.c</in>
+          </df>
         </df>
       </df>
     </df>
@@ -839,8 +1126,6 @@
       <item path="source/libpcsxcore/decode_xa.c" ex="false" tool="0" flavor="2">
       </item>
       <item path="source/libpcsxcore/disr3000a.c" ex="false" tool="0" flavor="2">
-      </item>
-      <item path="source/libpcsxcore/gpu.c" ex="false" tool="0" flavor="2">
       </item>
       <item path="source/libpcsxcore/gte.c" ex="false" tool="0" flavor="2">
       </item>
