@@ -159,13 +159,9 @@ void psxDma2(u32 madr, u32 bcr, u32 chcr) { // GPU
 
 			size = gpuDmaChainSize(madr);
 			GPU_dmaChain((u32 *)psxM, madr & 0x1fffff);
-
-			// Tekken 3 = use 1.0 only (not 1.5x)
-
-			// Einhander = parse linked list in pieces (todo)
-			// Final Fantasy 4 = internal vram time (todo)
-			// Rebel Assault 2 = parse linked list in pieces (todo)
-			// Vampire Hunter D = allow edits to linked list (todo)
+			
+			HW_GPU_STATUS &= SWAP32(~PSXGPU_nBUSY);
+			
 			GPUDMA_INT(size);
 			return;
 
