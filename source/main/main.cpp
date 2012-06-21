@@ -117,6 +117,8 @@ extern PluginTable plugins[];
 
 //#define cdfile "uda:/pcsxr/iso/ff9_patched.bin"
 
+#define cdfile "uda:/pcsxr/iso/toshiden2.img"
+
 void printConfigInfo() {
 
 }
