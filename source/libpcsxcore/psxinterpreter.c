@@ -38,8 +38,6 @@ void (*psxCP0[32])();
 void (*psxCP2[64])();
 void (*psxCP2BSC[32])();
 
-#define TEST_BRANCH() psxBranchTest();
-
 // These macros are used to assemble the repassembler functions
 
 #ifdef PSXCPU_LOG
@@ -75,14 +73,14 @@ static void delayWrite(int reg, u32 bpc) {
 	branch = 0;
 	psxRegs.pc = bpc;
 
-	TEST_BRANCH();
+	psxBranchTest();
 }
 
 static void delayReadWrite(int reg, u32 bpc) {
 	branch = 0;
 	psxRegs.pc = bpc;
 
-	TEST_BRANCH();
+	psxBranchTest();
 }
 
 // this defines shall be used with the tmp 
@@ -261,11 +259,9 @@ int psxTestLoadDelay(int reg, u32 tmp) {
 }
 
 void psxDelayTest(int reg, u32 bpc) {
-	u32 *code;
 	u32 tmp;
 
-	code = (u32 *) PSXM(bpc);
-	tmp = ((code == NULL) ? 0 : SWAP32(*code));
+	tmp = PSXMu32(bpc);
 	branch = 1;
 
 	switch (psxTestLoadDelay(reg, tmp)) {
@@ -285,19 +281,17 @@ void psxDelayTest(int reg, u32 bpc) {
 
 	psxRegs.pc = bpc;
 
-	TEST_BRANCH();
+	psxBranchTest();
 }
 
 __inline void doBranch(u32 tar) {
-	u32 *code;
 	u32 tmp;
 
 	branch2 = branch = 1;
 
 	branchPC = tar;
 
-	code = (u32 *) PSXM(psxRegs.pc);
-	psxRegs.code = ((code == NULL) ? 0 : SWAP32(*code));
+	psxRegs.code = PSXMu32(psxRegs.pc);
 
 	debugI();
 
@@ -344,7 +338,7 @@ __inline void doBranch(u32 tar) {
 
 	psxRegs.pc = branchPC;
 
-	TEST_BRANCH();
+	psxBranchTest();
 }
 
 /*********************************************************
@@ -1065,9 +1059,8 @@ void (*psxCP2BSC[32])() = {
 
 // interpreter execution
 
-inline void execI() {
-	u32 *code = Read_ICache(psxRegs.pc, FALSE);
-	psxRegs.code = ((code == NULL) ? 0 : SWAP32(*code));
+inline void execI() {	
+	psxRegs.code = PSXMu32(psxRegs.pc);
 
 	debugI();
 

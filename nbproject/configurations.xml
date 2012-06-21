@@ -3,29 +3,56 @@
   <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
     <df name="pcsxr-xenon" root=".">
       <df name="build">
-        <in>button_click_pcm.h</in>
-        <in>button_over_pcm.h</in>
-        <in>debug_xenon_bg_png.h</in>
-        <in>dialogue_box_png.h</in>
-        <in>en_lang.h</in>
-        <in>folder_png.h</in>
-        <in>font_ttf.h</in>
-        <in>keyboard_textbox_png.h</in>
-        <in>xenon_bg_file_selection_entry_png.h</in>
-        <in>xenon_bg_png.h</in>
-        <in>xenon_button_gamesave_blank_png.h</in>
-        <in>xenon_button_gamesave_over_png.h</in>
-        <in>xenon_button_gamesave_png.h</in>
-        <in>xenon_button_large_over_png.h</in>
-        <in>xenon_button_large_png.h</in>
-        <in>xenon_button_over_png.h</in>
-        <in>xenon_button_png.h</in>
-        <in>xenon_filebrowser_png.h</in>
-        <in>xenon_popup_png.h</in>
-        <in>xenon_scrollbar_arrowdown_png.h</in>
-        <in>xenon_scrollbar_arrowup_png.h</in>
-        <in>xenon_scrollbar_box_png.h</in>
-        <in>xenon_scrollbar_png.h</in>
+      </df>
+      <df name="ex">
+        <in>cdriso.c</in>
+        <in>cdriso.h</in>
+        <in>cdrom.c</in>
+        <in>cdrom.h</in>
+        <in>cheat.c</in>
+        <in>cheat.h</in>
+        <in>coff.h</in>
+        <in>debug.h</in>
+        <in>decode_xa.c</in>
+        <in>decode_xa.h</in>
+        <in>disr3000a.c</in>
+        <in>gpu.h</in>
+        <in>gte.c</in>
+        <in>gte.h</in>
+        <in>gte_divider.h</in>
+        <in>mdec.c</in>
+        <in>mdec.h</in>
+        <in>misc.c</in>
+        <in>misc.h</in>
+        <in>plugins.c</in>
+        <in>plugins.h</in>
+        <in>ppf.c</in>
+        <in>ppf.h</in>
+        <in>psemu_plugin_defs.h</in>
+        <in>psxbios.c</in>
+        <in>psxbios.h</in>
+        <in>psxcommon.c</in>
+        <in>psxcommon.h</in>
+        <in>psxcounters.c</in>
+        <in>psxcounters.h</in>
+        <in>psxdma.c</in>
+        <in>psxdma.h</in>
+        <in>psxhle.c</in>
+        <in>psxhle.h</in>
+        <in>psxhw.c</in>
+        <in>psxhw.h</in>
+        <in>psxinterpreter.c</in>
+        <in>psxmem.c</in>
+        <in>psxmem.h</in>
+        <in>r3000a.c</in>
+        <in>r3000a.h</in>
+        <in>sio.c</in>
+        <in>sio.h</in>
+        <in>sjisfont.h</in>
+        <in>socket.h</in>
+        <in>spu.c</in>
+        <in>spu.h</in>
+        <in>system.h</in>
       </df>
       <df name="include">
         <df name="sys">
@@ -305,12 +332,24 @@
             <in>WINRES.H</in>
             <in>a_adsr.cpp</in>
             <in>a_cfg.cpp</in>
+            <in>a_cfg.h</in>
+            <in>a_debug.h</in>
             <in>a_dma.cpp</in>
+            <in>a_dma.h</in>
+            <in>a_externals.h</in>
             <in>a_freeze.cpp</in>
+            <in>a_freeze.h</in>
+            <in>a_gauss_i.h</in>
+            <in>a_oss.h</in>
             <in>a_psemu.cpp</in>
+            <in>a_psemuxa.h</in>
+            <in>a_record.h</in>
             <in>a_registers.cpp</in>
+            <in>a_registers.h</in>
+            <in>a_resource.h</in>
             <in>a_reverb.cpp</in>
             <in>a_spu.cpp</in>
+            <in>a_stdafx.h</in>
             <in>a_xa.cpp</in>
             <in>a_zn.cpp</in>
             <in>adsr.h</in>
@@ -417,6 +456,68 @@
           <in>reguse.h</in>
         </df>
         <in>config.h</in>
+      </df>
+      <df name="sxre">
+        <df name="new_dynarec">
+          <in>emu_if.c</in>
+          <in>emu_if.h</in>
+          <in>linkage_ppc.c</in>
+          <in>new_dynarec.h</in>
+          <in>pcsxmem.c</in>
+          <in>pcsxmem.h</in>
+        </df>
+        <in>cdriso.c</in>
+        <in>cdriso.h</in>
+        <in>cdrom.c</in>
+        <in>cdrom.h</in>
+        <in>cheat.c</in>
+        <in>cheat.h</in>
+        <in>coff.h</in>
+        <in>debug.h</in>
+        <in>decode_xa.c</in>
+        <in>decode_xa.h</in>
+        <in>disr3000a.c</in>
+        <in>gpu.h</in>
+        <in>gte.c</in>
+        <in>gte.h</in>
+        <in>gte_arm.h</in>
+        <in>gte_divider.c</in>
+        <in>gte_divider.h</in>
+        <in>gte_neon.h</in>
+        <in>mdec.c</in>
+        <in>mdec.h</in>
+        <in>misc.c</in>
+        <in>misc.h</in>
+        <in>plugins.c</in>
+        <in>plugins.h</in>
+        <in>ppf.c</in>
+        <in>ppf.h</in>
+        <in>psemu_plugin_defs.h</in>
+        <in>psxbios.c</in>
+        <in>psxbios.h</in>
+        <in>psxcommon.c</in>
+        <in>psxcommon.h</in>
+        <in>psxcounters.c</in>
+        <in>psxcounters.h</in>
+        <in>psxdma.c</in>
+        <in>psxdma.h</in>
+        <in>psxhle.c</in>
+        <in>psxhle.h</in>
+        <in>psxhw.c</in>
+        <in>psxhw.h</in>
+        <in>psxinterpreter.c</in>
+        <in>psxmem.c</in>
+        <in>psxmem.h</in>
+        <in>r3000a.c</in>
+        <in>r3000a.h</in>
+        <in>sio.c</in>
+        <in>sio.h</in>
+        <in>sjisfont.h</in>
+        <in>socket.c</in>
+        <in>socket.h</in>
+        <in>spu.c</in>
+        <in>spu.h</in>
+        <in>system.h</in>
       </df>
       <df name="tt">
         <df name="pcsx_rearmed">
@@ -732,6 +833,16 @@
           <buildCommand>${MAKE} -f Makefile run</buildCommand>
           <cleanCommand>${MAKE} -f Makefile clean</cleanCommand>
           <executablePath></executablePath>
+          <cTool>
+            <preprocessorList>
+              <Elem>XENON</Elem>
+            </preprocessorList>
+          </cTool>
+          <ccTool>
+            <preprocessorList>
+              <Elem>XENON</Elem>
+            </preprocessorList>
+          </ccTool>
         </makeTool>
       </makefileType>
       <folder path="pcsxr-xenon/source/gui">
