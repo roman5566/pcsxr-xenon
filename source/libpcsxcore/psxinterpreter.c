@@ -54,7 +54,7 @@ static void delayRead(int reg, u32 bpc) {
 	//	SysPrintf("delayRead at %x!\n", psxRegs.pc);
 
 	rold = psxRegs.GPR.r[reg];
-	psxBSC[psxRegs.code >> 26](); // branch delay load
+	psxBSC[_Op_]();
 	rnew = psxRegs.GPR.r[reg];
 
 	psxRegs.pc = bpc;
@@ -69,6 +69,7 @@ static void delayRead(int reg, u32 bpc) {
 }
 
 static void delayWrite(int reg, u32 bpc) {
+	psxBSC[_Op_]();
 
 	branch = 0;
 	psxRegs.pc = bpc;
@@ -299,7 +300,7 @@ __inline void doBranch(u32 tar) {
 	psxRegs.cycle += BIAS;
 
 	// check for load delay
-	tmp = psxRegs.code >> 26;
+	tmp = _Op_;
 	switch (tmp) {
 		case 0x10: // COP0
 			switch (_Rs_) {
@@ -870,34 +871,14 @@ void psxCFC0() {
 }
 
 void psxTestSWInts() {
-	// the next code is untested, if u know please
-	// tell me if it works ok or not (linuzappz)
 	if (psxRegs.CP0.n.Cause & psxRegs.CP0.n.Status & 0x0300 &&
 			psxRegs.CP0.n.Status & 0x1) {
-
+		psxRegs.CP0.n.Cause &= ~0x7c;
 		psxException(psxRegs.CP0.n.Cause, branch);
 	}
 }
-#if 1
-/*
-__inline void MTC0(int reg, u32 val) {
-	//	SysPrintf("MTC0 %d: %x\n", reg, val);
-	switch (reg) {
-		case 12: // Status
-			psxTestSWInts();
-			psxTestIntc();
-			break;
 
-		case 13: // Cause
-			val &= ~(0xfc00);
-			psxTestSWInts();
-			break;
-	}
-	psxRegs.CP0.p[reg].d = val;
-}
-*/
-
-__inline void MTC0(int reg, u32 val) {
+void MTC0(int reg, u32 val) {
     //	SysPrintf("MTC0 %d: %x\n", reg, val);
     switch (reg) {
         case 12: // Status
@@ -925,16 +906,7 @@ void psxMTC0() {
 void psxCTC0() {
 	MTC0(_Rd_, _rRtU_);
 }
-#else
 
-__inline void psxMTC0() {
-	_rFsU_ = _rRtU_;
-}
-
-__inline void psxCTC0() {
-	_rFsU_ = _rRtU_;
-}
-#endif
 
 /*********************************************************
  * Unknow instruction (would generate an exception)       *
@@ -1069,7 +1041,7 @@ inline void execI() {
 	psxRegs.pc += 4;
 	psxRegs.cycle += BIAS;
 
-	psxBSC[psxRegs.code >> 26]();
+	psxBSC[_Op_]();
 }
 
 R3000Acpu psxInt = {
