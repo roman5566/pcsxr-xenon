@@ -25,7 +25,7 @@ static GpuTex * movie_surf = NULL;
 GpuTex * XeDefineTextureMovie(void) {
     if (movie_surf == 0) {
         movie_surf = GetFmvSurf();
-
+#ifdef LIBXENON
         movie_surf->u_addressing = iClampType;
         movie_surf->v_addressing = iClampType;
 
@@ -34,6 +34,7 @@ GpuTex * XeDefineTextureMovie(void) {
         } else {
             movie_surf->use_filtering = XE_TEXF_POINT;
         }
+#endif
     }
     return movie_surf;
 }
@@ -241,7 +242,7 @@ void DefineTextureMovie(void) {
         gTexMovieName =gpuRenderer.CreateTexture(256, 256, XE_FMT_8888 | XE_FMT_ARGB);
 
         xeGfx_setTextureData(gTexMovieName, texturepart);
-
+#ifdef LIBXENON
         gTexMovieName->u_addressing = iClampType;
         gTexMovieName->v_addressing = iClampType;
 
@@ -250,6 +251,7 @@ void DefineTextureMovie(void) {
         } else {
             gTexMovieName->use_filtering = XE_TEXF_POINT;
         }
+#endif
         gTexName = gTexMovieName;
     } else {
         gTexName = gTexMovieName;

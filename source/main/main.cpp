@@ -115,9 +115,9 @@ extern PluginTable plugins[];
 
 #define cdfile "uda:/pcsxr/iso/medievil2.img.Z"
 
-//#define cdfile "uda:/pcsxr/iso/ff9_patched.bin"
+#define cdfile "uda:/pcsxr/iso/ff9_patched.bin"
 
-#define cdfile "uda:/pcsxr/iso/toshiden2.img"
+//#define cdfile "uda:/pcsxr/iso/toshiden2.img"
 
 void printConfigInfo() {
 
@@ -204,12 +204,12 @@ int main() {
 	strcpy(Config.Pad1, "PAD1");
 	strcpy(Config.Pad2, "PAD2");
 
-	//strcpy(Config.Bios, "SCPH1001.BIN"); // Use actual BIOS
+	strcpy(Config.Bios, "SCPH1001.BIN"); // Use actual BIOS
 	//strcpy(Config.Bios, "HLE"); // Use HLE
 	strcpy(Config.BiosDir, "uda:/pcsxr/bios");
 	strcpy(Config.PatchesDir, "uda:/pcsxr/patches_/");
 
-	strcpy(Config.Bios, "scph7502.bin");
+	//strcpy(Config.Bios, "scph7502.bin");
 	Config.PsxOut = 0; // Enable Console Output
 	Config.SpuIrq = 0; // Spu Irq Always Enabled
 	//Config.HLE = 0;
@@ -217,7 +217,7 @@ int main() {
 	Config.Cdda = 0; // Disable Cd audio
 	Config.PsxAuto = 1; // autodetect system
 	//Config.PsxType = PSX_TYPE_NTSC;
-	//Config.Cpu = CPU_DYNAREC;
+	Config.Cpu = CPU_DYNAREC;
 	//Config.Cpu =  CPU_INTERPRETER;
 
 	strcpy(Config.Mcd1, "uda:/pcsxr/memcards/card1.mcd");

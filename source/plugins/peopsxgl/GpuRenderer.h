@@ -287,7 +287,7 @@ public:
 	void TextureUnlock(GpuTex *surf);
 
 	void SetTextureFiltering(int filtering_mode) {
-#ifndef WIN32
+#ifdef LIBXENON
 		if (m_RenderStates.surface)
 			m_RenderStates.surface->use_filtering = filtering_mode;
 #endif

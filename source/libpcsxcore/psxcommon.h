@@ -14,7 +14,7 @@
  *   You should have received a copy of the GNU General Public License     *
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
- *   51 Franklin Street, Fifth Floor, Boston, MA 02111-1307 USA.           *
+ *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.           *
  ***************************************************************************/
 
 /* 
@@ -32,10 +32,10 @@ extern "C" {
 #include "config.h"
 
 // System includes
-#include <inttypes.h>    
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
@@ -56,7 +56,7 @@ typedef uint16_t u16;
 typedef uint32_t u32;
 typedef uint64_t u64;
 typedef uintptr_t uptr;
-//
+
 typedef uint8_t boolean;
 
 #ifndef TRUE
@@ -89,6 +89,27 @@ typedef uint8_t boolean;
 #  define N_(String) (String)
 #endif
 
+//If running under Mac OS X, use the Localizable.strings file instead.
+#elif defined(_MACOSX)
+#ifdef PCSXRCORE
+extern char* Pcsxr_locale_text(char* toloc);
+#define _(String) Pcsxr_locale_text(String)
+#define N_(String) String
+#else
+#ifndef PCSXRPLUG
+#warning please define the plug being built to use Mac OS X localization!
+#define _(msgid) msgid
+#define N_(msgid) msgid
+#else
+//Kludge to get the preprocessor to accept PCSXRPLUG as a variable.
+#define PLUGLOC_x(x,y) x ## y
+#define PLUGLOC_y(x,y) PLUGLOC_x(x,y)
+#define PLUGLOC PLUGLOC_y(PCSXRPLUG,_locale_text)
+extern char* PLUGLOC(char* toloc);
+#define _(String) PLUGLOC(String)
+#define N_(String) String
+#endif
+#endif
 #else
 
 #define _(msgid) msgid
@@ -128,7 +149,7 @@ typedef struct {
 	boolean RCntFix;
 	boolean UseNet;
 	boolean VSyncWA;
-	boolean CdrReschedule;
+	boolean Widescreen;
 	u8 Cpu; // CPU_DYNAREC or CPU_INTERPRETER
 	u8 PsxType; // PSX_TYPE_NTSC or PSX_TYPE_PAL
 #ifdef _WIN32

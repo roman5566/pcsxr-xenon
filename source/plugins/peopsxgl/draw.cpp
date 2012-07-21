@@ -996,7 +996,7 @@ void assignTextureSprite(void) {
                                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
                                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
                  */
-#ifndef WIN32
+#ifdef LIBXENON
                 gTexName->use_filtering = XE_TEXF_POINT;
                 gLastTex = gTexName;
                 gLastFMode = 0;
@@ -1054,7 +1054,7 @@ void assignTexture3(void) {
                                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
                                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                  */
-#ifndef WIN32
+#ifdef LIBXENON
                 gTexName->use_filtering = XE_TEXF_LINEAR;
                 gLastTex = gTexName;
                 gLastFMode = 1;
@@ -1123,7 +1123,7 @@ void assignTexture4(void) {
                                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
                                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                  */
-#ifndef WIN32
+#ifdef LIBXENON
                 gTexName->use_filtering = XE_TEXF_LINEAR;
                 gLastTex = gTexName;
                 gLastFMode = 1;

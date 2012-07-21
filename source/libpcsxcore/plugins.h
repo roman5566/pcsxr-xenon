@@ -14,7 +14,7 @@
  *   You should have received a copy of the GNU General Public License     *
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
- *   51 Franklin Street, Fifth Floor, Boston, MA 02111-1307 USA.           *
+ *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.           *
  ***************************************************************************/
 
 #ifndef __PLUGINS_H__
@@ -60,7 +60,6 @@ int LoadPlugins();
 void ReleasePlugins();
 int OpenPlugins();
 void ClosePlugins();
-int ReloadCdromPlugin();
 
 typedef unsigned long (CALLBACK* PSEgetLibType)(void);
 typedef unsigned long (CALLBACK* PSEgetLibVersion)(void);
@@ -94,12 +93,16 @@ typedef long (CALLBACK* GPUfreeze)(uint32_t, GPUFreeze_t *);
 typedef long (CALLBACK* GPUgetScreenPic)(unsigned char *);
 typedef long (CALLBACK* GPUshowScreenPic)(unsigned char *);
 typedef void (CALLBACK* GPUclearDynarec)(void (CALLBACK *callback)(void));
-typedef void (CALLBACK* GPUvBlank)(int, int);
+typedef void (CALLBACK* GPUhSync)(int);
+typedef void (CALLBACK* GPUvBlank)(int);
+typedef void (CALLBACK* GPUvisualVibration)(uint32_t, uint32_t);
+typedef void (CALLBACK* GPUcursor)(int, int, int);
+typedef void (CALLBACK* GPUaddVertex)(short,short,s64,s64,s64);
 
 // GPU function pointers
 extern GPUupdateLace    GPU_updateLace;
 extern GPUinit          GPU_init;
-extern GPUshutdown      GPU_shutdown; 
+extern GPUshutdown      GPU_shutdown;
 extern GPUconfigure     GPU_configure;
 extern GPUtest          GPU_test;
 extern GPUabout         GPU_about;
@@ -108,7 +111,7 @@ extern GPUclose         GPU_close;
 extern GPUreadStatus    GPU_readStatus;
 extern GPUreadData      GPU_readData;
 extern GPUreadDataMem   GPU_readDataMem;
-extern GPUwriteStatus   GPU_writeStatus; 
+extern GPUwriteStatus   GPU_writeStatus;
 extern GPUwriteData     GPU_writeData;
 extern GPUwriteDataMem  GPU_writeDataMem;
 extern GPUdmaChain      GPU_dmaChain;
@@ -119,7 +122,11 @@ extern GPUfreeze        GPU_freeze;
 extern GPUgetScreenPic  GPU_getScreenPic;
 extern GPUshowScreenPic GPU_showScreenPic;
 extern GPUclearDynarec  GPU_clearDynarec;
+extern GPUhSync         GPU_hSync;
 extern GPUvBlank        GPU_vBlank;
+extern GPUvisualVibration GPU_visualVibration;
+extern GPUcursor        GPU_cursor;
+extern GPUaddVertex     GPU_addVertex;
 
 // CD-ROM Functions
 typedef long (CALLBACK* CDRinit)(void);
@@ -162,7 +169,7 @@ typedef long (CALLBACK* CDRgetTE)(unsigned char, unsigned char *, unsigned char 
 extern CDRinit               CDR_init;
 extern CDRshutdown           CDR_shutdown;
 extern CDRopen               CDR_open;
-extern CDRclose              CDR_close; 
+extern CDRclose              CDR_close;
 extern CDRtest               CDR_test;
 extern CDRgetTN              CDR_getTN;
 extern CDRgetTD              CDR_getTD;
@@ -180,10 +187,10 @@ extern CDRreadCDDA           CDR_readCDDA;
 extern CDRgetTE              CDR_getTE;
 
 // SPU Functions
-typedef long (CALLBACK* SPUinit)(void);				
-typedef long (CALLBACK* SPUshutdown)(void);	
-typedef long (CALLBACK* SPUclose)(void);			
-typedef void (CALLBACK* SPUplaySample)(unsigned char);		
+typedef long (CALLBACK* SPUinit)(void);
+typedef long (CALLBACK* SPUshutdown)(void);
+typedef long (CALLBACK* SPUclose)(void);
+typedef void (CALLBACK* SPUplaySample)(unsigned char);
 typedef void (CALLBACK* SPUwriteRegister)(unsigned long, unsigned short);
 typedef unsigned short (CALLBACK* SPUreadRegister)(unsigned long);
 typedef void (CALLBACK* SPUwriteDMA)(unsigned short);
@@ -206,7 +213,7 @@ typedef struct {
 } SPUFreeze_t;
 typedef long (CALLBACK* SPUfreeze)(uint32_t, SPUFreeze_t *);
 typedef void (CALLBACK* SPUasync)(uint32_t);
-typedef int  (CALLBACK* SPUplayCDDAchannel)(short *, int);
+typedef void (CALLBACK* SPUplayCDDAchannel)(short *, int);
 
 // SPU function pointers
 extern SPUconfigure        SPU_configure;
@@ -233,8 +240,8 @@ extern SPUplayCDDAchannel  SPU_playCDDAchannel;
 typedef long (CALLBACK* PADconfigure)(void);
 typedef void (CALLBACK* PADabout)(void);
 typedef long (CALLBACK* PADinit)(long);
-typedef long (CALLBACK* PADshutdown)(void);	
-typedef long (CALLBACK* PADtest)(void);		
+typedef long (CALLBACK* PADshutdown)(void);
+typedef long (CALLBACK* PADtest)(void);
 typedef long (CALLBACK* PADclose)(void);
 typedef long (CALLBACK* PADquery)(void);
 typedef long (CALLBACK* PADreadPort1)(PadDataS*);
@@ -243,6 +250,8 @@ typedef long (CALLBACK* PADkeypressed)(void);
 typedef unsigned char (CALLBACK* PADstartPoll)(int);
 typedef unsigned char (CALLBACK* PADpoll)(unsigned char);
 typedef void (CALLBACK* PADsetSensitive)(int);
+typedef void (CALLBACK* PADregisterVibration)(void (CALLBACK *callback)(uint32_t, uint32_t));
+typedef void (CALLBACK* PADregisterCursor)(void (CALLBACK *callback)(int, int, int));
 
 // PAD function pointers
 extern PADconfigure        PAD1_configure;
@@ -258,7 +267,8 @@ extern PADkeypressed       PAD1_keypressed;
 extern PADstartPoll        PAD1_startPoll;
 extern PADpoll             PAD1_poll;
 extern PADsetSensitive     PAD1_setSensitive;
-
+extern PADregisterVibration PAD1_registerVibration;
+extern PADregisterCursor   PAD1_registerCursor;
 extern PADconfigure        PAD2_configure;
 extern PADabout            PAD2_about;
 extern PADinit             PAD2_init;
@@ -272,6 +282,8 @@ extern PADkeypressed       PAD2_keypressed;
 extern PADstartPoll        PAD2_startPoll;
 extern PADpoll             PAD2_poll;
 extern PADsetSensitive     PAD2_setSensitive;
+extern PADregisterVibration PAD2_registerVibration;
+extern PADregisterCursor   PAD2_registerCursor;
 
 // NET Functions
 typedef long (CALLBACK* NETinit)(void);
@@ -308,11 +320,11 @@ typedef struct {
 typedef long (CALLBACK* NETsetInfo)(netInfo *);
 typedef long (CALLBACK* NETkeypressed)(int);
 
-// NET function pointers 
+// NET function pointers
 extern NETinit               NET_init;
 extern NETshutdown           NET_shutdown;
 extern NETopen               NET_open;
-extern NETclose              NET_close; 
+extern NETclose              NET_close;
 extern NETtest               NET_test;
 extern NETconfigure          NET_configure;
 extern NETabout              NET_about;
@@ -362,11 +374,11 @@ typedef unsigned short (CALLBACK* SIO1readBaud16)(void);
 typedef unsigned long (CALLBACK* SIO1readBaud32)(void);
 typedef void (CALLBACK* SIO1registerCallback)(void (CALLBACK *callback)(void));
 
-// SIO1 function pointers 
+// SIO1 function pointers
 extern SIO1init               SIO1_init;
 extern SIO1shutdown           SIO1_shutdown;
 extern SIO1open               SIO1_open;
-extern SIO1close              SIO1_close; 
+extern SIO1close              SIO1_close;
 extern SIO1test               SIO1_test;
 extern SIO1configure          SIO1_configure;
 extern SIO1about              SIO1_about;

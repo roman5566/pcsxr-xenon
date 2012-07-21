@@ -14,7 +14,7 @@
  *   You should have received a copy of the GNU General Public License     *
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
- *   51 Franklin Street, Fifth Floor, Boston, MA 02111-1307 USA.           *
+ *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.           *
  ***************************************************************************/
 
 #ifndef __R3000A_H__
@@ -57,8 +57,6 @@ typedef union {
 	struct { s8 l, h, h2, h3; } sb;
 	struct { s16 l, h; } sw;
 #endif
-	u32 d;
-        s32 sd;
 } PAIR;
 
 typedef union {
@@ -84,7 +82,6 @@ typedef union {
 				TagLo,     TagHi,     ErrorEPC,  Reserved6;
 	} n;
 	u32 r[32];
-	PAIR p[32];
 } psxCP0Regs;
 
 typedef struct {
@@ -158,33 +155,11 @@ enum {
 	PSXINT_MDECINDMA,
 	PSXINT_GPUOTCDMA,
 	PSXINT_CDRDMA,
-	PSXINT_NEWDRC_CHECK,
-        PSXINT_RCNT,
 	PSXINT_SPUASYNC,
 	PSXINT_CDRDBUF,
 	PSXINT_CDRLID,
-	PSXINT_CDRPLAY,
-	PSXINT_COUNT
+	PSXINT_CDRPLAY
 };
-
-extern u32 event_cycles[PSXINT_COUNT];
-extern u32 next_interupt;
-
-void new_dyna_save(void);
-void new_dyna_after_save(void);
-void new_dyna_restore(void);
-
-#define new_dyna_set_event(e, c) { \
-	s32 c_ = c; \
-	u32 abs_ = psxRegs.cycle + c_; \
-	s32 odi_ = next_interupt - psxRegs.cycle; \
-	event_cycles[e] = abs_; \
-	if (c_ < odi_) { \
-		/*printf("%u: next_interupt %d -> %d (%u)\n", psxRegs.cycle, odi_, c_, abs_);*/ \
-		next_interupt = abs_; \
-	} \
-}
-
 
 typedef struct {
 	psxGPRRegs GPR;		/* General Purpose Registers */
@@ -198,9 +173,84 @@ typedef struct {
 	struct { u32 sCycle, cycle; } intCycle[32];
 	u8 ICache_Addr[0x1000];
 	u8 ICache_Code[0x1000];
+	boolean ICache_valid;
 } psxRegisters;
 
 extern psxRegisters psxRegs;
+
+/*
+Formula One 2001
+- Use old CPU cache code when the RAM location is
+  updated with new code (affects in-game racing)
+
+TODO:
+- I-cache / D-cache swapping
+- Isolate D-cache from RAM
+*/
+
+static inline u32 *Read_ICache(u32 pc, boolean isolate) {
+	u32 pc_bank, pc_offset, pc_cache;
+	u8 *IAddr, *ICode;
+
+	pc_bank = pc >> 24;
+	pc_offset = pc & 0xffffff;
+	pc_cache = pc & 0xfff;
+
+	IAddr = psxRegs.ICache_Addr;
+	ICode = psxRegs.ICache_Code;
+
+	// clear I-cache
+	if (!psxRegs.ICache_valid) {
+		memset(psxRegs.ICache_Addr, 0xff, sizeof(psxRegs.ICache_Addr));
+		memset(psxRegs.ICache_Code, 0xff, sizeof(psxRegs.ICache_Code));
+
+		psxRegs.ICache_valid = TRUE;
+	}
+
+	// uncached
+	if (pc_bank >= 0xa0)
+		return (u32 *)PSXM(pc);
+
+	// cached - RAM
+	if (pc_bank == 0x80 || pc_bank == 0x00) {
+		if (SWAP32(*(u32 *)(IAddr + pc_cache)) == pc_offset) {
+			// Cache hit - return last opcode used
+			return (u32 *)(ICode + pc_cache);
+		} else {
+			// Cache miss - addresses don't match
+			// - default: 0xffffffff (not init)
+
+			if (!isolate) {
+				// cache line is 4 bytes wide
+				pc_offset &= ~0xf;
+				pc_cache &= ~0xf;
+
+				// address line
+				*(u32 *)(IAddr + pc_cache + 0x0) = SWAP32(pc_offset + 0x0);
+				*(u32 *)(IAddr + pc_cache + 0x4) = SWAP32(pc_offset + 0x4);
+				*(u32 *)(IAddr + pc_cache + 0x8) = SWAP32(pc_offset + 0x8);
+				*(u32 *)(IAddr + pc_cache + 0xc) = SWAP32(pc_offset + 0xc);
+
+				// opcode line
+				pc_offset = pc & ~0xf;
+				*(u32 *)(ICode + pc_cache + 0x0) = psxMu32ref(pc_offset + 0x0);
+				*(u32 *)(ICode + pc_cache + 0x4) = psxMu32ref(pc_offset + 0x4);
+				*(u32 *)(ICode + pc_cache + 0x8) = psxMu32ref(pc_offset + 0x8);
+				*(u32 *)(ICode + pc_cache + 0xc) = psxMu32ref(pc_offset + 0xc);
+			}
+
+			// normal code
+			return (u32 *)PSXM(pc);
+		}
+	}
+
+	/*
+	TODO: Probably should add cached BIOS
+	*/
+
+	// default
+	return (u32 *)PSXM(pc);
+}
 
 #if defined(__BIGENDIAN__)
 
@@ -229,11 +279,11 @@ extern psxRegisters psxRegs;
 /**** R3000A Instruction Macros ****/
 #define _PC_       psxRegs.pc       // The next PC to be executed
 
-#define _fOp_(code)		((code >> 26)       )  // The opcode part of the instruction register
-#define _fFunct_(code)	((code      ) & 0x3F)  // The funct part of the instruction register
-#define _fRd_(code)		((code >> 11) & 0x1F)  // The rd part of the instruction register
-#define _fRt_(code)		((code >> 16) & 0x1F)  // The rt part of the instruction register
-#define _fRs_(code)		((code >> 21) & 0x1F)  // The rs part of the instruction register
+#define _fOp_(code)		((code >> 26)       )  // The opcode part of the instruction register 
+#define _fFunct_(code)	((code      ) & 0x3F)  // The funct part of the instruction register 
+#define _fRd_(code)		((code >> 11) & 0x1F)  // The rd part of the instruction register 
+#define _fRt_(code)		((code >> 16) & 0x1F)  // The rt part of the instruction register 
+#define _fRs_(code)		((code >> 21) & 0x1F)  // The rs part of the instruction register 
 #define _fSa_(code)		((code >>  6) & 0x1F)  // The sa part of the instruction register
 #define _fIm_(code)		((u16)code)            // The immediate part of the instruction register
 #define _fTarget_(code)	(code & 0x03ffffff)    // The target part of the instruction register
@@ -258,20 +308,6 @@ extern psxRegisters psxRegs;
 #define _rRd_   psxRegs.GPR.r[_Rd_]   // Rd register
 #define _rSa_   psxRegs.GPR.r[_Sa_]   // Sa register
 #define _rFs_   psxRegs.CP0.r[_Rd_]   // Fs register
-
-#define _rRtU_  (psxRegs.GPR.p[_Rt_].d)
-#define _rRsU_  (psxRegs.GPR.p[_Rs_].d)
-#define _rRdU_  (psxRegs.GPR.p[_Rd_].d)
-#define _rFsU_  (psxRegs.CP0.p[_Rd_].d)
-#define _rLoU_  (psxRegs.GPR.p[32].d)
-#define _rHiU_  (psxRegs.GPR.p[33].d)
-
-#define _rRtS_  (psxRegs.GPR.p[_Rt_].sd)
-#define _rRsS_  (psxRegs.GPR.p[_Rs_].sd)
-#define _rRdS_  (psxRegs.GPR.p[_Rd_].sd)
-#define _rFsS_  (psxRegs.CP0.p[_Rd_].sd)
-#define _rLoS_  (psxRegs.GPR.p[32].sd)
-#define _rHiS_  (psxRegs.GPR.p[33].sd)
 
 #define _c2dRs_ psxRegs.CP2D.r[_Rs_]  // Rs cop2 data register
 #define _c2dRt_ psxRegs.CP2D.r[_Rt_]  // Rt cop2 data register

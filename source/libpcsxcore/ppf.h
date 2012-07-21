@@ -13,7 +13,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02111-1307 USA
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #ifndef __PPF_H__
@@ -27,22 +27,8 @@ void BuildPPFCache();
 void FreePPFCache();
 void CheckPPFCache(unsigned char *pB, unsigned char m, unsigned char s, unsigned char f);
 
-int LoadSBI(const char *fname, int sector_count);
-void UnloadSBI(void);
-
-extern unsigned char *sbi_sectors;
-
-#include "cdrom.h"
-
-static inline int CheckSBI(const u8 *t)
-{
-	int s;
-	if (sbi_sectors == NULL)
-		return 0;
-
-	s = MSF2SECT(btoi(t[0]), btoi(t[1]), btoi(t[2]));
-	return (sbi_sectors[s >> 3] >> (s & 7)) & 1;
-}
+void LoadSBI();
+boolean CheckSBI(const u8 *time);
 
 #ifdef __cplusplus
 }

@@ -14,7 +14,7 @@
  *   You should have received a copy of the GNU General Public License     *
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
- *   51 Franklin Street, Fifth Floor, Boston, MA 02111-1307 USA.           *
+ *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.           *
  ***************************************************************************/
 
 /*
@@ -1069,6 +1069,9 @@ void psxBios_FlushCache() { // 44
 #ifdef PSXBIOS_LOG
 	PSXBIOS_LOG("psxBios_%s\n", biosA0n[0x44]);
 #endif
+
+	psxRegs.ICache_valid = 0;
+
 	pc0 = ra;
 }
 
@@ -1124,7 +1127,7 @@ void psxBios_GPU_cwb() { // 0x4a
 	s32 *ptr = (s32*)Ra0;
 	int size = a1;
 	while(size--) {
-                GPU_writeData(SWAP32(*ptr));
+		GPU_writeData(SWAP32(*ptr));
 		ptr++;
 	}
 
@@ -2737,8 +2740,8 @@ void psxBiosException() {
 				if (SysIntRP[i]) {
 					u32 *queue = (u32 *)PSXM(SysIntRP[i]);
 
-					s0 = queue[2];
-					softCall(queue[1]);
+					s0 = SWAP32(queue[2]);
+					softCall(SWAP32(queue[1]));
 				}
 			}
 
@@ -2748,7 +2751,7 @@ void psxBiosException() {
 				psxHwWrite32(0x1f801070, 0xffffffff);
 
 				ra = jmp_int[0];
-				sp = jmp_int[1];
+				sp = SWAP32(jmp_int[1]);
 				fp = jmp_int[2];
 				for (i = 0; i < 8; i++) // s0-s7
 					 psxRegs.GPR.r[16 + i] = jmp_int[3 + i];

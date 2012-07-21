@@ -51,10 +51,10 @@ GpuTex * XeDefineTextureWnd( GpuTex * gTexName) {
 
     if(generate){
         gTexName = gpuRenderer.CreateTexture( TWin.Position.x1, TWin.Position.y1, FMT_A8R8G8B8);
-
+#ifdef LIBXENON
         gTexName->u_addressing = XE_TEXADDR_WRAP;
         gTexName->v_addressing = XE_TEXADDR_WRAP;
-
+#endif
         if (peops_cfg.iFilterType && peops_cfg.iFilterType < 3 && peops_cfg.iHiResTextures != 2) {
             gTexName->use_filtering = XE_TEXF_LINEAR;
         } else {

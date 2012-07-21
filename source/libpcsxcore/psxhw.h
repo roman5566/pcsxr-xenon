@@ -14,7 +14,7 @@
  *   You should have received a copy of the GNU General Public License     *
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
- *   51 Franklin Street, Fifth Floor, Boston, MA 02111-1307 USA.           *
+ *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.           *
  ***************************************************************************/
 
 #ifndef __PSXHW_H__
@@ -56,11 +56,6 @@ extern "C" {
 
 #define HW_DMA_PCR   (psxHu32ref(0x10f0))
 #define HW_DMA_ICR   (psxHu32ref(0x10f4))
-	
-	
-#define HW_DMA_ICR_BUS_ERROR     (1<<15)
-#define HW_DMA_ICR_GLOBAL_ENABLE (1<<23)
-#define HW_DMA_ICR_IRQ_SENT      (1<<31)
 
 #define	DMA_INTERRUPT(n) \
 	if (SWAPu32(HW_DMA_ICR) & (1 << (16 + n))) {    \

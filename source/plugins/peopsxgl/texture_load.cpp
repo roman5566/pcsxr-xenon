@@ -30,7 +30,7 @@ void DefineSubTextureSortHiRes(void) {
     if (!gTexName) {
 
         gTexName = gpuRenderer.CreateTexture(512, 512, FMT_A8R8G8B8);
-#ifndef WIN32
+#ifdef LIBXENON
         gTexName->u_addressing = iClampType;
         gTexName->v_addressing = iClampType;
 
@@ -104,7 +104,7 @@ void DefineSubTextureSort(void) {
     if (!gTexName) {
 
         gTexName = gpuRenderer.CreateTexture(256, 256, FMT_A8R8G8B8);
-#ifndef WIN32
+#ifdef LIBXENON
         gTexName->u_addressing = iClampType;
         gTexName->v_addressing = iClampType;
 
@@ -586,9 +586,10 @@ GpuTex * BlackFake15BitTexture(void) {
         if (!gTexFrameName) {
 
             gTexFrameName = gpuRenderer.CreateTexture(4, 4, FMT_A8R8G8B8);
+#ifdef LIBXENON
             gTexFrameName->u_addressing = iClampType;
             gTexFrameName->v_addressing = iClampType;
-
+#endif
 
             uint32_t *ta = (uint32_t *) texturepart;
             for (y1 = 0; y1 <= 4; y1++)
@@ -664,8 +665,10 @@ GpuTex * Fake15BitTexture(void) {
         else iFTex = 512;
 
         gTexFrameName = gpuRenderer.CreateTexture(iFTex, iFTex, FMT_A8R8G8B8);
+#ifdef LIBXENON
         gTexFrameName->u_addressing = iClampType;
         gTexFrameName->v_addressing = iClampType;
+#endif
 
         p = gpuRenderer.TextureLock(gTexFrameName);
         memset(p, 0, iFTex * iFTex * 4);

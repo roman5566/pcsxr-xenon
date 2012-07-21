@@ -14,7 +14,7 @@
  *   You should have received a copy of the GNU General Public License     *
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
- *   51 Franklin Street, Fifth Floor, Boston, MA 02111-1307 USA.           *
+ *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.           *
  ***************************************************************************/
 
 #include "psxcommon.h"
@@ -31,46 +31,46 @@ int Log = 0;
 FILE *emuLog = NULL;
 
 int EmuInit() {
-    return psxInit();
+	return psxInit();
 }
 
 void EmuReset() {
-    FreeCheatSearchResults();
-    FreeCheatSearchMem();
+	FreeCheatSearchResults();
+	FreeCheatSearchMem();
 
-    psxReset();
+	psxReset();
 }
 
 void EmuShutdown() {
-    ClearAllCheats();
-    FreeCheatSearchResults();
-    FreeCheatSearchMem();
+	ClearAllCheats();
+	FreeCheatSearchResults();
+	FreeCheatSearchMem();
 
-    FreePPFCache();
+	FreePPFCache();
 
-    psxShutdown();
+	psxShutdown();
 }
 
 void EmuUpdate() {
-    // Do not allow hotkeys inside a softcall from HLE BIOS
-    if (!Config.HLE || !hleSoftCall)
-        SysUpdate();
+	// Do not allow hotkeys inside a softcall from HLE BIOS
+	if (!Config.HLE || !hleSoftCall)
+		SysUpdate();
 
-    ApplyCheats();
+	ApplyCheats();
 }
 
 void __Log(char *fmt, ...) {
-    va_list list;
+	va_list list;
 #ifdef LOG_STDOUT
-    char tmp[1024];
+	char tmp[1024];
 #endif
 
-    va_start(list, fmt);
+	va_start(list, fmt);
 #ifndef LOG_STDOUT
-    vfprintf(emuLog, fmt, list);
+	vfprintf(emuLog, fmt, list);
 #else
-    vsprintf(tmp, fmt, list);
-    SysPrintf(tmp);
+	vsprintf(tmp, fmt, list);
+	SysPrintf(tmp);
 #endif
-    va_end(list);
+	va_end(list);
 }

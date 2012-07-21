@@ -14,7 +14,7 @@
  *   You should have received a copy of the GNU General Public License     *
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
- *   51 Franklin Street, Fifth Floor, Boston, MA 02111-1307 USA.           *
+ *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.           *
  ***************************************************************************/
 
 /*
@@ -70,6 +70,7 @@ static unsigned int parp;
 static unsigned int mcdst, rdwr;
 static unsigned char adrH, adrL;
 static unsigned int padst;
+static unsigned int gsdonglest;
 
 char Mcd1Data[MCD_SIZE], Mcd2Data[MCD_SIZE];
 
@@ -78,13 +79,28 @@ char Mcd1Data[MCD_SIZE], Mcd2Data[MCD_SIZE];
 
 unsigned int DongleBank;
 unsigned char DongleData[ DONGLE_SIZE ];
+static int DongleInit;
+
+
+#if 0
+// Breaks Twisted Metal 2 intro
+#define SIO_INT(eCycle) { \
+	if (!Config.Sio) { \
+		psxRegs.interrupt |= (1 << PSXINT_SIO); \
+		psxRegs.intCycle[PSXINT_SIO].cycle = eCycle; \
+		psxRegs.intCycle[PSXINT_SIO].sCycle = psxRegs.cycle; \
+	} \
+	\
+	StatReg &= ~RX_RDY; \
+	StatReg &= ~TX_RDY; \
+}
+#endif
 
 #define SIO_INT(eCycle) { \
 	if (!Config.Sio) { \
 		psxRegs.interrupt |= (1 << PSXINT_SIO); \
 		psxRegs.intCycle[PSXINT_SIO].cycle = eCycle; \
 		psxRegs.intCycle[PSXINT_SIO].sCycle = psxRegs.cycle; \
-		new_dyna_set_event(PSXINT_SIO, eCycle); \
 	} \
 }
 
@@ -294,6 +310,363 @@ void sioWrite8(unsigned char value) {
 			return;
 	}
 
+
+	/*
+	GameShark CDX
+	
+	ae - be - ef - 04 + [00]
+	ae - be - ef - 01 + 00 + [00] * $1000
+	ae - be - ef - 01 + 42 + [00] * $1000
+	ae - be - ef - 03 + 01,01,1f,e3,85,ae,d1,28 + [00] * 4
+	*/
+	switch (gsdonglest) {
+		// main command loop
+		case 1:
+			SIO_INT( SIO_CYCLES );
+
+			// GS CDX
+			// - unknown output
+
+			// reset device when fail?
+			if( value == 0xae )
+			{
+				StatReg |= RX_RDY;
+
+				parp = 0;
+				bufcount = parp;
+			}
+
+
+			// GS CDX
+			else if( value == 0xbe )
+			{
+				StatReg |= RX_RDY;
+
+				parp = 0;
+				bufcount = parp;
+
+
+				buf[0] = reverse_8( 0xde );
+			}
+
+
+			// GS CDX
+			else if( value == 0xef )
+			{
+				StatReg |= RX_RDY;
+
+				parp = 0;
+				bufcount = parp;
+
+
+				buf[0] = reverse_8( 0xad );
+			}
+
+
+			// GS CDX [1 in + $1000 out + $1 out]
+			else if( value == 0x01 )
+			{
+				StatReg |= RX_RDY;
+
+				parp = 0;
+				bufcount = parp;
+
+
+				// $00 = 0000 0000
+				// - (reverse) 0000 0000
+				buf[0] = 0x00;
+				gsdonglest = 2;
+			}
+
+
+			// GS CDX [1 in + $1000 in + $1 out]
+			else if( value == 0x02 )
+			{
+				StatReg |= RX_RDY;
+
+				parp = 0;
+				bufcount = parp;
+
+
+				// $00 = 0000 0000
+				// - (reverse) 0000 0000
+				buf[0] = 0x00;
+				gsdonglest = 3;
+			}
+
+
+			// GS CDX [8 in, 4 out]
+			else if( value == 0x03 )
+			{
+				StatReg |= RX_RDY;
+
+				parp = 0;
+				bufcount = parp;
+
+				// $00 = 0000 0000
+				// - (reverse) 0000 0000
+				buf[0] = 0x00;
+
+				gsdonglest = 4;
+			}
+
+
+			// GS CDX [out 1]
+			else if( value == 0x04 )
+			{
+				StatReg |= RX_RDY;
+
+				parp = 0;
+				bufcount = parp;
+
+
+				// $00 = 0000 0000
+				// - (reverse) 0000 0000
+				buf[0] = 0x00;
+				gsdonglest = 5;
+			}
+			else
+			{
+				// ERROR!!
+				StatReg |= RX_RDY;
+
+				parp = 0;
+				bufcount = parp;
+				buf[0] = 0xff;
+
+				gsdonglest = 0;
+			}
+
+			return;
+
+
+		// be - ef - 01
+		case 2: {
+			unsigned char checksum;
+			unsigned int lcv;
+
+			SIO_INT( SIO_CYCLES );
+			StatReg |= RX_RDY;
+
+
+			// read 1 byte
+			DongleBank = buf[ 0 ];
+
+
+			// write data + checksum
+			checksum = 0;
+			for( lcv = 0; lcv < 0x1000; lcv++ )
+			{
+				unsigned char data;
+
+				data = DongleData[ DongleBank * 0x1000 + lcv ];
+
+				buf[ lcv+1 ] = reverse_8( data );
+				checksum += data;
+			}
+
+
+			parp = 0;
+			bufcount = 0x1001;
+			buf[ 0x1001 ] = reverse_8( checksum );
+
+
+			gsdonglest = 255;
+			return;
+		}
+
+
+		// be - ef - 02
+		case 3:
+			SIO_INT( SIO_CYCLES );
+			StatReg |= RX_RDY;
+
+			// command start
+			if( parp < 0x1000+1 )
+			{
+				// read 1 byte
+				buf[ parp ] = value;
+				parp++;
+			}
+
+			if( parp == 0x1001 )
+			{
+				unsigned char checksum;
+				unsigned int lcv;
+
+				DongleBank = buf[0];
+				memcpy( DongleData + DongleBank * 0x1000, buf+1, 0x1000 );
+
+				// save to file
+				SaveDongle( "memcards/CDX_Dongle.bin" );
+
+
+				// write 8-bit checksum
+				checksum = 0;
+				for( lcv = 1; lcv < 0x1001; lcv++ )
+				{
+					checksum += buf[ lcv ];
+				}
+
+				parp = 0;
+				bufcount = 1;
+				buf[1] = reverse_8( checksum );
+
+
+				// flush result
+				gsdonglest = 255;
+			}
+			return;
+
+
+		// be - ef - 03
+		case 4:
+			SIO_INT( SIO_CYCLES );
+			StatReg |= RX_RDY;
+
+			// command start
+			if( parp < 8 )
+			{
+				// read 2 (?,?) + 4 (DATA?) + 2 (CRC?)
+				buf[ parp ] = value;
+				parp++;
+			}
+
+			if( parp == 8 )
+			{
+				// now write 4 bytes via -FOUR- $00 writes
+				parp = 8;
+				bufcount = 12;
+
+
+				// TODO: Solve CDX algorithm
+
+
+				// GS CDX [magic key]
+				if( buf[2] == 0x12 && buf[3] == 0x34 &&
+						buf[4] == 0x56 && buf[5] == 0x78 )
+				{
+					buf[9] = reverse_8( 0x3e );
+					buf[10] = reverse_8( 0xa0 );
+					buf[11] = reverse_8( 0x40 );
+					buf[12] = reverse_8( 0x29 );
+				}
+
+				// GS CDX [address key #2 = 6ec]
+				else if( buf[2] == 0x1f && buf[3] == 0xe3 &&
+								 buf[4] == 0x45 && buf[5] == 0x60 )
+				{
+					buf[9] = reverse_8( 0xee );
+					buf[10] = reverse_8( 0xdd );
+					buf[11] = reverse_8( 0x71 );
+					buf[12] = reverse_8( 0xa8 );
+				}
+
+				// GS CDX [address key #3 = ???]
+				else if( buf[2] == 0x1f && buf[3] == 0xe3 &&
+								 buf[4] == 0x72 && buf[5] == 0xe3 )
+				{
+					// unsolved!!
+
+					// Used here: 80090348 / 80090498
+
+					// dummy value - MSB
+					buf[9] = reverse_8( 0xfa );
+					buf[10] = reverse_8( 0xde );
+					buf[11] = reverse_8( 0x21 );
+					buf[12] = reverse_8( 0x97 );
+				}
+
+				// GS CDX [address key #4 = a00]
+				else if( buf[2] == 0x1f && buf[3] == 0xe3 &&
+								 buf[4] == 0x85 && buf[5] == 0xae )
+				{
+					buf[9] = reverse_8( 0xee );
+					buf[10] = reverse_8( 0xdd );
+					buf[11] = reverse_8( 0x7d );
+					buf[12] = reverse_8( 0x44 );
+				}
+
+				// GS CDX [address key #5 = 9ec]
+				else if( buf[2] == 0x17 && buf[3] == 0xe3 &&
+								 buf[4] == 0xb5 && buf[5] == 0x60 )
+				{
+					buf[9] = reverse_8( 0xee );
+					buf[10] = reverse_8( 0xdd );
+					buf[11] = reverse_8( 0x7e );
+					buf[12] = reverse_8( 0xa8 );
+				}
+
+				else
+				{
+					// dummy value - MSB
+					buf[9] = reverse_8( 0xfa );
+					buf[10] = reverse_8( 0xde );
+					buf[11] = reverse_8( 0x21 );
+					buf[12] = reverse_8( 0x97 );
+				}						
+
+				// flush bytes -> done
+				gsdonglest = 255;
+			}
+			return;
+
+
+		// be - ef - 04
+		case 5:
+			if( value == 0x00 )
+			{
+				SIO_INT( SIO_CYCLES );
+				StatReg |= RX_RDY;
+
+
+				// read 1 byte
+				parp = 0;
+				bufcount = parp;
+
+				// size of dongle card?
+				buf[ 0 ] = reverse_8( DONGLE_SIZE / 0x1000 );
+
+
+				// done already
+				gsdonglest = 0;
+			}
+			return;
+
+
+		// flush bytes -> done
+		case 255:
+			if( value == 0x00 )
+			{
+				//SIO_INT( SIO_CYCLES );
+				SIO_INT(1);
+				StatReg |= RX_RDY;
+
+				parp++;
+				if( parp == bufcount )
+				{
+					gsdonglest = 0;
+
+#ifdef GSDONGLE_LOG
+					PAD_LOG("(gameshark dongle) DONE!!\n" );
+#endif
+				}
+			}
+			else
+			{
+				// ERROR!!
+				StatReg |= RX_RDY;
+
+				parp = 0;
+				bufcount = parp;
+				buf[0] = 0xff;
+
+				gsdonglest = 0;
+			}
+			return;
+	}
+
+
 	switch (value) {
 		case 0x01: // start pad
 			StatReg |= RX_RDY;		// Transfer is Ready
@@ -352,6 +725,23 @@ void sioWrite8(unsigned char value) {
 			mcdst = 1;
 			rdwr = 0;
 			SIO_INT(SIO_CYCLES);
+			return;
+
+		case 0xae: // GameShark CDX - start dongle
+			StatReg |= RX_RDY;
+			gsdonglest = 1;
+
+			parp = 0;
+			bufcount = parp;
+
+			if( !DongleInit )
+			{
+				LoadDongle( "memcards/CDX_Dongle.bin" );
+
+				DongleInit = 1;
+			}
+
+			SIO_INT( SIO_CYCLES );
 			return;
 
 		default: // no hardware found
@@ -459,10 +849,19 @@ void netError() {
 }
 
 void sioInterrupt() {
-	if (!(StatReg & IRQ)) {
-		StatReg |= IRQ;
-		psxHu32ref(0x1070) |= SWAPu32(0x80);
-	}
+#ifdef PAD_LOG
+	PAD_LOG("Sio Interrupt (CP0.Status = %x)\n", psxRegs.CP0.n.Status);
+#endif
+//	SysPrintf("Sio Interrupt\n");
+	StatReg |= IRQ;
+	psxHu32ref(0x1070) |= SWAPu32(0x80);
+
+#if 0
+	// Rhapsody: fixes input problems
+	// Twisted Metal 2: breaks intro
+	StatReg |= TX_RDY;
+	StatReg |= RX_RDY;
+#endif
 }
 
 void LoadMcd(int mcd, char *str) {

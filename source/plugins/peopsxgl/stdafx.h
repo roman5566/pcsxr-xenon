@@ -20,9 +20,12 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#ifdef _XBOX
+#include <xtl.h>
+#else
 #include <unistd.h>
-#include <xenon_uart/xenon_uart.h>
 #ifdef LIBXENON
+#include <xenon_uart/xenon_uart.h>
 #include <sys/stat.h>
 #include <sys/time.h>
 //#include "gl_ext.h"
@@ -34,9 +37,6 @@
 #include <ppc/timebase.h>
 #include <time/time.h>
 #include <time.h>
-#else
-#ifdef WIN32
-#include <Windows.h>
 #endif
 #endif
 
