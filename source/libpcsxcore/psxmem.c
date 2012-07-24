@@ -142,7 +142,7 @@ u8 psxMemRead8(u32 mem) {
 	char *p;
 	u32 t;
 
-
+	//printf("%8.8lx %8.8lx: psxMemRead8 %08x\n", psxRegs.pc, psxRegs.cycle, mem);
 	psxRegs.cycle += 0;
 
 
@@ -171,8 +171,8 @@ u16 psxMemRead16(u32 mem) {
 	char *p;
 	u32 t;
 
-
-	psxRegs.cycle += 1;
+	//printf("%8.8lx %8.8lx: psxMemRead16 %08x\n", psxRegs.pc, psxRegs.cycle, mem);
+	//psxRegs.cycle += 1;
 
 	
 	t = mem >> 16;
@@ -200,8 +200,8 @@ u32 psxMemRead32(u32 mem) {
 	char *p;
 	u32 t;
 
-
-	psxRegs.cycle += 1;
+	//printf("%8.8lx %8.8lx: psxMemRead32 %08x\n", psxRegs.pc, psxRegs.cycle, mem);
+	//psxRegs.cycle += 1;
 
 	
 	t = mem >> 16;
@@ -229,8 +229,8 @@ void psxMemWrite8(u32 mem, u8 value) {
 	char *p;
 	u32 t;
 
-
-	psxRegs.cycle += 1;
+	//printf("%8.8lx %8.8lx: psxMemWrite8 %08x, %08x\n", psxRegs.pc, psxRegs.cycle, mem, value);
+	//psxRegs.cycle += 1;
 	
 	
 	t = mem >> 16;
@@ -260,8 +260,8 @@ void psxMemWrite16(u32 mem, u16 value) {
 	char *p;
 	u32 t;
 
-
-	psxRegs.cycle += 1;
+	//printf("%8.8lx %8.8lx: psxMemWrite16 %08x, %08x\n", psxRegs.pc, psxRegs.cycle, mem, value);
+	//psxRegs.cycle += 1;
 
 		
 	t = mem >> 16;
@@ -291,8 +291,8 @@ void psxMemWrite32(u32 mem, u32 value) {
 	char *p;
 	u32 t;
 
-	
-	psxRegs.cycle += 1;
+	//printf("%8.8lx %8.8lx: psxMemWrite32 %08x, %08x\n", psxRegs.pc, psxRegs.cycle, mem, value);
+	//psxRegs.cycle += 1;
 
 
 	//	if ((mem&0x1fffff) == 0x71E18 || value == 0x48088800) SysPrintf("t2fix!!\n");
@@ -341,6 +341,9 @@ void psxMemWrite32(u32 mem, u32 value) {
 						for (i = 0; i < 0x80; i++) psxMemWLUT[i + 0x0000] = (void *)&psxM[(i & 0x1f) << 16];
 						memcpy(psxMemWLUT + 0x8000, psxMemWLUT, 0x80 * sizeof(void *));
 						memcpy(psxMemWLUT + 0xa000, psxMemWLUT, 0x80 * sizeof(void *));
+
+						PSXMEM_LOG("psxMemWrite32 %8.8lx = %x\n", mem, value);
+
 						break;
 					default:
 #ifdef PSXMEM_LOG

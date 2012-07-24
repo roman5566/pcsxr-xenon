@@ -41,7 +41,7 @@ typedef long (*SIO1open)(unsigned long *);
 
 #else
 
-#include <windows.h>
+#include <xtl.h>
 
 typedef long (CALLBACK* GPUopen)(HWND);
 typedef long (CALLBACK* SPUopen)(HWND);

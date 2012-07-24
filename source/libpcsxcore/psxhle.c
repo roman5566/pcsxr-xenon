@@ -31,7 +31,9 @@ static void hleDummy() {
 
 static void hleA0() {
 	u32 call = psxRegs.GPR.n.t1 & 0xff;
-
+#ifdef PSXBIOS_LOG
+	// PSXBIOS_LOG("Bios call a0: %s (%x) %x,%x,%x,%x\n", biosA0n[call], call, psxRegs.GPR.n.a0, psxRegs.GPR.n.a1, psxRegs.GPR.n.a2, psxRegs.GPR.n.a3);
+#endif
 	if (biosA0[call]) biosA0[call]();
 
 	psxBranchTest();
@@ -40,6 +42,10 @@ static void hleA0() {
 static void hleB0() {
 	u32 call = psxRegs.GPR.n.t1 & 0xff;
 
+#ifdef PSXBIOS_LOG
+	// PSXBIOS_LOG("Bios call b0: %s (%x) %x,%x,%x,%x\n", biosB0n[call], call, psxRegs.GPR.n.a0, psxRegs.GPR.n.a1, psxRegs.GPR.n.a2, psxRegs.GPR.n.a3);
+#endif
+
 	if (biosB0[call]) biosB0[call]();
 
 	psxBranchTest();
@@ -47,7 +53,9 @@ static void hleB0() {
 
 static void hleC0() {
 	u32 call = psxRegs.GPR.n.t1 & 0xff;
-
+#ifdef PSXBIOS_LOG
+	// PSXBIOS_LOG("Bios call c0: %s (%x) %x,%x,%x,%x\n", biosC0n[call], call, psxRegs.GPR.n.a0, psxRegs.GPR.n.a1, psxRegs.GPR.n.a2, psxRegs.GPR.n.a3);
+#endif
 	if (biosC0[call]) biosC0[call]();
 
 	psxBranchTest();

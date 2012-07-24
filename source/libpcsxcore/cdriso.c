@@ -132,20 +132,9 @@ static void tok2msf(char *time, char *msf) {
 	}
 }
 
-#ifndef _WIN32
 static long GetTickCount(void) {
-	static time_t		initial_time = 0;
-	struct timeval		now;
-
-	gettimeofday(&now, NULL);
-
-	if (initial_time == 0) {
-		initial_time = now.tv_sec;
-	}
-
-	return (now.tv_sec - initial_time) * 1000L + now.tv_usec / 1000L;
+	return mftb();
 }
-#endif
 
 
 u16 *iso_play_cdbuf;

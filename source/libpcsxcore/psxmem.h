@@ -14,7 +14,7 @@
  *   You should have received a copy of the GNU General Public License     *
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
- *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.           *
+ *   51 Franklin Street, Fifth Floor, Boston, MA 02111-1307 USA.           *
  ***************************************************************************/
 
 #ifndef __PSXMEMORY_H__
@@ -27,6 +27,22 @@ extern "C" {
 #include "psxcommon.h"
 
 #if defined(__BIGENDIAN__)
+#ifdef _XBOX
+
+#define SWAP16(x) _byteswap_ushort(x)
+#define SWAP32(x) _byteswap_ulong(x)
+
+#define SWAP16p(X) __loadwordbytereverse((int)X,0)
+#define SWAP32p(X) __loadshortbytereverse((int)X,0)
+#define SWAP32wp(X,Y) __storewordbytereverse(Y,(int)X,0);
+
+#define SWAPu32(v) SWAP32((u32)(v))
+#define SWAPs32(v) SWAP32((s32)(v))
+
+#define SWAPu16(v) SWAP16((u16)(v))
+#define SWAPs16(v) SWAP16((s16)(v))
+
+#else
 
 #define _SWAP16(b) ((((unsigned char *)&(b))[0] & 0xff) | (((unsigned char *)&(b))[1] & 0xff) << 8)
 #define _SWAP32(b) ((((unsigned char *)&(b))[0] & 0xff) | ((((unsigned char *)&(b))[1] & 0xff) << 8) | ((((unsigned char *)&(b))[2] & 0xff) << 16) | (((unsigned char *)&(b))[3] << 24))
@@ -38,6 +54,8 @@ extern "C" {
 
 #define SWAPu16(v) SWAP16((u16)(v))
 #define SWAPs16(v) SWAP16((s16)(v))
+
+#endif
 
 #else
 

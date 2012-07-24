@@ -1,91 +1,55 @@
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+#include <_ansi.h>
+#include <_syslist.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <errno.h>
+#include <sys/iosupport.h>
+#include <sys/dirent.h>
+#include <sys/errno.h>
 #include <sys/time.h>
-#include <time/time.h>
+
+#include <assert.h>
+
+#include <ppc/atomic.h>
+#include <ppc/register.h>
+
+#include <xenon_soc/xenon_power.h>
 #include <xenon_smc/xenon_smc.h>
 
-#if 0
-// miss in gligli libxenon
-int stat(const char * __restrict path, struct stat * __restrict buf) {
-    int fd = -1;
-    fd = open(path, O_RDONLY);
+void buffer_dump(void * buf, int size);
 
-    if (fd) {
-        return fstat(fd, buf);
-    }
-    return ENOENT; // file doesn't exist
-}
-#endif
+
+
 void usleep(int s) {
     udelay(s);
 }
 
-#if 0
-#include <altivec.h>
-#define vector_s16_t vector signed short
-#define vector_u16_t vector unsigned short
-#define vector_s8_t vector signed char
-#define vector_u8_t vector unsigned char
-#define vector_s32_t vector signed int
-#define vector_u32_t vector unsigned int
-#define MMREG_SIZE 16
 
-#define SMALL_MEMCPY(to, from, len)                                         \
-{                                                                           \
-    unsigned char * end = to + len;                                         \
-    while( to < end )                                                       \
-    {                                                                       \
-        *to++ = *from++;                                                    \
-    }                                                                       \
+#define	RTC_BASE	1005782400UL
+static int new_xenon_gettimeofday(struct _reent *ptr, struct timeval *tp, struct timezone *tz) {
+	unsigned char msg[16] = {0x04};
+	union{
+		uint8_t u8[8];
+		uint64_t t;
+	} time;
+	time.t = 0;
+
+	xenon_smc_send_message(msg);
+	xenon_smc_receive_response(msg);
+	
+	time.u8[3] = msg[5];
+	time.u8[4] = msg[4];
+	time.u8[5] = msg[3];
+	time.u8[6] = msg[2];
+	time.u8[7] = msg[1];
+	
+	tp->tv_sec = (time.t / 1000) + RTC_BASE;
+	tp->tv_usec = (time.t % 1000) * 1000;
+
+	return 0;
 }
 
-void * fast_memcpy(void * _to, const void * _from, size_t len) {
-    void * retval = _to;
-    unsigned char * to = (unsigned char *) _to;
-    unsigned char * from = (unsigned char *) _from;
-
-    if (len > 16) {
-        /* Align destination to MMREG_SIZE -boundary */
-        register unsigned long int delta;
-
-        delta = ((unsigned long) to)&(MMREG_SIZE - 1);
-        if (delta) {
-            delta = MMREG_SIZE - delta;
-            len -= delta;
-            SMALL_MEMCPY(to, from, delta);
-        }
-
-        if (len & ~(MMREG_SIZE - 1)) {
-            vector_u8_t perm, ref0, ref1, tmp;
-
-            perm = vec_lvsl(0, from);
-            ref0 = vec_ld(0, from);
-            ref1 = vec_ld(15, from);
-            from += 16;
-            len -= 16;
-            tmp = vec_perm(ref0, ref1, perm);
-            while (len & ~(MMREG_SIZE - 1)) {
-                ref0 = vec_ld(0, from);
-                ref1 = vec_ld(15, from);
-                from += 16;
-                len -= 16;
-                vec_st(tmp, 0, to);
-                tmp = vec_perm(ref0, ref1, perm);
-                to += 16;
-            }
-            vec_st(tmp, 0, to);
-            to += 16;
-        }
-    }
-
-    if (len) {
-        SMALL_MEMCPY(to, from, len);
-    }
-
-    return retval;
+void init_miss(){	
+__syscalls.gettod_r = new_xenon_gettimeofday;
 }
-
-#endif
-

@@ -74,7 +74,11 @@ typedef uint8_t boolean;
 #if defined (__LINUX__) || defined (__MACOSX__)
 #define strnicmp strncasecmp
 #endif
+#ifndef _XBOX
 #define __inline inline
+#else
+#define inline __inline
+#endif
 
 // Enables NLS/internationalization if active
 #ifdef ENABLE_NLS

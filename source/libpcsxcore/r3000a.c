@@ -50,21 +50,22 @@ int psxInit() {
 
 void psxReset() {
 	psxCpu->Reset();
-
+	printf("Reset\n");
 	psxMemReset();
-
+	printf("psxMemReset\n");
 	memset(&psxRegs, 0, sizeof(psxRegs));
-
 	psxRegs.pc = 0xbfc00000; // Start in bootstrap
-
 	psxRegs.CP0.r[12] = 0x10900000; // COP0 enabled | BEV = 1 | TS = 1
 	psxRegs.CP0.r[15] = 0x00000002; // PRevID = Revision ID, same as R3000A
-
+	printf("psxHwReset\n");
 	psxHwReset();
 	psxBiosInit();
-
-	if (!Config.HLE)
+	printf("psxBiosInit\n");
+	if (!Config.HLE){
+		printf("psxExecuteBios\n");
 		psxExecuteBios();
+		printf("psxExecuteBios Ok\n");
+	}
 
 #ifdef EMU_LOG
 	EMU_LOG("*BIOS END*\n");
@@ -263,5 +264,7 @@ void psxJumpTest() {
 
 void psxExecuteBios() {
 	while (psxRegs.pc != 0x80030000)
+	{
 		psxCpu->ExecuteBlock();
+	}
 }

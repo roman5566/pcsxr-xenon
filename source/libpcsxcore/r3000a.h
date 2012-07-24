@@ -47,9 +47,9 @@ extern R3000Acpu psxRec;
 
 typedef union {
 #if defined(__BIGENDIAN__)
-	struct { u8 h3, h2, h, l; } b;
-	struct { s8 h3, h2, h, l; } sb;
+	struct { u8 h3, h2, h, l; } b;	
 	struct { u16 h, l; } w;
+	struct { s8 h3, h2, h, l; } sb;
 	struct { s16 h, l; } sw;
 #else
 	struct { u8 l, h, h2, h3; } b;

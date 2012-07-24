@@ -1575,9 +1575,8 @@ void cdrInterrupt() {
 			cdr.Stat = Complete;
 			break;
 	}
-
+	
 	Check_Shell( Irq );
-
 	if (cdr.Stat != NoIntr && cdr.Reg2 != 0x18) {
 		psxHu32ref(0x1070) |= SWAP32((u32)0x4);
 	}
@@ -1630,7 +1629,7 @@ void cdrReadInterrupt() {
 
 
 #ifdef CDR_LOG
-	fprintf(emuLog, "cdrReadInterrupt() Log: cdr.Transfer %x:%x:%x\n", cdr.Transfer[0], cdr.Transfer[1], cdr.Transfer[2]);
+	CDR_LOG("cdrReadInterrupt() Log: cdr.Transfer %x:%x:%x\n", cdr.Transfer[0], cdr.Transfer[1], cdr.Transfer[2]);
 #endif
 
 	if ((!cdr.Muted) && (cdr.Mode & MODE_STRSND) && (!Config.Xa) && (cdr.FirstSector != -1)) { // CD-XA

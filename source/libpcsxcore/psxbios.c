@@ -259,6 +259,7 @@ static u32 card_active_chan = 0;
 boolean hleSoftCall = FALSE;
 
 static inline void softCall(u32 pc) {
+	//if(1){PSXBIOS_LOG("softCall %08x\n", pc);}
 	pc0 = pc;
 	ra = 0x80001000;
 
@@ -269,11 +270,11 @@ static inline void softCall(u32 pc) {
 	hleSoftCall = FALSE;
 }
 
-static inline void softCall2(u32 pc) {
-	u32 sra = ra;
+static inline void softCall2(u32 pc) {	u32 sra = ra;
+	//if(1){PSXBIOS_LOG("softCall2 %08x\n", pc);}
+	
 	pc0 = pc;
 	ra = 0x80001000;
-
 	hleSoftCall = TRUE;
 
 	while (pc0 != 0x80001000) psxCpu->ExecuteBlock();
@@ -283,6 +284,7 @@ static inline void softCall2(u32 pc) {
 }
 
 static inline void DeliverEvent(u32 ev, u32 spec) {
+//	PSXBIOS_LOG("DeliverEvent %08x %08x\n", ev, spec);
 	if (Event[ev][spec].status != EvStACTIVE) return;
 
 //	Event[ev][spec].status = EvStALREADY;
@@ -2724,7 +2726,6 @@ void biosInterrupt() {
 
 void psxBiosException() {
 	int i;
-
 	switch (psxRegs.CP0.n.Cause & 0x3c) {
 		case 0x00: // Interrupt
 #ifdef PSXCPU_LOG
@@ -2733,13 +2734,11 @@ void psxBiosException() {
 			SaveRegs();
 
 			sp = psxMu32(0x6c80); // create new stack for interrupt handlers
-
 			biosInterrupt();
 
 			for (i = 0; i < 8; i++) {
 				if (SysIntRP[i]) {
 					u32 *queue = (u32 *)PSXM(SysIntRP[i]);
-
 					s0 = SWAP32(queue[2]);
 					softCall(SWAP32(queue[1]));
 				}
@@ -2790,7 +2789,7 @@ v0=1;	// HDHOSHY experimental patch: Spongebob, Coldblood, fearEffect, Medievil2
 #endif
 			break;
 	}
-
+	
 	pc0 = psxRegs.CP0.n.EPC;
 	if (psxRegs.CP0.n.Cause & 0x80000000) pc0+=4;
 
