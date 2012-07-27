@@ -413,7 +413,7 @@ extern "C" {
 
 #define SPU_PEOPS_PLUGIN \
 	{ "/SPU",      \
-	  19,         \
+	  18,         \
 	  { { "SPUinit",  \
 	      PEOPS_SPUinit }, \
 	    { "SPUshutdown",	\
@@ -448,8 +448,6 @@ extern "C" {
 	      PEOPS_SPUregisterCallback}, \
 	    { "SPUregisterCDDAVolume", \
 	      PEOPS_SPUregisterCDDAVolume}, \
-            { "SPUplayCDDAchannel", \
-	      PEOPS_SPUplayCDDAchannel}, \
 	    { "SPUasync", \
 	      PEOPS_SPUasync} \
 	       } }

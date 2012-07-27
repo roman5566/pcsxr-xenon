@@ -26,6 +26,8 @@
 #include "gte.h"
 #include "psxhle.h"
 
+#define Read_ICache(x,y) (u32 *)PSXM(x)
+
 static int branch = 0;
 static int branch2 = 0;
 static u32 branchPC;
@@ -504,25 +506,36 @@ void psxSLTU()     { if (!_Rd_) return; _rRd_ = _u32(_rRs_) < _u32(_rRt_); }    
 * Format:  OP rs, rt                                     *
 *********************************************************/
 void psxDIV() {
-    if (_i32(_rRt_) != 0) {
-        _i32(_rLo_) = _i32(_rRs_) / _i32(_rRt_);
-        _i32(_rHi_) = _i32(_rRs_) % _i32(_rRt_);
+	const s32 Rt = _i32(_rRt_);
+    const s32 Rs = _i32(_rRs_);
+
+    if( Rt == 0 )
+    {
+            _i32(_rHi_) = Rs;
+            _i32(_rLo_) = (Rs >= 0) ? -1 : 1;
+            return;
     }
-    else {
-        _i32(_rLo_) = 0xffffffff;
-        _i32(_rHi_) = _i32(_rRs_);
+    if( Rs == 0x80000000 && Rt == 0xffffffff )
+    {
+            _i32(_rHi_) = 0;
+            _i32(_rLo_) = Rs;
+            return;
     }
+
+    _i32(_rHi_) = Rs % Rt;
+    _i32(_rLo_) = Rs / Rt;
 }
 
 void psxDIVU() {
-    if (_rRt_ != 0) {
-        _rLo_ = _rRs_ / _rRt_;
-        _rHi_ = _rRs_ % _rRt_;
+    if( _rRt_ == 0 )
+    {
+            _rHi_ = _rRs_;
+            _rLo_ = 0xffffffff;
+            return;
     }
-    else {
-        _rLo_ = 0xffffffff;
-        _rHi_ = _rRs_;
-    }
+
+    _rHi_ = _rRs_ % _rRt_;
+    _rLo_ = _rRs_ / _rRt_;
 }
 
 void psxMULT() {
@@ -562,12 +575,23 @@ void psxSRA() { if (!_Rd_) return; _i32(_rRd_) = _i32(_rRt_) >> _Sa_; } // Rd = 
 void psxSRL() { if (!_Rd_) return; _u32(_rRd_) = _u32(_rRt_) >> _Sa_; } // Rd = Rt >> sa (logical)
 
 /*********************************************************
+
 * Shift arithmetic with variant register shift           *
+
 * Format:  OP rd, rt, rs                                 *
+
 *********************************************************/
-void psxSLLV() { if (!_Rd_) return; _u32(_rRd_) = _u32(_rRt_) << _u32(_rRs_); } // Rd = Rt << rs
-void psxSRAV() { if (!_Rd_) return; _i32(_rRd_) = _i32(_rRt_) >> _u32(_rRs_); } // Rd = Rt >> rs (arithmetic)
-void psxSRLV() { if (!_Rd_) return; _u32(_rRd_) = _u32(_rRt_) >> _u32(_rRs_); } // Rd = Rt >> rs (logical)
+
+__inline u32 Shamt() {
+	int shamt = (_u32(_rRs_) & 0x1f);
+	if(shamt >= 0 && shamt < 32) return shamt;
+	return 0;
+}
+
+void psxSLLV() { if (!_Rd_) return; _u32(_rRd_)  =  _u32(_rRt_)  << Shamt(); } // Rd = Rt << rs
+void psxSRAV() { if (!_Rd_) return; _i32(_rRd_)  =  _i32(_rRt_)  >> Shamt(); } // Rd = Rt >> rs (arithmetic)
+void psxSRLV() { if (!_Rd_) return; _u32(_rRd_)  =  _u32(_rRt_)  >> Shamt(); } // Rd = Rt >> rs (logical)
+
 
 /*********************************************************
 * Load higher 16 bits of the first word in GPR with imm  *
@@ -645,8 +669,7 @@ void psxJALR() {
 *********************************************************/
 
 #define _oB_ (_u32(_rRs_) + _Imm_)
-
-void psxLB() {
+inline void psxLB() {
     // load delay = 1 latency
     if( branch == 0 )
     {
@@ -666,7 +689,7 @@ void psxLB() {
     }
 }
 
-void psxLBU() {
+inline void psxLBU() {
     // load delay = 1 latency
     if( branch == 0 )
     {
@@ -686,7 +709,7 @@ void psxLBU() {
     }
 }
 
-void psxLH() {
+inline void psxLH() {
     // load delay = 1 latency
     if( branch == 0 )
     {
@@ -706,7 +729,7 @@ void psxLH() {
     }
 }
 
-void psxLHU() {
+inline void psxLHU() {
     // load delay = 1 latency
     if( branch == 0 )
     {
@@ -726,7 +749,7 @@ void psxLHU() {
     }
 }
 
-void psxLW() {
+inline void psxLW() {
     // load delay = 1 latency
     if( branch == 0 )
     {
@@ -749,7 +772,7 @@ void psxLW() {
 u32 LWL_MASK[4] = { 0xffffff, 0xffff, 0xff, 0 };
 u32 LWL_SHIFT[4] = { 24, 16, 8, 0 };
 
-void psxLWL() {
+inline void psxLWL() {
     u32 addr = _oB_;
     u32 shift = addr & 3;
     u32 mem = psxMemRead32(addr & ~3);
@@ -783,7 +806,7 @@ void psxLWL() {
 u32 LWR_MASK[4] = { 0, 0xff000000, 0xffff0000, 0xffffff00 };
 u32 LWR_SHIFT[4] = { 0, 8, 16, 24 };
 
-void psxLWR() {
+inline void psxLWR() {
     u32 addr = _oB_;
     u32 shift = addr & 3;
     u32 mem = psxMemRead32(addr & ~3);
@@ -823,7 +846,7 @@ void psxSW() { psxMemWrite32(_oB_, _u32(_rRt_)); }
 u32 SWL_MASK[4] = { 0xffffff00, 0xffff0000, 0xff000000, 0 };
 u32 SWL_SHIFT[4] = { 24, 16, 8, 0 };
 
-void psxSWL() {
+inline void psxSWL() {
     u32 addr = _oB_;
     u32 shift = addr & 3;
     u32 mem = psxMemRead32(addr & ~3);
@@ -843,7 +866,7 @@ void psxSWL() {
 u32 SWR_MASK[4] = { 0, 0xff, 0xffff, 0xffffff };
 u32 SWR_SHIFT[4] = { 0, 8, 16, 24 };
 
-void psxSWR() {
+inline void psxSWR() {
     u32 addr = _oB_;
     u32 shift = addr & 3;
     u32 mem = psxMemRead32(addr & ~3);
@@ -914,12 +937,11 @@ static __inline void MTC0(int reg, u32 val) {
 //    SysPrintf("MTC0 %d: %x\n", reg, val);
     switch (reg) {
         case 12: // Status
-            psxRegs.CP0.r[12] = val;
             psxTestSWInts();
             break;
 
         case 13: // Cause
-            psxRegs.CP0.n.Cause = val & ~(0xfc00);
+            val &= ~(0xfc00);
             psxTestSWInts();
             break;
 
@@ -927,44 +949,11 @@ static __inline void MTC0(int reg, u32 val) {
             psxRegs.CP0.r[reg] = val;
             break;
     }
+	psxRegs.CP0.r[reg] = val;
 }
 
 void psxMTC0() { MTC0(_Rd_, _u32(_rRt_)); }
 void psxCTC0() { MTC0(_Rd_, _u32(_rRt_)); }
-
-
-
-void psxMFC2()
-{
-    // load delay = 1 latency
-    if( branch == 0 )
-    {
-        // simulate: beq r0,r0,lw+4 / lw / (delay slot)
-        psxRegs.pc -= 4;
-        doBranch( psxRegs.pc + 4 );
-
-        return;
-    }
-
-    gteMFC2();
-}
-
-
-void psxCFC2()
-{
-    // load delay = 1 latency
-    if( branch == 0 )
-    {
-        // simulate: beq r0,r0,lw+4 / lw / (delay slot)
-        psxRegs.pc -= 4;
-        doBranch( psxRegs.pc + 4 );
-
-        return;
-    }
-
-    gteCFC2();
-}
-
 
 /*********************************************************
 * Unknow instruction (would generate an exception)       *
@@ -1053,7 +1042,7 @@ void (*psxCP2[64])() = {
 };
 
 void (*psxCP2BSC[32])() = {
-    psxMFC2, psxNULL, psxCFC2, psxNULL, gteMTC2, psxNULL, gteCTC2, psxNULL,
+    gteMFC2, psxNULL, gteCFC2, psxNULL, gteMTC2, psxNULL, gteCTC2, psxNULL,
     psxNULL, psxNULL, psxNULL, psxNULL, psxNULL, psxNULL, psxNULL, psxNULL,
     psxNULL, psxNULL, psxNULL, psxNULL, psxNULL, psxNULL, psxNULL, psxNULL,
     psxNULL, psxNULL, psxNULL, psxNULL, psxNULL, psxNULL, psxNULL, psxNULL
@@ -1071,8 +1060,9 @@ static void intReset() {
 }
 
 static void intExecute() {
-    for (;;) 
+    do {
         execI();
+	} while(1);
 }
 
 static void intExecuteBlock() {

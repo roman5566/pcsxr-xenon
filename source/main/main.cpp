@@ -263,13 +263,13 @@ int main() {
 	strcpy(Config.PatchesDir, "sda0:/devkit/pcsxr/patches_/");
 
 	Config.PsxAuto = 1; // autodetect system
-	Config.Cpu = CPU_DYNAREC;
-	//Config.Cpu =  CPU_INTERPRETER;
+	//Config.Cpu = CPU_DYNAREC;
+	Config.Cpu =  CPU_INTERPRETER;
 
 	strcpy(Config.Mcd1, "sda0:/devkit/pcsxr/memcards/card1.mcd");
 	strcpy(Config.Mcd2, "sda0:/devkit/pcsxr/memcards/card2.mcd");
 
-	useSoftGpu();
+	//useSoftGpu();
 	/*
 		strcpy(Config.Mcd1, "sda:/hdd1/xenon/memcards/card1.mcd");
 		strcpy(Config.Mcd2, "sda:/hdd1/xenon/memcards/card2.mcd");

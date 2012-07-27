@@ -27,6 +27,7 @@
 #include "gpu.h"
 #include "gte.h"
 
+#define Read_ICache(x,y) (u32 *)PSXM(x)
 R3000Acpu *psxCpu = NULL;
 psxRegisters psxRegs;
 
@@ -82,7 +83,7 @@ void psxShutdown() {
 
 void psxException(u32 code, u32 bd) {
 	// Set the Cause
-	psxRegs.CP0.n.Cause = code;
+	psxRegs.CP0.n.Cause = (psxRegs.CP0.n.Cause & 0x300) | code;
 
 	// Set the EPC & PC
 	if (bd) {
@@ -108,45 +109,6 @@ void psxException(u32 code, u32 bd) {
 }
 
 void psxBranchTest() {
-	// GameShark Sampler: Give VSync pin some delay before exception eats it
-	if (psxHu32(0x1070) & psxHu32(0x1074)) {
-		if ((psxRegs.CP0.n.Status & 0x401) == 0x401) {
-			u32 opcode;
-
-			// Crash Bandicoot 2: Don't run exceptions when GTE in pipeline
-			opcode = SWAP32(*Read_ICache(psxRegs.pc, TRUE));
-			if( ((opcode >> 24) & 0xfe) != 0x4a ) {
-#ifdef PSXCPU_LOG
-				PSXCPU_LOG("Interrupt: %x %x\n", psxHu32(0x1070), psxHu32(0x1074));
-#endif
-				psxException(0x400, 0);
-			}
-		}
-	}
-
-#if 0
-	if( SPU_async )
-	{
-		static int init;
-		int elapsed;
-
-		if( init == 0 ) {
-			// 10 apu cycles
-			// - Final Fantasy Tactics (distorted - dropped sound effects)
-			psxRegs.intCycle[PSXINT_SPUASYNC].cycle = PSXCLK / 44100 * 10;
-
-			init = 1;
-		}
-
-		elapsed = psxRegs.cycle - psxRegs.intCycle[PSXINT_SPUASYNC].sCycle;
-		if (elapsed >= psxRegs.intCycle[PSXINT_SPUASYNC].cycle) {
-			SPU_async( elapsed );
-
-			psxRegs.intCycle[PSXINT_SPUASYNC].sCycle = psxRegs.cycle;
-		}
-	}
-#endif
-
 	if ((psxRegs.cycle - psxNextsCounter) >= psxNextCounter)
 		psxRcntUpdate();
 
@@ -214,19 +176,28 @@ void psxBranchTest() {
 				cdrPlayInterrupt();
 			}
 		}
-
+		/*
 		if (psxRegs.interrupt & (1 << PSXINT_CDRDBUF)) { // cdr decoded buffer
 			if ((psxRegs.cycle - psxRegs.intCycle[PSXINT_CDRDBUF].sCycle) >= psxRegs.intCycle[PSXINT_CDRDBUF].cycle) {
 				psxRegs.interrupt &= ~(1 << PSXINT_CDRDBUF);
 				cdrDecodedBufferInterrupt();
 			}
 		}
-
+		*/
 		if (psxRegs.interrupt & (1 << PSXINT_CDRLID)) { // cdr lid states
 			if ((psxRegs.cycle - psxRegs.intCycle[PSXINT_CDRLID].sCycle) >= psxRegs.intCycle[PSXINT_CDRLID].cycle) {
 				psxRegs.interrupt &= ~(1 << PSXINT_CDRLID);
 				cdrLidSeekInterrupt();
 			}
+		}
+	}
+
+	if (psxHu32(0x1070) & psxHu32(0x1074)) {
+		if ((psxRegs.CP0.n.Status & 0x401) == 0x401) {
+#ifdef PSXCPU_LOG
+			PSXCPU_LOG("Interrupt: %x %x\n", psxHu32(0x1070), psxHu32(0x1074));
+#endif
+			psxException(0x400, 0);
 		}
 	}
 }
