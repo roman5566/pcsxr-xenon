@@ -117,7 +117,7 @@ static void bup(int pad, int bit) {
 int SDL_JoystickGetButton(struct controller_data_s *joystick, int button) {
     switch (button) {
         case XBPAD_SELECT:
-            return joystick->select;
+            return joystick->back;
         case XBPAD_START:
             return joystick->start;
         case XBPAD_LT:
