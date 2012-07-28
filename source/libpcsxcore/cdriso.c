@@ -28,7 +28,6 @@
 #include <windows.h>
 #elif defined(LIBXENON)
 #include <xenon_soc/xenon_power.h>
-#include <pthread.h>
 #include <sys/time.h>
 #include <unistd.h>
 #else

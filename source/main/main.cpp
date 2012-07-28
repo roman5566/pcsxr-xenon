@@ -137,7 +137,7 @@ extern PluginTable plugins[];
 
 //#define cdfile "uda:/pcsxr/iso/medievil2.img.Z"
 
-#define cdfile "sda0:/devkit/pcsxr/ff9.bin"
+#define cdfile "sda0:/devkit/pcsxr/tekken3.bin"
 
 
 //#define cdfile "uda:/pcsxr/iso/sfa.bin"
@@ -263,6 +263,7 @@ int main() {
 	strcpy(Config.PatchesDir, "sda0:/devkit/pcsxr/patches_/");
 
 	Config.PsxAuto = 1; // autodetect system
+	
 	//Config.Cpu = CPU_DYNAREC;
 	Config.Cpu =  CPU_INTERPRETER;
 
