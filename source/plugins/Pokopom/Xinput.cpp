@@ -72,7 +72,7 @@ void Controller::poll() {
     analogL = analogR = 0x7F7F;
 
     static int lastAnalogSwitch = 0;
-    if (state.select && state.start) {
+    if (state.back && state.start) {
         if (mftb() - lastAnalogSwitch > 1000) {
 
             lastAnalogSwitch = mftb();
@@ -87,7 +87,7 @@ void Controller::poll() {
         if(old[settings.xinputPort].logo){
             reset_time++;
             if(reset_time>50){
-                if (state.select){
+                if (state.back){
                     exit(0);//return to xell
                 }else{
                     reset_time = 0;
@@ -105,7 +105,7 @@ void Controller::poll() {
     //if(result == ERROR_SUCCESS)
     if (1) {
         buttons = 0;
-        buttons |= (state.select ? 0 : 1) << 0x0; // Select
+        buttons |= (state.back ? 0 : 1) << 0x0; // Select
         buttons |= (state.s1_z ? 0 : 1) << 0x1; // L3
         buttons |= (state.s2_z ? 0 : 1) << 0x2; // R3
         buttons |= (state.start ? 0 : 1) << 0x3; // Start

@@ -32,6 +32,8 @@
         <terminal-type>0</terminal-type>
         <remove-instrumentation>0</remove-instrumentation>
         <environment>
+          <variable name="DEVKITXENON" value="/usr/local/xenon"/>
+          <variable name="PATH" value="$PATH:$DEVKITXENON/bin:$DEVKITXENON/usr/bin"/>
         </environment>
       </runprofile>
     </conf>

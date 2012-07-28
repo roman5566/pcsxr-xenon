@@ -52,7 +52,7 @@ void PSxInputReadPort(PadDataS* pad, int port) {
         if(old[port].logo){
             reset_time++;
             if(reset_time>50){
-                if (g.PadState[port].JoyDev.select){
+                if (g.PadState[port].JoyDev.back){
                         exit(0);//return to xell
                 }else{
                         enableCapture();
@@ -84,7 +84,7 @@ void PSxInputReadPort(PadDataS* pad, int port) {
         pad_status &= PSX_BUTTON_DRIGHT;
     if (g.PadState[port].JoyDev.start)
         pad_status &= PSX_BUTTON_START;
-    if (g.PadState[port].JoyDev.select)
+    if (g.PadState[port].JoyDev.back)
         pad_status &= PSX_BUTTON_SELECT;
     if (g.PadState[port].JoyDev.rb)
         pad_status &= PSX_BUTTON_R1;

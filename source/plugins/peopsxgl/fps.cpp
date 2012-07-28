@@ -25,7 +25,7 @@
 //*************************************************************************// 
 
 #include "stdafx.h"
-
+#include <ppc/timebase.h>
 #define _IN_FPS
 
 #include "externals.h"
@@ -54,14 +54,11 @@ namespace xegpu {
 using namespace xegpu;
 
 #define TIMEBASE 100000
-#ifndef WIN32
 
 unsigned long timeGetTime() {
-    struct timeval tv;
-    gettimeofday(&tv, 0); // well, maybe there are better ways
-    return tv.tv_sec * 100000 + tv.tv_usec / 10; // to do that in linux, but at least it works
+	return mftb()/(PPC_TIMEBASE_FREQ/100000);
 }
-#endif
+
 
 void FrameCap(void) {
     static unsigned long curticks, lastticks, _ticks_since_last_update;

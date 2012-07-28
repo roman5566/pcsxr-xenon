@@ -1,5 +1,24 @@
 #ifndef USE_GUI
 
+#include <xenos/xenos.h>
+#include <xenos/xe.h>
+#include <xenon_sound/sound.h>
+#include <diskio/ata.h>
+#include <ppc/cache.h>
+#include <ppc/timebase.h>
+#include <pci/io.h>
+#include <input/input.h>
+#include <xenon_smc/xenon_smc.h>
+#include <console/console.h>
+#include <xenon_soc/xenon_power.h>
+#include <usb/usbmain.h>
+#include <ppc/timebase.h>
+#include <sys/iosupport.h>
+
+
+#define BP {printf("[Breakpoint] in function %s, line %d, file %s\n",__FUNCTION__,__LINE__,__FILE__);getch();}
+#define TR {printf("[Trace] in function %s, line %d, file %s\n",__FUNCTION__,__LINE__,__FILE__);}
+
 #include "config.h"
 #include "r3000a.h"
 #include "psxcommon.h"
@@ -14,6 +33,9 @@
 #include <fcntl.h>
 //#include "libwiigui/gui.h"
 #include <libfat/fat.h>
+
+#include <libntfs/ntfs.h>
+#include <libxtaf/xtaf.h>
 
 #include "gamecube_plugins.h"
 
@@ -113,12 +135,26 @@ extern PluginTable plugins[];
 #define cdfile "uda:/pcsxr/iso/Final Fantasy IX (France) (Disc 1).bin"
 //#define cdfile "uda:/pcsxr/iso/Crash Bandicoot 3.bin"
 
-#define cdfile "uda:/pcsxr/iso/medievil2.img.Z"
+//#define cdfile "uda:/pcsxr/iso/medievil2.img.Z"
 
-//#define cdfile "uda:/pcsxr/iso/ff9_patched.bin"
+#define cdfile "sda0:/devkit/pcsxr/tekken3.bin"
+
+
+//#define cdfile "uda:/pcsxr/iso/sfa.bin"
+
+//#define cdfile "uda:/pcsxr/iso/toshiden2.img"
 
 void printConfigInfo() {
 
+}
+
+static void findDevices() {
+	for (int i = 3; i < STD_MAX; i++) {
+		if (devoptab_list[i]->structSize) {
+			//strcpy(device_list[device_list_size],devoptab_list[i]->name);
+			printf("%s:/", devoptab_list[i]->name);
+		}
+	}
 }
 
 void buffer_dump(uint8_t * buf, int size) {
@@ -160,6 +196,10 @@ extern "C" {
 	void useHwGpu();
 }
 
+
+extern "C" DISC_INTERFACE usb2mass_ops;
+
+extern "C" void init_miss();
 int main() {
 
 	xenos_init(VIDEO_MODE_HDMI_720P);
@@ -173,7 +213,21 @@ int main() {
 	xenon_ata_init();
 	xenon_atapi_init();
 
-	fatInitDefault();
+	// fatInitDefault();
+	ntfs_md *mounts;
+	ntfsMountAll (&mounts, NTFS_READ_ONLY);
+	
+	
+	XTAFMount();
+	
+	findDevices();
+	
+	init_miss();
+	
+	time_t rawtime;
+	time ( &rawtime );
+	printf ( "The current local time is: %s", ctime (&rawtime) );
+	
 	/*
 
 	 */
@@ -202,24 +256,19 @@ int main() {
 	strcpy(Config.Pad1, "PAD1");
 	strcpy(Config.Pad2, "PAD2");
 
-	//strcpy(Config.Bios, "SCPH1001.BIN"); // Use actual BIOS
+	strcpy(Config.Bios, "SCPH1001.BIN"); // Use actual BIOS
+	//strcpy(Config.Bios, "scph7502.bin"); // Use actual BIOS
 	//strcpy(Config.Bios, "HLE"); // Use HLE
-	strcpy(Config.BiosDir, "uda:/pcsxr/bios");
-	strcpy(Config.PatchesDir, "uda:/pcsxr/patches_/");
+	strcpy(Config.BiosDir, "sda0:/devkit/pcsxr/bios");
+	strcpy(Config.PatchesDir, "sda0:/devkit/pcsxr/patches_/");
 
-	strcpy(Config.Bios, "scph7502.bin");
-	Config.PsxOut = 0; // Enable Console Output
-	Config.SpuIrq = 0; // Spu Irq Always Enabled
-	//Config.HLE = 0;
-	Config.Xa = 0; // Disable Xa Decoding
-	Config.Cdda = 0; // Disable Cd audio
 	Config.PsxAuto = 1; // autodetect system
-	//Config.PsxType = PSX_TYPE_NTSC;
-	//Config.Cpu = CPU_DYNAREC;
+	
+	Config.Cpu = CPU_DYNAREC;
 	//Config.Cpu =  CPU_INTERPRETER;
 
-	strcpy(Config.Mcd1, "uda:/pcsxr/memcards/card1.mcd");
-	strcpy(Config.Mcd2, "uda:/pcsxr/memcards/card2.mcd");
+	strcpy(Config.Mcd1, "sda0:/devkit/pcsxr/memcards/card1.mcd");
+	strcpy(Config.Mcd2, "sda0:/devkit/pcsxr/memcards/card2.mcd");
 
 	//useSoftGpu();
 	/*

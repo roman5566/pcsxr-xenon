@@ -413,7 +413,7 @@ extern "C" {
 
 #define SPU_PEOPS_PLUGIN \
 	{ "/SPU",      \
-	  19,         \
+	  18,         \
 	  { { "SPUinit",  \
 	      PEOPS_SPUinit }, \
 	    { "SPUshutdown",	\
@@ -448,8 +448,6 @@ extern "C" {
 	      PEOPS_SPUregisterCallback}, \
 	    { "SPUregisterCDDAVolume", \
 	      PEOPS_SPUregisterCDDAVolume}, \
-            { "SPUplayCDDAchannel", \
-	      PEOPS_SPUplayCDDAchannel}, \
 	    { "SPUasync", \
 	      PEOPS_SPUasync} \
 	       } }
@@ -729,9 +727,9 @@ extern "C" {
     //#include "spu_import.h"
 
 #define PLUGIN_SLOT_0 EMPTY_PLUGIN
-//#define PLUGIN_SLOT_1 DF_PAD1_PLUGIN
-    #define PLUGIN_SLOT_2 DF_PAD2_PLUGIN
-#define PLUGIN_SLOT_1 POKOMON_PAD1_PLUGIN
+#define PLUGIN_SLOT_1 DF_PAD1_PLUGIN
+#define PLUGIN_SLOT_2 DF_PAD2_PLUGIN
+//#define PLUGIN_SLOT_1 POKOMON_PAD1_PLUGIN
 //#define PLUGIN_SLOT_2 POKOMON_PAD2_PLUGIN
 #define PLUGIN_SLOT_3 EMPTY_PLUGIN
     //#define PLUGIN_SLOT_3 EMPTY_PLUGIN

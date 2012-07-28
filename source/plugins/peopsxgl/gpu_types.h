@@ -1,6 +1,6 @@
 #pragma once
 
-#ifndef WIN32
+#ifdef LIBXENON
 #include <xenos/xe.h>
 #define FMT_A8R8G8B8 (XE_FMT_8888|XE_FMT_ARGB)
 #define PACKED __attribute__((__packed__))
@@ -10,7 +10,6 @@ typedef struct XenosSurface GpuTex;
 typedef struct XenosShader GpuPS;
 typedef struct XenosShader GpuVS;
 #else
-#include <unistd.h>
 #include <d3dx9.h>
 #define PACKED
 typedef IDirect3DVertexBuffer9 GpuVB;
@@ -19,11 +18,12 @@ typedef IDirect3DTexture9 GpuTex;
 typedef IDirect3DPixelShader9 GpuPS;
 typedef IDirect3DVertexShader9 GpuVS;
 #define FMT_A8R8G8B8 (D3DFMT_A8R8G8B8)
+typedef unsigned char u8;
 #endif
 
 
 // xe enum to directx enum
-#ifdef WIN32
+#ifndef LIBXENON
 
 #define XE_CLEAR_DS	D3DCLEAR_STENCIL
 #define XE_CLEAR_COLOR D3DCLEAR_TARGET
