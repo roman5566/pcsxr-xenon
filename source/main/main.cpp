@@ -264,8 +264,8 @@ int main() {
 
 	Config.PsxAuto = 1; // autodetect system
 	
-	//Config.Cpu = CPU_DYNAREC;
-	Config.Cpu =  CPU_INTERPRETER;
+	Config.Cpu = CPU_DYNAREC;
+	//Config.Cpu =  CPU_INTERPRETER;
 
 	strcpy(Config.Mcd1, "sda0:/devkit/pcsxr/memcards/card1.mcd");
 	strcpy(Config.Mcd2, "sda0:/devkit/pcsxr/memcards/card2.mcd");

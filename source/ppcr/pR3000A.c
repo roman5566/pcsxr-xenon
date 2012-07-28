@@ -716,21 +716,7 @@ static void SetBranch() {
         return;
     }
 
-    switch( psxRegs.code >> 26 ) {
-        // Lode Runner (jr - beq)
-
-        // bltz - bgez - bltzal - bgezal / beq - bne - blez - bgtz
-        case 0x01:
-        case 0x04:
-        case 0x05:
-        case 0x06:
-        case 0x07:
-            break;
-
-        default:
-            recBSC[psxRegs.code>>26]();
-            break;
-    }
+	recBSC[psxRegs.code>>26]();
 
     iFlushRegs(0);
     treg = GetHWRegSpecial(TARGET);
@@ -746,10 +732,7 @@ static void SetBranch() {
 static void iJump(u32 branchPC) {
     u32 *b1, *b2;
     branch = 1;
-    psxRegs.code = PSXMu32(pc);
-    //psxRegs.code = Read_ICache(pc, TRUE);
-    
-    pc += 4;
+    psxRegs.code = PSXMu32(pc);    
 
     if (iLoadTest() == 1) {
         iFlushRegs(0);
@@ -771,6 +754,8 @@ static void iJump(u32 branchPC) {
         return;
     }
 
+	pc += 4;
+	
     recBSC[psxRegs.code >> 26]();
 
     iFlushRegs(branchPC);
@@ -784,28 +769,8 @@ static void iJump(u32 branchPC) {
     count = ((pc - pcold) / 4) * BIAS;
     ADDI(PutHWRegSpecial(CYCLECOUNT), GetHWRegSpecial(CYCLECOUNT), count);
 
-#if 1    
     // always return for now...
     Return();
-#else
-    // maybe just happened an interruption, check so
-    LIW(0, branchPC);
-    CMPLW(GetHWRegSpecial(PSXPC), 0);
-    BNE_L(b1);
-
-    LIW(3, PC_REC(branchPC));
-    LWZ(3, 0, 3);
-    CMPLWI(3, 0);
-    BNE_L(b2);
-
-    B_DST(b1);
-    Return();
-
-    // next bit is already compiled - jump right to it
-    B_DST(b2);
-    MTCTR(3);
-    BCTR();
-#endif
 }
 
 static void iBranch(u32 branchPC, int savectx) {
@@ -822,7 +787,6 @@ static void iBranch(u32 branchPC, int savectx) {
 
     branch = 1;
     psxRegs.code = PSXMu32(pc);
-    //psxRegs.code = Read_ICache(pc, TRUE);
 
     // the delay test is only made when the branch is taken
     // savectx == 0 will mean that :)
@@ -850,43 +814,17 @@ static void iBranch(u32 branchPC, int savectx) {
     iFlushRegs(branchPC);
     LIW(PutHWRegSpecial(PSXPC), branchPC);
     FlushAllHWReg();
-#if 0
-    /* store cycle */
-    count = ((pc - pcold) / 4) * BIAS;
-    ADDI(PutHWRegSpecial(CYCLECOUNT), GetHWRegSpecial(CYCLECOUNT), count);
-    if (resp) 
-        ADDI(PutHWRegSpecial(CYCLECOUNT), GetHWRegSpecial(CYCLECOUNT), resp);
-    FlushAllHWReg();
-#endif
+
     CALLFunc((u32) psxBranchTest);
-#if 1
+
     /* store cycle */
     //FlushAllHWReg();
     count = ((pc - pcold) / 4) * BIAS;
     ADDI(PutHWRegSpecial(CYCLECOUNT), GetHWRegSpecial(CYCLECOUNT), count);
-#endif
-    // always return for now...
-#if 1
-    Return();
-#else
-    FlushAllHWReg();
-    
-    LIW(0, branchPC);
-    CMPLW(GetHWRegSpecial(PSXPC), 0);
-    BNE_L(b1);
 
-    LIW(3, PC_REC(branchPC));
-    LWZ(3, 0, 3);
-    CMPLWI(3, 0);
-    BNE_L(b2);
-
-    B_DST(b1);
+	// always return for now...
     Return();
 
-    B_DST(b2);
-    MTCTR(3);
-    BCTR();
-#endif
     pc -= 4;
     if (savectx) {
         memcpy(iRegs, iRegsS, sizeof (iRegs));
@@ -932,8 +870,6 @@ static void rec##f() { \
 	LIW(PutHWRegSpecial(PSXPC), (u32)pc); \
 	FlushAllHWReg(); \
 	CALLFunc((u32)psx##f); \
-       /* resp+=8; */ \
-/*	branch = 2; */\
 }
 
 #define REC_FUNC(f) \
@@ -945,7 +881,6 @@ static void rec##f() { \
 	LIW(PutHWRegSpecial(PSXPC), (u32)pc); \
 	FlushAllHWReg(); \
 	CALLFunc((u32)psx##f); \
-/*	branch = 2; */\
 }
 
 #define REC_SYS(f) \
@@ -1581,7 +1516,7 @@ static void preMemWrite(int size) {
 
 static void recLB() {
     // Rt = mem[Rs + Im] (signed)
-#if 0
+#if 1
     if (IsConst(_Rs_)) {
         u32 addr = iRegs[_Rs_].k + _Imm_;
         int t = addr >> 16;
@@ -1603,7 +1538,7 @@ static void recLB() {
         if (t == 0x1f80 && addr < 0x1f801000) {
             if (!_Rt_) return;
 
-            LIW(PutHWReg32(_Rt_), (u32) & psxH[addr & 0xfff]);
+            LIW(PutHWReg32(_Rt_), (u32) & psxH[addr & 0xffff]);
             LBZ(PutHWReg32(_Rt_), 0, GetHWReg32(_Rt_));
             EXTSB(PutHWReg32(_Rt_), GetHWReg32(_Rt_));
             return;
@@ -1621,7 +1556,7 @@ static void recLB() {
 
 static void recLBU() {
     // Rt = mem[Rs + Im] (unsigned)
-#if 0
+#if 1
     if (IsConst(_Rs_)) {
         u32 addr = iRegs[_Rs_].k + _Imm_;
         int t = addr >> 16;
@@ -1642,7 +1577,7 @@ static void recLBU() {
         if (t == 0x1f80 && addr < 0x1f801000) {
             if (!_Rt_) return;
 
-            LIW(PutHWReg32(_Rt_), (u32) & psxH[addr & 0xfff]);
+            LIW(PutHWReg32(_Rt_), (u32) & psxH[addr & 0xffff]);
             LBZ(PutHWReg32(_Rt_), 0, GetHWReg32(_Rt_));
             return;
         }
@@ -1660,7 +1595,7 @@ static void recLBU() {
 
 static void recLH() {
     // Rt = mem[Rs + Im] (signed)
-#if 0
+#if 1
     if (IsConst(_Rs_)) {
         u32 addr = iRegs[_Rs_].k + _Imm_;
         int t = addr >> 16;
@@ -1682,7 +1617,7 @@ static void recLH() {
         if (t == 0x1f80 && addr < 0x1f801000) {
             if (!_Rt_) return;
 
-            LIW(PutHWReg32(_Rt_), (u32) & psxH[addr & 0xfff]);
+            LIW(PutHWReg32(_Rt_), (u32) & psxH[addr & 0xffff]);
             LHBRX(PutHWReg32(_Rt_), 0, GetHWReg32(_Rt_));
             EXTSH(PutHWReg32(_Rt_), GetHWReg32(_Rt_));
             return;
@@ -1700,7 +1635,7 @@ static void recLH() {
 
 static void recLHU() {
     // Rt = mem[Rs + Im] (unsigned)
-#if 0
+#if 1
     if (IsConst(_Rs_)) {
         u32 addr = iRegs[_Rs_].k + _Imm_;
         int t = addr >> 16;
@@ -1721,7 +1656,7 @@ static void recLHU() {
         if (t == 0x1f80 && addr < 0x1f801000) {
             if (!_Rt_) return;
 
-            LIW(PutHWReg32(_Rt_), (u32) & psxH[addr & 0xfff]);
+            LIW(PutHWReg32(_Rt_), (u32) & psxH[addr & 0xffff]);
             LHBRX(PutHWReg32(_Rt_), 0, GetHWReg32(_Rt_));
             return;
         }
@@ -1741,6 +1676,19 @@ static void recLHU() {
                 return;
             }
             switch (addr) {
+				case 0x1f801060: 
+				case 0x1f801070:
+				case 0x1f801074:
+					if (!_Rt_) return;
+					
+					// return psxHu32(addr & 0xfff);
+					
+					LIW(PutHWReg32(_Rt_), (u32) & psxH[addr & 0xffff]);
+					LHBRX(PutHWReg32(_Rt_), 0, GetHWReg32(_Rt_));
+					
+					break;
+				
+				
                 case 0x1f801100: case 0x1f801110: case 0x1f801120:
                     if (!_Rt_) return;
 
@@ -1794,7 +1742,7 @@ static void recLHU() {
         PutHWReg32(_Rt_);
     }
 }
-#if 0
+#if 1
 static void recLW() {
     // Rt = mem[Rs + Im] (unsigned)
 

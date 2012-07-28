@@ -1436,6 +1436,33 @@
             <in>pokoMain.cpp</in>
             <in>resource.h</in>
           </df>
+          <df name="SPU">
+            <in>PEOPSspu.c</in>
+            <in>adsr.c</in>
+            <in>adsr.h</in>
+            <in>cube_audio.cpp</in>
+            <in>cube_audio.h</in>
+            <in>dma.c</in>
+            <in>dma.h</in>
+            <in>externals.c</in>
+            <in>externals.h</in>
+            <in>freeze.c</in>
+            <in>gauss_i.h</in>
+            <in>psemu.c</in>
+            <in>psemuxa.h</in>
+            <in>registers.c</in>
+            <in>registers.h</in>
+            <in>regs.h</in>
+            <in>resource.h</in>
+            <in>reverb.c</in>
+            <in>reverb.h</in>
+            <in>spu.h</in>
+            <in>spucfg.c</in>
+            <in>spucfg.h</in>
+            <in>stdafx.h</in>
+            <in>xa.c</in>
+            <in>xa.h</in>
+          </df>
           <df name="xenon_audio">
             <in>adsr.h</in>
             <in>cfg.h</in>
@@ -1466,24 +1493,12 @@
             <in>WINRES.H</in>
             <in>a_adsr.cpp</in>
             <in>a_cfg.cpp</in>
-            <in>a_cfg.h</in>
-            <in>a_debug.h</in>
             <in>a_dma.cpp</in>
-            <in>a_dma.h</in>
-            <in>a_externals.h</in>
             <in>a_freeze.cpp</in>
-            <in>a_freeze.h</in>
-            <in>a_gauss_i.h</in>
-            <in>a_oss.h</in>
             <in>a_psemu.cpp</in>
-            <in>a_psemuxa.h</in>
-            <in>a_record.h</in>
             <in>a_registers.cpp</in>
-            <in>a_registers.h</in>
-            <in>a_resource.h</in>
             <in>a_reverb.cpp</in>
             <in>a_spu.cpp</in>
-            <in>a_stdafx.h</in>
             <in>a_xa.cpp</in>
             <in>a_zn.cpp</in>
             <in>adsr.h</in>

@@ -28,7 +28,7 @@
 
 #define Read_ICache(x,y) (u32 *)PSXM(x)
 
-#define TEST_LOAD_DELAY
+//#define TEST_LOAD_DELAY
 
 static int branch = 0;
 static int branch2 = 0;
